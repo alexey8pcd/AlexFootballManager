@@ -3,6 +3,6 @@ package rusfootballmanager.simulation;
 /**
 @author Alexey
 */
-class SkillsSet {
+public class League {
 
 }

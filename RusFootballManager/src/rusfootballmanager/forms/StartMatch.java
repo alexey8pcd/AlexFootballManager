@@ -2,13 +2,13 @@ package rusfootballmanager.forms;
 
 import java.util.Random;
 import javax.swing.AbstractListModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import rusfootballmanager.simulation.MatchResult;
-import rusfootballmanager.simulation.Player;
-import rusfootballmanager.simulation.PositionOnField;
+import rusfootballmanager.simulation.match.MatchResult;
+import rusfootballmanager.entities.Player;
+import rusfootballmanager.entities.Position;
+import rusfootballmanager.entities.PositionType;
 import rusfootballmanager.simulation.Simulator;
-import rusfootballmanager.simulation.Team;
+import rusfootballmanager.entities.Team;
 
 /**
  * @author Алексей
@@ -72,84 +72,6 @@ public class StartMatch extends javax.swing.JFrame {
 
     public StartMatch() {
         initComponents();
-        homeTeam = new Team("Хозяева");
-        guestTeam = new Team("Гости");
-        int age = 20;
-        int avgHome = 75;
-        int avgGuest = 75;
-        Player gk = new Player(PositionOnField.GOALKEEPER, avgHome, age,
-                names[random.nextInt(names.length)],
-                lastNames[random.nextInt(lastNames.length)]);
-        homeTeam.addPlayer(gk);
-        homeTeam.setGoalkeeper(gk);
-        for (int i = 0; i < 4; i++) {
-            homeTeam.addPlayer(new Player(PositionOnField.DEFENDER, avgHome, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-            homeTeam.addPlayer(new Player(PositionOnField.MIDFIELDER, avgHome, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-            if (i < 2) {
-                homeTeam.addPlayer(new Player(PositionOnField.FORWARD, avgHome, age,
-                        names[random.nextInt(names.length)],
-                        lastNames[random.nextInt(lastNames.length)]));
-            }
-        }
-        for (int i = 0; i < 7; i++) {
-            homeTeam.addPlayer(new Player(
-                    PositionOnField.values()[random.nextInt(4)], avgHome, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-        }
-        Player gkGostTeam = new Player(PositionOnField.GOALKEEPER, avgGuest, age,
-                names[random.nextInt(names.length)],
-                lastNames[random.nextInt(lastNames.length)]);
-        guestTeam.addPlayer(gkGostTeam);
-        guestTeam.setGoalkeeper(gkGostTeam);
-        for (int i = 0; i < 4; i++) {
-            guestTeam.addPlayer(new Player(PositionOnField.DEFENDER, avgGuest, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-            guestTeam.addPlayer(new Player(PositionOnField.MIDFIELDER, avgGuest, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-            if (i < 2) {
-                guestTeam.addPlayer(new Player(PositionOnField.FORWARD, avgGuest, age,
-                        names[random.nextInt(names.length)],
-                        lastNames[random.nextInt(lastNames.length)]));
-            }
-        }
-        for (int i = 0; i < 7; i++) {
-            guestTeam.addPlayer(new Player(
-                    PositionOnField.values()[random.nextInt(4)], avgGuest, age,
-                    names[random.nextInt(names.length)],
-                    lastNames[random.nextInt(lastNames.length)]));
-        }
-        listHomeTeamPlayers.setModel(new AbstractListModel<String>() {
-
-            @Override
-            public int getSize() {
-                return homeTeam.getStartPlayers().size();
-            }
-
-            @Override
-            public String getElementAt(int index) {
-                return homeTeam.getStartPlayers().get(index).nameWithPositionAndAverage();
-            }
-        });
-        listGuestTeamPlayers.setModel(new AbstractListModel<String>() {
-
-            @Override
-            public int getSize() {
-                return guestTeam.getStartPlayers().size();
-            }
-
-            @Override
-            public String getElementAt(int index) {
-                return guestTeam.getStartPlayers().get(index).nameWithPositionAndAverage();
-            }
-        });
-
     }
 
     @SuppressWarnings("unchecked")

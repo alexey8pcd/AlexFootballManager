@@ -1,4 +1,6 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
+
+import rusfootballmanager.Common;
 
 public enum TalentType {
 

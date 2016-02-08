@@ -1,43 +1,52 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
+
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import rusfootballmanager.Common;
+import rusfootballmanager.PlayerBuilder;
+import rusfootballmanager.simulation.PlayerfProgressParams;
 
 /**
  * @author Alexey
  */
-public class Player extends Sportsman {
+public class Player implements Comparable<Player> {
 
+    private static final int SECONDARY_DEFAULT_VALUE = 20;
+    private static final int SECONDARY_DEFAULT_DISPERSE_VALUE = 10;
+    private static final int PRIMARY_DEFAULT_DISPERSE_VALUE = 15;
     private double fatigue;
     private int experiense;
     private final int age;
     private final String name;
     private final String lastName;
     private StatusOfPlayer statusOfPlayer;
-    private Injure injure;
+    private InjureType injure;
     private TalentType talentType;
     private int mood;
-    private PrefferedPosition preferredPosition;
-    private PrefferedPosition currentPosition;
+    private final PositionType preferredPosition;
+    private PositionType currentPosition;
     private int yellowCardsCount;
     private int redCardsCount;
+    private final EnumMap<Characteristic, Integer> chars;
     private static final String SEPARATOR_SPACE = " ";
 
-    public Player(PositionOnField positionOnField,
-            PrefferedPosition preferredPosition, int average, int age,
+    public Player(PositionType preferredPosition, int average, int age,
             String name, String lastName) {
-        super(average, positionOnField);
         this.age = age;
         this.preferredPosition = preferredPosition;
+        chars = new EnumMap<>(Characteristic.class);
+        for (Characteristic ch : PlayerBuilder.getSecondaryChars(preferredPosition)) {
+            chars.put(ch, Common.getRandomValue(
+                    SECONDARY_DEFAULT_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
+        }
+        for (Characteristic ch : PlayerBuilder.getPrimaryChars(preferredPosition)) {
+            chars.put(ch, Common.getRandomValue(
+                    average, PRIMARY_DEFAULT_DISPERSE_VALUE));
+        }
         this.name = name;
         this.lastName = lastName;
         this.statusOfPlayer = StatusOfPlayer.READY;
-        this.talentType = TalentType.getByProbability();
-    }
-
-    public Player(PositionOnField positionOnField, int average, int age,
-            String name, String lastName) {
-        super(average, positionOnField);
-        this.age = age;
-        this.name = name;
-        this.lastName = lastName;
         this.talentType = TalentType.getByProbability();
     }
 
@@ -53,11 +62,11 @@ public class Player extends Sportsman {
         return experiense;
     }
 
-    public PrefferedPosition getCurrentPosition() {
+    public PositionType getCurrentPosition() {
         return currentPosition;
     }
 
-    public void setCurrentPosition(PrefferedPosition currentPosition) {
+    public void setCurrentPosition(PositionType currentPosition) {
         this.currentPosition = currentPosition;
     }
 
@@ -77,7 +86,7 @@ public class Player extends Sportsman {
         return statusOfPlayer;
     }
 
-    public Injure getInjure() {
+    public InjureType getInjure() {
         return injure;
     }
 
@@ -85,7 +94,7 @@ public class Player extends Sportsman {
         return mood;
     }
 
-    public PrefferedPosition getPreferredPosition() {
+    public PositionType getPreferredPosition() {
         return preferredPosition;
     }
 
@@ -97,17 +106,13 @@ public class Player extends Sportsman {
         return redCardsCount;
     }
 
-    public PositionOnField getPositionOnField() {
-        return positionOnField;
-    }
-
     public void addYellowCard() {
         if (yellowCardsCount++ % 4 == 3) {
             statusOfPlayer = StatusOfPlayer.DISQUALIFIED;
         }
     }
 
-    public void setInjured(Injure injure) {
+    public void setInjured(InjureType injure) {
         this.injure = injure;
         this.statusOfPlayer = StatusOfPlayer.INJURED;
     }
@@ -124,6 +129,10 @@ public class Player extends Sportsman {
         return statusOfPlayer == StatusOfPlayer.INJURED;
     }
 
+    public void addExperience(double baseValue) {
+        experiense += baseValue * PlayerfProgressParams.EXPERIENCE_GAINED_BY_AGE[age];
+    }
+
     public void addRedCard() {
         statusOfPlayer = StatusOfPlayer.DISQUALIFIED;
         ++redCardsCount;
@@ -133,7 +142,7 @@ public class Player extends Sportsman {
         return fatigue;
     }
 
-    public int getStamina() {
+    public int getStrengthReserve() {
         return 100 - (int) fatigue;
     }
 
@@ -142,7 +151,22 @@ public class Player extends Sportsman {
     }
 
     public int getAverage() {
-        return 0;
+        float sum = 0;
+        EnumSet<Characteristic> primaryChars
+                = PlayerBuilder.getPrimaryChars(currentPosition);
+        for (Characteristic ch : primaryChars) {
+            sum += chars.get(ch);
+        }
+        sum /= primaryChars.size();
+        return Math.round(sum);
+    }
+
+    public void setCharacteristic(Characteristic characteristic, int value) {
+        chars.put(characteristic, value);
+    }
+
+    public int getCharacteristic(Characteristic characteristic) {
+        return chars.get(characteristic);
     }
 
     public String shortName() {
@@ -150,8 +174,8 @@ public class Player extends Sportsman {
     }
 
     public String nameWithPosition() {
-        String position = preferredPosition == null
-                ? positionOnField.getAbreviation()
+        String position = currentPosition != null
+                ? currentPosition.getPositionOnField().getAbreviation()
                 : preferredPosition.getAbreviation();
         return name.substring(0, 1) + ". " + lastName + SEPARATOR_SPACE
                 + position;
@@ -164,7 +188,22 @@ public class Player extends Sportsman {
     @Override
     public String toString() {
         return name + SEPARATOR_SPACE + lastName + SEPARATOR_SPACE
-                + getAverage() + " [" + getStamina() + "]";
+                + getAverage() + " [" + getStrengthReserve() + "]";
+    }
+
+    @Override
+    public int compareTo(Player other) {
+        if (this == other) {
+            return 0;
+        }
+        if (other == null) {
+            return 1;
+        }
+        int sum = 0;
+        for (Characteristic c : Characteristic.values()) {
+            sum += Math.abs(chars.get(c) - other.chars.get(c));
+        }
+        return Integer.compare(sum, 0);
     }
 
 }

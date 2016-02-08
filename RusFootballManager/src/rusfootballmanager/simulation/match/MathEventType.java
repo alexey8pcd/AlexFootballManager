@@ -1,4 +1,4 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.simulation.match;
 
 public enum MathEventType {
 

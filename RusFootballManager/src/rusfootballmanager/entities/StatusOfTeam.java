@@ -1,4 +1,4 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
 
 public enum StatusOfTeam {
 

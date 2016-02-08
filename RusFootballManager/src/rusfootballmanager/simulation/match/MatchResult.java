@@ -1,8 +1,10 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.simulation.match;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import rusfootballmanager.entities.Team;
+import rusfootballmanager.simulation.match.MatchEvent;
 
 /**
  * @author Alexey

@@ -1,5 +1,6 @@
 package rusfootballmanager.simulation;
 
+import rusfootballmanager.entities.TalentType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

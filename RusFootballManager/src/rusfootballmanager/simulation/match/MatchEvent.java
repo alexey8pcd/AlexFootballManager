@@ -1,4 +1,7 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.simulation.match;
+
+import rusfootballmanager.entities.Team;
+import rusfootballmanager.entities.Player;
 
 /**
  * @author Alexey

@@ -1,9 +1,9 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
 
 /**
  * @author Alexey
  */
-public enum Injure {
+public enum InjureType {
 
     FRACTURE_OF_LEG(28 * 6, "Перелом ноги", 3),
     KNEE_INJURI(84, "Травма колена", 5),
@@ -19,7 +19,7 @@ public enum Injure {
     private final String description;
     private final int chance;
 
-    private Injure(int daysRestoration, String description, int chance) {
+    private InjureType(int daysRestoration, String description, int chance) {
         this.daysRestoration = daysRestoration;
         this.description = description;
         this.chance = chance;
@@ -33,10 +33,10 @@ public enum Injure {
         return description;
     }
 
-    public static Injure getInjure(int chanceValue) {
+    public static InjureType getInjure(int chanceValue) {
         int sum = 0;
-        Injure[] values = Injure.values();
-        for (Injure value : values) {
+        InjureType[] values = InjureType.values();
+        for (InjureType value : values) {
             sum += value.chance;
             if (chanceValue < sum) {
                 return value;

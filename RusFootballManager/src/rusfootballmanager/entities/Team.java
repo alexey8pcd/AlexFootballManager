@@ -1,7 +1,6 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -43,7 +42,7 @@ public class Team {
 
     public String getName() {
         return name;
-    }    
+    }
 
     public void setGoalkeeper(Player player) {
         if (startPlayers.contains(player)) {
@@ -84,25 +83,25 @@ public class Team {
     }
 
     public List<Player> getForwards() {
-        return getPlayers(PositionOnField.FORWARD);
+        return getPlayers(Position.FORWARD);
     }
 
     public List<Player> getMidfielders() {
-        return getPlayers(PositionOnField.MIDFIELDER);
+        return getPlayers(Position.MIDFIELDER);
     }
 
     public List<Player> getDefenders() {
-        return getPlayers(PositionOnField.DEFENDER);
+        return getPlayers(Position.DEFENDER);
     }
 
     public Player getGoalkeeper() {
         return goalkeeper;
     }
 
-    private List<Player> getPlayers(PositionOnField position) {
+    private List<Player> getPlayers(Position position) {
         List<Player> players = new ArrayList<>();
         for (Player player : startPlayers) {
-            if (player.getPositionOnField() == position) {
+            if (player.getCurrentPosition().getPositionOnField() == position) {
                 players.add(player);
             }
         }

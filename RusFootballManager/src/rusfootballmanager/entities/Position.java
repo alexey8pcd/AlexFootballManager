@@ -1,10 +1,10 @@
-package rusfootballmanager.simulation;
+package rusfootballmanager.entities;
 
 
 /**
  * @author Alexey
  */
-public enum PositionOnField {
+public enum Position {
 
     FORWARD(0.6, "НАП"),
     MIDFIELDER(0.9, "ПЗЩ"),
@@ -14,7 +14,7 @@ public enum PositionOnField {
     private final double fatigueCoefficient;
     private final String abreviation;
 
-    private PositionOnField(double fatigueCoefficient, String abreviation) {
+    private Position(double fatigueCoefficient, String abreviation) {
         this.fatigueCoefficient = fatigueCoefficient;
         this.abreviation = abreviation;
     }
