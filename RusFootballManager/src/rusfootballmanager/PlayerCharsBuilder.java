@@ -8,7 +8,7 @@ import static rusfootballmanager.entities.Characteristic.*;
 /**
  * @author Alexey
  */
-public class PlayerBuilder {
+public class PlayerCharsBuilder {
 
     private static final EnumSet<Characteristic> OF_PRIMARY = EnumSet.of(
             SHOT_ACCURACY, SHOT_POWER, SPEED, ACCELERATION, DRIBBLING, BALL_CONTROL, INTELLIGENCE, REACTION);

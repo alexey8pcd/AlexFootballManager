@@ -108,6 +108,22 @@ public class Team {
         return players;
     }
 
+    public List<Player> getAllPlayers() {
+        ArrayList<Player> players = new ArrayList<>(startPlayers);
+        players.addAll(substitutes);
+        players.addAll(reserve);
+        return players;
+    }
+
+    public int getAverage() {
+        float sum = 0;
+        List<Player> allPlayers = getAllPlayers();
+        for (Player player : allPlayers) {
+            sum += player.getAverage();
+        }
+        return Math.round(sum / allPlayers.size());
+    }
+
     public int getTeamwork() {
         return teamwork;
     }

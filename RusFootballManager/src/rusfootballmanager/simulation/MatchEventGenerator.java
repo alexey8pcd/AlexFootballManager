@@ -67,14 +67,14 @@ public class MatchEventGenerator {
         }
 
         @Override
-        public int compareTo(PlayerWithCard o) {
-            if (this == o) {
+        public int compareTo(PlayerWithCard another) {
+            if (this == another) {
                 return 0;
             }
-            if (o == null) {
+            if (another == null) {
                 return 1;
             }
-            return this.player.compareTo(o.player);
+            return this.player.compareTo(another.player);
         }
 
     }
@@ -88,26 +88,30 @@ public class MatchEventGenerator {
     private boolean hasGoals;
     private int[] minutesForGoal;
     private int minuteForGoalIndex;
+    private final double experienceCoeff;
 
-    public MatchEventGenerator(Team team, int scoredGoals) {
+    public MatchEventGenerator(Team team, int scoredGoals, int difference) {
         this.team = team;
+        this.experienceCoeff
+                = Math.max(0, 1 - EXPERIENCE_DIFFERENCE_MULTIPLIER * difference);
         this.hasGoals = scoredGoals > 0;
         this.scoredGoals = scoredGoals;
         this.events = new ArrayList<>();
         startPlayers = new ArrayList<>();
         reservePlayers = new ArrayList<>();
-        init(team, scoredGoals);
+        init(team);
     }
+    private static final double EXPERIENCE_DIFFERENCE_MULTIPLIER = 0.02;
 
-    private void init(Team teamForInit, int scoredGoals1) {
+    private void init(Team teamForInit) {
         for (Player player : teamForInit.getStartPlayers()) {
             startPlayers.add(new PlayerWithCard(player));
         }
         for (Player player : teamForInit.getSubstitutes()) {
             reservePlayers.add(new PlayerWithCard(player));
         }
-        minutesForGoal = new int[scoredGoals1];
-        for (int i = 0; i < scoredGoals1; i++) {
+        minutesForGoal = new int[scoredGoals];
+        for (int i = 0; i < scoredGoals; i++) {
             minutesForGoal[i] = Common.RANDOM.nextInt(MINUTES_PER_MATCH) + 1;
         }
         Arrays.sort(minutesForGoal);
@@ -129,9 +133,8 @@ public class MatchEventGenerator {
     private List<MatchEvent> createEvents(int minute) {
         for (PlayerWithCard playerWithCard : startPlayers) {
             Player player = playerWithCard.player;
-            player.addFatifue(Common.RANDOM.nextDouble()
-                    * player.getCurrentPosition().
-                    getPositionOnField().getFatigueCoefficient());
+            player.addFatifue(Common.RANDOM.nextDouble());
+            player.addExperience(DEFAULT_EXPERIENCE_VALUE * experienceCoeff);
         }
         int chance = Common.RANDOM.nextInt(THOUSAND);
         if (chance < YELLOW_CARD_CHANCE) {
@@ -246,7 +249,7 @@ public class MatchEventGenerator {
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
                 PlayerWithCard reserveGoalkeeper = null;
                 for (PlayerWithCard reservePlayer : reservePlayers) {
-                    if (reservePlayer.player.getCurrentPosition().getPositionOnField()
+                    if (reservePlayer.player.getCurrentPositionOnField()
                             == Position.GOALKEEPER) {
                         reserveGoalkeeper = reservePlayer;
                         break;

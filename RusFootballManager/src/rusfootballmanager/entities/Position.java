@@ -3,6 +3,7 @@ package rusfootballmanager.entities;
 
 /**
  * @author Alexey
+ * Амплуа игрока: вратарь, защитник, полузащитник, нападающий
  */
 public enum Position {
 

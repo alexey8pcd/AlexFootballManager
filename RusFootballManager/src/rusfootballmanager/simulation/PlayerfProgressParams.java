@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public class PlayerfProgressParams {
 
+    public static final int MIN_AGE = 16;
     public static final Map<Integer, List<Integer>> CONSTANTS;
     public static final double[] EXPERIENCE_GAINED_BY_AGE = {
         0.105, 0.093, 0.083, 0.075, 0.068, 0.061, 0.056, 0.051, 0.047, 0.043, 0.040,

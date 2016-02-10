@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import rusfootballmanager.Common;
-import rusfootballmanager.PlayerBuilder;
+import rusfootballmanager.PlayerCharsBuilder;
 import rusfootballmanager.simulation.PlayerfProgressParams;
 
 /**
@@ -36,11 +36,11 @@ public class Player implements Comparable<Player> {
         this.age = age;
         this.preferredPosition = preferredPosition;
         chars = new EnumMap<>(Characteristic.class);
-        for (Characteristic ch : PlayerBuilder.getSecondaryChars(preferredPosition)) {
+        for (Characteristic ch : PlayerCharsBuilder.getSecondaryChars(preferredPosition)) {
             chars.put(ch, Common.getRandomValue(
                     SECONDARY_DEFAULT_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
         }
-        for (Characteristic ch : PlayerBuilder.getPrimaryChars(preferredPosition)) {
+        for (Characteristic ch : PlayerCharsBuilder.getPrimaryChars(preferredPosition)) {
             chars.put(ch, Common.getRandomValue(
                     average, PRIMARY_DEFAULT_DISPERSE_VALUE));
         }
@@ -130,7 +130,35 @@ public class Player implements Comparable<Player> {
     }
 
     public void addExperience(double baseValue) {
-        experiense += baseValue * PlayerfProgressParams.EXPERIENCE_GAINED_BY_AGE[age];
+        int ageIndex = age - PlayerfProgressParams.MIN_AGE;
+        double multiplier = 1;
+        if (currentPosition != preferredPosition) {
+            multiplier = 0.66;
+        }
+        experiense += baseValue * multiplier
+                * PlayerfProgressParams.EXPERIENCE_GAINED_BY_AGE[ageIndex];
+        if (experiense > 100) {
+            experiense = 0;
+            int chanceIncreaseChar = Common.RANDOM.nextInt(100);
+            Object[] primaryChars = PlayerCharsBuilder.
+                    getPrimaryChars(preferredPosition).toArray();
+            if (chanceIncreaseChar < 25) {
+                increaseOneCharacteristic(primaryChars);
+            } else if (chanceIncreaseChar < 50) {
+                for (int i = 0; i < 2; i++) {
+                    increaseOneCharacteristic(primaryChars);
+                }
+            }
+        }
+    }
+
+    private void increaseOneCharacteristic(Object[] primaryChars) {
+        int randomValue = Common.RANDOM.nextInt(primaryChars.length);
+        Characteristic toIncrease = (Characteristic) primaryChars[randomValue];
+        Integer oldValue = this.chars.get(toIncrease);
+        if (oldValue < 99) {
+            chars.replace(toIncrease, oldValue + 1);
+        }
     }
 
     public void addRedCard() {
@@ -147,13 +175,14 @@ public class Player implements Comparable<Player> {
     }
 
     public void addFatifue(double value) {
-        this.fatigue += value;
+        this.fatigue += value * currentPosition.
+                getPositionOnField().getFatigueCoefficient();
     }
 
     public int getAverage() {
         float sum = 0;
         EnumSet<Characteristic> primaryChars
-                = PlayerBuilder.getPrimaryChars(currentPosition);
+                = PlayerCharsBuilder.getPrimaryChars(currentPosition);
         for (Characteristic ch : primaryChars) {
             sum += chars.get(ch);
         }
@@ -183,6 +212,10 @@ public class Player implements Comparable<Player> {
 
     public String nameWithPositionAndAverage() {
         return nameWithPosition() + " " + getAverage();
+    }
+
+    public Position getCurrentPositionOnField() {
+        return currentPosition.getPositionOnField();
     }
 
     @Override
