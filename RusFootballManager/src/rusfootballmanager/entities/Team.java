@@ -2,23 +2,35 @@ package rusfootballmanager.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import rusfootballmanager.XMLParseable;
 
 /**
  * @author Alexey
  */
-public class Team {
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Team implements XMLParseable, Comparable<Team> {
 
     private Player goalkeeper;
     private int teamwork;
-    private final String name;
-    private final List<Player> startPlayers;
-    private final List<Player> substitutes;
-    private final List<Player> reserve;
-    private int mood;
+    private String name;
+    private List<Player> startPlayers;
+    private List<Player> substitutes;
+    private List<Player> reserve;
+
+    @XmlTransient
     private GameStrategy gameStrategy;
-    public static final int MAX_PLAYERS = 33;
+    public static final int MAX_PLAYERS_COUNT = 33;
     public static final int START_PLAYERS_COUNT = 11;
     public static final int SUBSTITUTES_COUNT = 7;
+
+    public Team() {
+    }
 
     public Team(String name) {
         this.name = name;
@@ -29,7 +41,7 @@ public class Team {
     }
 
     public void addPlayer(Player player) {
-        if (getPlayersCount() < MAX_PLAYERS) {
+        if (getPlayersCount() < MAX_PLAYERS_COUNT) {
             if (startPlayers.size() < START_PLAYERS_COUNT) {
                 startPlayers.add(player);
             } else if (substitutes.size() < SUBSTITUTES_COUNT) {
@@ -70,10 +82,6 @@ public class Team {
         this.teamwork = teamwork;
     }
 
-    public void setMood(int mood) {
-        this.mood = mood;
-    }
-
     public GameStrategy getGameStrategy() {
         return gameStrategy;
     }
@@ -83,22 +91,22 @@ public class Team {
     }
 
     public List<Player> getForwards() {
-        return getPlayers(Position.FORWARD);
+        return getPlayers(GlobalPosition.FORWARD);
     }
 
     public List<Player> getMidfielders() {
-        return getPlayers(Position.MIDFIELDER);
+        return getPlayers(GlobalPosition.MIDFIELDER);
     }
 
     public List<Player> getDefenders() {
-        return getPlayers(Position.DEFENDER);
+        return getPlayers(GlobalPosition.DEFENDER);
     }
 
     public Player getGoalkeeper() {
         return goalkeeper;
     }
 
-    private List<Player> getPlayers(Position position) {
+    private List<Player> getPlayers(GlobalPosition position) {
         List<Player> players = new ArrayList<>();
         for (Player player : startPlayers) {
             if (player.getCurrentPosition().getPositionOnField() == position) {
@@ -133,7 +141,12 @@ public class Team {
     }
 
     public int getMood() {
-        return mood;
+        List<Player> players = getAllPlayers();
+        float mood = 0;
+        for (Player player : players) {
+            mood += player.getMood();
+        }
+        return Math.round(mood);
     }
 
     public int getFatigue() {
@@ -142,6 +155,27 @@ public class Team {
             fatigue += player.getFatigue();
         }
         return fatigue /= startPlayers.size();
+    }
+
+    @Override
+    public Element toXmlElement(Document document) {
+        throw new UnsupportedOperationException("Этот метод еще не реализован");
+    }
+
+    @Override
+    public int compareTo(Team other) {
+        if (other == this) {
+            return 0;
+        }
+        if (other == null) {
+            return 1;
+        }
+        return Integer.compare(getAverage(), other.getAverage());
+    }
+
+    @Override
+    public String toXmlString(Document document) {
+        throw new UnsupportedOperationException("Этот метод еще не реализован");
     }
 
 }

@@ -5,7 +5,7 @@ package rusfootballmanager.entities;
  * @author Alexey
  * Амплуа игрока: вратарь, защитник, полузащитник, нападающий
  */
-public enum Position {
+public enum GlobalPosition {
 
     FORWARD(0.6, "НАП"),
     MIDFIELDER(0.9, "ПЗЩ"),
@@ -15,7 +15,7 @@ public enum Position {
     private final double fatigueCoefficient;
     private final String abreviation;
 
-    private Position(double fatigueCoefficient, String abreviation) {
+    private GlobalPosition(double fatigueCoefficient, String abreviation) {
         this.fatigueCoefficient = fatigueCoefficient;
         this.abreviation = abreviation;
     }

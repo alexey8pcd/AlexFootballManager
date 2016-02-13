@@ -2,7 +2,7 @@ package rusfootballmanager;
 
 import java.util.EnumSet;
 import rusfootballmanager.entities.Characteristic;
-import rusfootballmanager.entities.PositionType;
+import rusfootballmanager.entities.LocalPosition;
 import static rusfootballmanager.entities.Characteristic.*;
 
 /**
@@ -36,7 +36,7 @@ public class PlayerCharsBuilder {
     private static final EnumSet<Characteristic> WD_SECONDARY = EnumSet.complementOf(WD_PRIMARY);
     private static final EnumSet<Characteristic> GK_SECONDARY = EnumSet.complementOf(GK_PRIMARY);
 
-    public static EnumSet<Characteristic> getPrimaryChars(PositionType positionType) {
+    public static EnumSet<Characteristic> getPrimaryChars(LocalPosition positionType) {
         switch (positionType) {
             case GOALKEEPER:
                 return GK_PRIMARY;
@@ -60,7 +60,7 @@ public class PlayerCharsBuilder {
         }
     }
 
-    public static EnumSet<Characteristic> getSecondaryChars(PositionType positionType) {
+    public static EnumSet<Characteristic> getSecondaryChars(LocalPosition positionType) {
         switch (positionType) {
             case GOALKEEPER:
                 return GK_SECONDARY;

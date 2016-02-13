@@ -1,11 +1,11 @@
-package rusfootballmanager;
+package rusfootballmanager.common;
 
 import java.util.Random;
 
 /**
  * @author Alexey
  */
-public class Common {
+public class Constants {
 
     public static final Random RANDOM = new Random();
 

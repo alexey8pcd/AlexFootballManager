@@ -5,8 +5,8 @@ import javax.swing.AbstractListModel;
 import javax.swing.JOptionPane;
 import rusfootballmanager.simulation.match.MatchResult;
 import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.Position;
-import rusfootballmanager.entities.PositionType;
+import rusfootballmanager.entities.GlobalPosition;
+import rusfootballmanager.entities.LocalPosition;
 import rusfootballmanager.simulation.Simulator;
 import rusfootballmanager.entities.Team;
 
@@ -66,7 +66,6 @@ public class StartMatch extends javax.swing.JFrame {
         "Ильин"
     };
 
-    private Random random = new Random();
     private Team homeTeam;
     private Team guestTeam;
 

@@ -1,6 +1,6 @@
 package rusfootballmanager.simulation;
 
-import rusfootballmanager.Common;
+import rusfootballmanager.common.Constants;
 import rusfootballmanager.entities.Team;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.StatusOfTeam;
@@ -78,7 +78,7 @@ public class Calculator {
     }
 
     private static double getGaussianTranslated() {
-        return Common.RANDOM.nextGaussian() - GAUSSIAN_RANDOM_CENTER;
+        return Constants.RANDOM.nextGaussian() - GAUSSIAN_RANDOM_CENTER;
     }
 
     private static double calculateAttackResultTeam(Team team) {
