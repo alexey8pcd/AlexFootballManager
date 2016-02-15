@@ -33,6 +33,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     private int mood;
     private int yellowCardsCount;
     private int redCardsCount;
+    private int number;
 
     private StatusOfPlayer statusOfPlayer;
     private InjureType injure;
@@ -72,6 +73,14 @@ public class Player implements Comparable<Player>, XMLParseable {
 
     public LocalPosition getCurrentPosition() {
         return currentPosition;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     public void setCurrentPosition(LocalPosition currentPosition) {
@@ -256,14 +265,15 @@ public class Player implements Comparable<Player>, XMLParseable {
         player.setAttribute("talent-type", talentType.name());
 
         addChildElement(player, document, "age", age);
-        addChildElement(player, document, "age", this.currentPosition);
-        addChildElement(player, document, "age", this.experiense);
-        addChildElement(player, document, "age", this.fatigue);
-        addChildElement(player, document, "age", this.injure);
-        addChildElement(player, document, "age", this.yellowCardsCount);
-        addChildElement(player, document, "age", this.redCardsCount);
-        addChildElement(player, document, "age", this.mood);
-        addChildElement(player, document, "age", this.statusOfPlayer);
+        addChildElement(player, document, "current-position", currentPosition);
+        addChildElement(player, document, "experiense", experiense);
+        addChildElement(player, document, "fatigue", fatigue);
+        addChildElement(player, document, "injure", injure);
+        addChildElement(player, document, "yellow-cards-count", yellowCardsCount);
+        addChildElement(player, document, "red-cards-count", redCardsCount);
+        addChildElement(player, document, "mood", mood);
+        addChildElement(player, document, "status", statusOfPlayer);
+        addChildElement(player, document, "number", number);
         Element charsElement = document.createElement("characteristics");
         player.appendChild(charsElement);
         for (Map.Entry<Characteristic, Integer> entry : chars.entrySet()) {
@@ -279,7 +289,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     private void addChildElement(Element player, Document document,
             String elementName, Object value) {
         Element element = document.createElement(elementName);
-        element.setTextContent(value.toString());
+        element.setTextContent(String.valueOf(value));
         player.appendChild(element);
     }
 
@@ -288,7 +298,7 @@ public class Player implements Comparable<Player>, XMLParseable {
         Element toXmlElement = toXmlElement(document);
         String result = "";
         try {
-            result = XMLFormatter.elemenToString(toXmlElement);
+            result = XMLFormatter.elementToString(toXmlElement);
         } catch (TransformerException ex) {
             System.err.println(ex);
         }

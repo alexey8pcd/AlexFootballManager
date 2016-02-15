@@ -5,9 +5,7 @@ import java.io.StringWriter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Element;
 
@@ -25,7 +23,7 @@ public class XMLFormatter {
         transformer.transform(source, new StreamResult(outputStream));
     }
 
-    public static String elemenToString(Element element)
+    public static String elementToString(Element element)
             throws TransformerException {
         DOMSource source = new DOMSource(element);
         Transformer transformer = TRANSFORMER_FACTORY.newTransformer();

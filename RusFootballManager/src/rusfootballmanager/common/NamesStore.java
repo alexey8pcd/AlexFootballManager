@@ -2,7 +2,9 @@ package rusfootballmanager.common;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,18 +19,19 @@ public class NamesStore {
     private final List<String> lastNames = new ArrayList<>();
 
     private NamesStore() {
-        File firstNamesFile = new File("first_names");
-        File lastNamesFile = new File("last_names");
+        File firstNamesFile = new File("fnames");
+        File lastNamesFile = new File("lnames");
         fillCollection(firstNames, firstNamesFile);
         fillCollection(lastNames, lastNamesFile);
     }
 
-    private void fillCollection(List<String> collection, File firstNamesFile) {
+    private void fillCollection(List<String> collection, File file) {
         try {
             try (BufferedReader firstNamesReader
-                    = new BufferedReader(new FileReader(firstNamesFile))) {
+                    = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
                 while (firstNamesReader.ready()) {
-                    collection.add(firstNamesReader.readLine());
+                    String line = firstNamesReader.readLine();
+                    collection.add(line);
                 }
             }
         } catch (Exception ex) {

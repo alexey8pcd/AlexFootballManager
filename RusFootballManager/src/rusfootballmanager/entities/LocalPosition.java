@@ -4,17 +4,17 @@ import rusfootballmanager.common.Constants;
 
 public enum LocalPosition {
 
-    GOALKEEPER("ВР", 0.01),
-    LEFT_DEFENDER("ЛЗ", 0.99),
-    CENTRAL_DEFENDER("ЦЗ", 0.99),
-    RIGHT_DEFENDER("ПЗ", 0.99),
-    LEFT_MIDFIELDER("ЛП", 0.99),
-    CENTRAL_MIDFIELDER("ЦП", 0.99),
-    RIGHT_MIDFIELDER("ПП", 0.99),
-    ATTACK_MIDFIELDER("АП", 0.99),
-    RIGHT_WING_FORWARD("ПКФ", 0.99),
-    CENTRAL_FORWARD("ЦФ", 0.99),
-    LEFT_WING_FORWARD("ЛКФ", 0.99);
+    GOALKEEPER("ВР", 0.0909),
+    LEFT_DEFENDER("ЛЗ", 0.0909),
+    CENTRAL_DEFENDER("ЦЗ", 0.0909),
+    RIGHT_DEFENDER("ПЗ", 0.0909),
+    LEFT_MIDFIELDER("ЛП", 0.0909),
+    CENTRAL_MIDFIELDER("ЦП", 0.0909),
+    RIGHT_MIDFIELDER("ПП", 0.0909),
+    ATTACK_MIDFIELDER("АП", 0.0909),
+    RIGHT_WING_FORWARD("ПКФ", 0.0909),
+    CENTRAL_FORWARD("ЦФ", 0.0909),
+    LEFT_WING_FORWARD("ЛКФ", 0.0909);
 
     private final String abreviation;
     private final double probability;

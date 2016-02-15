@@ -1,8 +1,5 @@
 package rusfootballmanager.school;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import static rusfootballmanager.common.Constants.RANDOM;
 import rusfootballmanager.common.NamesStore;
 import rusfootballmanager.entities.LocalPosition;
