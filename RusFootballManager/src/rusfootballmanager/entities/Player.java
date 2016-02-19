@@ -8,8 +8,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import rusfootballmanager.common.Constants;
 import rusfootballmanager.PlayerCharsBuilder;
-import rusfootballmanager.XMLFormatter;
-import rusfootballmanager.XMLParseable;
+import rusfootballmanager.common.XMLFormatter;
+import rusfootballmanager.common.XMLParseable;
 import rusfootballmanager.simulation.PlayerProgressParams;
 
 /**
@@ -192,14 +192,19 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public void addFatifue(double value) {
-        this.fatigue += value * currentPosition.
+        this.fatigue += value * getPosition().
                 getPositionOnField().getFatigueCoefficient();
+    }
+
+    private LocalPosition getPosition() {
+        return currentPosition == null
+                ? preferredPosition : currentPosition;
     }
 
     public int getAverage() {
         float sum = 0;
         EnumSet<Characteristic> primaryChars
-                = PlayerCharsBuilder.getPrimaryChars(currentPosition);
+                = PlayerCharsBuilder.getPrimaryChars(getPosition());
         for (Characteristic ch : primaryChars) {
             sum += chars.get(ch);
         }
@@ -220,9 +225,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public String nameWithPosition() {
-        String position = currentPosition != null
-                ? currentPosition.getPositionOnField().getAbreviation()
-                : preferredPosition.getAbreviation();
+        String position = getPosition().getPositionOnField().getAbreviation();
         return name.substring(0, 1) + ". " + lastName + SEPARATOR_SPACE
                 + position;
     }
@@ -232,7 +235,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public GlobalPosition getCurrentPositionOnField() {
-        return currentPosition.getPositionOnField();
+        return getPosition().getPositionOnField();
     }
 
     @Override

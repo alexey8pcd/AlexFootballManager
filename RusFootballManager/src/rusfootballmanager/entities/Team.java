@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import rusfootballmanager.XMLFormatter;
-import rusfootballmanager.XMLParseable;
+import rusfootballmanager.common.XMLFormatter;
+import rusfootballmanager.common.XMLParseable;
 
 /**
  * @author Alexey

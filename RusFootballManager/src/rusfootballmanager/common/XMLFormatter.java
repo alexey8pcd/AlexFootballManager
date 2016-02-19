@@ -1,4 +1,4 @@
-package rusfootballmanager;
+package rusfootballmanager.common;
 
 import java.io.OutputStream;
 import java.io.StringWriter;

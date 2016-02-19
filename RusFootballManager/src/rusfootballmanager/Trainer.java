@@ -1,5 +1,6 @@
 package rusfootballmanager;
 
+import rusfootballmanager.common.XMLFormatter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.logging.Level;

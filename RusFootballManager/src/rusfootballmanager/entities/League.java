@@ -5,8 +5,8 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import rusfootballmanager.XMLFormatter;
-import rusfootballmanager.XMLParseable;
+import rusfootballmanager.common.XMLFormatter;
+import rusfootballmanager.common.XMLParseable;
 
 /**
  * @author Alexey
@@ -14,7 +14,6 @@ import rusfootballmanager.XMLParseable;
 public class League implements XMLParseable {
 
     private final String name;
-
     private final List<Team> teams;
 
     public League(String name, int teamsCount) {
