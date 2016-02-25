@@ -1,12 +1,16 @@
 package rusfootballmanager.entities;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
+import javafx.util.Pair;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import rusfootballmanager.common.Constants;
+import rusfootballmanager.common.Randomization;
 import rusfootballmanager.PlayerCharsBuilder;
 import rusfootballmanager.common.XMLFormatter;
 import rusfootballmanager.common.XMLParseable;
@@ -17,13 +21,21 @@ import rusfootballmanager.simulation.PlayerProgressParams;
  */
 public class Player implements Comparable<Player>, XMLParseable {
 
-    private static final int SECONDARY_DEFAULT_VALUE = 20;
+    public static final int MIN_AGE = 16;
+    public static final int MAX_YOUNG_AGE = 21;
+    public static final int MAX_AGE = 36;
+    private static final int MIN_CHAR_VALUE = 20;
     private static final int SECONDARY_DEFAULT_DISPERSE_VALUE = 10;
     private static final int PRIMARY_DEFAULT_DISPERSE_VALUE = 15;
     private static final String SEPARATOR_SPACE = " ";
+    private static final int MOOD_DEFAULT = 50;
+    private static final int MAX_CHAR_VALUE = 99;
+    private static final int HUNDRED = 100;
+    private static final int MAX_EXPERIENCE_VALUE = 100;
 
     private final String name;
     private final String lastName;
+    private final String fullName;
     private final LocalPosition preferredPosition;
     private final TalentType talentType;
 
@@ -39,22 +51,41 @@ public class Player implements Comparable<Player>, XMLParseable {
     private InjureType injure;
     private LocalPosition currentPosition;
     private final EnumMap<Characteristic, Integer> chars;
+    private Contract contract;
 
     public Player(LocalPosition preferredPosition, int average, int age,
             String name, String lastName) {
         this.age = age;
+        mood = MOOD_DEFAULT;
         this.preferredPosition = preferredPosition;
         chars = new EnumMap<>(Characteristic.class);
         for (Characteristic ch : PlayerCharsBuilder.getSecondaryChars(preferredPosition)) {
-            chars.put(ch, Constants.getRandomValue(
-                    SECONDARY_DEFAULT_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
+            chars.put(ch, Randomization.getValueByBase(
+                    MIN_CHAR_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
         }
-        for (Characteristic ch : PlayerCharsBuilder.getPrimaryChars(preferredPosition)) {
-            chars.put(ch, Constants.getRandomValue(
-                    average, PRIMARY_DEFAULT_DISPERSE_VALUE));
+        EnumSet<Characteristic> primaryChars
+                = PlayerCharsBuilder.getPrimaryChars(preferredPosition);
+        int[] values = new int[primaryChars.size()];
+        Arrays.fill(values, average);
+        int length = values.length;
+        for (int i = 0; i < length; i++) {
+            int randValue = Randomization.getValueByBase(0, PRIMARY_DEFAULT_DISPERSE_VALUE);
+            values[i] += randValue;
+            values[length - 1 - i] -= randValue;
+            if (values[i] > MAX_CHAR_VALUE) {
+                int diff = values[i] - MAX_CHAR_VALUE;
+                values[i] -= diff;
+                values[length - 1 - i] += diff;
+            }
+
+        }
+        int index = 0;
+        for (Characteristic ch : primaryChars) {
+            chars.put(ch, values[index++]);
         }
         this.name = name;
         this.lastName = lastName;
+        fullName = name + SEPARATOR_SPACE + lastName;
         this.statusOfPlayer = StatusOfPlayer.READY;
         this.talentType = TalentType.getByProbability();
     }
@@ -68,6 +99,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public void addAge() {
+        updateChars();
         ++age;
     }
 
@@ -129,6 +161,20 @@ public class Player implements Comparable<Player>, XMLParseable {
         }
     }
 
+    public void decreaseMood(int value) {
+        mood -= value;
+        if (mood < 0) {
+            mood = 0;
+        }
+    }
+
+    public void increaseMood(int value) {
+        mood += value;
+        if (mood > MAX_CHAR_VALUE) {
+            mood = MAX_CHAR_VALUE;
+        }
+    }
+
     public void setInjured(InjureType injure) {
         this.injure = injure;
         this.statusOfPlayer = StatusOfPlayer.INJURED;
@@ -147,16 +193,16 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public void addExperience(double baseValue) {
-        int ageIndex = age - PlayerProgressParams.MIN_AGE;
+        int ageIndex = age - MIN_AGE;
         double multiplier = 1;
         if (currentPosition != preferredPosition) {
             multiplier = 0.66;
         }
         experiense += baseValue * multiplier
                 * PlayerProgressParams.EXPERIENCE_GAINED_BY_AGE[ageIndex];
-        if (experiense > 100) {
+        if (experiense > MAX_EXPERIENCE_VALUE) {
             experiense = 0;
-            int chanceIncreaseChar = Constants.RANDOM.nextInt(100);
+            int chanceIncreaseChar = Randomization.RANDOM.nextInt(HUNDRED);
             Object[] primaryChars = PlayerCharsBuilder.
                     getPrimaryChars(preferredPosition).toArray();
             if (chanceIncreaseChar < 25) {
@@ -169,13 +215,24 @@ public class Player implements Comparable<Player>, XMLParseable {
         }
     }
 
-    private void increaseOneCharacteristic(Object[] primaryChars) {
-        int randomValue = Constants.RANDOM.nextInt(primaryChars.length);
-        Characteristic toIncrease = (Characteristic) primaryChars[randomValue];
-        Integer oldValue = this.chars.get(toIncrease);
-        if (oldValue < 99) {
-            chars.replace(toIncrease, oldValue + 1);
+    public List<Pair<String, Integer>> getPrimaryChars() {
+        EnumSet<Characteristic> primaryChars
+                = PlayerCharsBuilder.getPrimaryChars(preferredPosition);
+        List<Pair<String, Integer>> pairs = new ArrayList<>(primaryChars.size());
+        for (Characteristic ch : primaryChars) {
+            pairs.add(new Pair<>(ch.getName(), chars.get(ch)));
         }
+        return pairs;
+    }
+
+    public List<Pair<String, Integer>> getSecondaryChars() {
+        EnumSet<Characteristic> secondaryChars
+                = PlayerCharsBuilder.getSecondaryChars(preferredPosition);
+        List<Pair<String, Integer>> pairs = new ArrayList<>(secondaryChars.size());
+        for (Characteristic ch : secondaryChars) {
+            pairs.add(new Pair<>(ch.getName(), chars.get(ch)));
+        }
+        return pairs;
     }
 
     public void addRedCard() {
@@ -188,17 +245,12 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     public int getStrengthReserve() {
-        return 100 - (int) fatigue;
+        return MAX_CHAR_VALUE - (int) fatigue;
     }
 
     public void addFatifue(double value) {
         this.fatigue += value * getPosition().
                 getPositionOnField().getFatigueCoefficient();
-    }
-
-    private LocalPosition getPosition() {
-        return currentPosition == null
-                ? preferredPosition : currentPosition;
     }
 
     public int getAverage() {
@@ -289,13 +341,6 @@ public class Player implements Comparable<Player>, XMLParseable {
         return player;
     }
 
-    private void addChildElement(Element player, Document document,
-            String elementName, Object value) {
-        Element element = document.createElement(elementName);
-        element.setTextContent(String.valueOf(value));
-        player.appendChild(element);
-    }
-
     @Override
     public String toXmlString(Document document) {
         Element toXmlElement = toXmlElement(document);
@@ -306,6 +351,52 @@ public class Player implements Comparable<Player>, XMLParseable {
             System.err.println(ex);
         }
         return result;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public int getCurrentFare() {
+        return contract == null ? 0 : contract.getFare();
+    }
+
+    public Contract getContract() {
+        return contract;
+    }
+
+    public void setContract(Contract contract) {
+        this.contract = contract;
+    }
+
+    private void addChildElement(Element player, Document document,
+            String elementName, Object value) {
+        Element element = document.createElement(elementName);
+        element.setTextContent(String.valueOf(value));
+        player.appendChild(element);
+    }
+
+    private LocalPosition getPosition() {
+        return currentPosition == null
+                ? preferredPosition : currentPosition;
+
+    }
+
+    private void updateChars() {
+        for (Characteristic c : PlayerCharsBuilder.getPrimaryChars(preferredPosition)) {
+            Integer value = chars.get(c);
+            value += PlayerProgressParams.CONSTANTS.get(talentType).get(age - MIN_AGE);
+            chars.replace(c, value);
+        }
+    }
+
+    private void increaseOneCharacteristic(Object[] primaryChars) {
+        int randomValue = Randomization.RANDOM.nextInt(primaryChars.length);
+        Characteristic toIncrease = (Characteristic) primaryChars[randomValue];
+        Integer oldValue = this.chars.get(toIncrease);
+        if (oldValue < 99) {
+            chars.replace(toIncrease, oldValue + 1);
+        }
     }
 
 }

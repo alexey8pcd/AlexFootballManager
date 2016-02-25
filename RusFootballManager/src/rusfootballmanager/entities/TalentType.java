@@ -1,6 +1,6 @@
 package rusfootballmanager.entities;
 
-import rusfootballmanager.common.Constants;
+import rusfootballmanager.common.Randomization;
 
 public enum TalentType {
 
@@ -31,7 +31,7 @@ public enum TalentType {
     }
 
     public static TalentType getByProbability() {
-        int chance = Constants.RANDOM.nextInt(1000);
+        int chance = Randomization.RANDOM.nextInt(1000);
         int probability = 0;
         for (TalentType type : values()) {
             probability += type.chance;

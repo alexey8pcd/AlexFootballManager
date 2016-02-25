@@ -7,17 +7,19 @@ import java.util.EnumSet;
  */
 public enum GlobalPosition {
 
-    FORWARD(0.6, "НАП"),
-    MIDFIELDER(0.9, "ПЗЩ"),
-    DEFENDER(0.5, "ЗАЩ"),
-    GOALKEEPER(0.1, "ВР");
+    FORWARD(0.6, "НАП", 0),
+    MIDFIELDER(0.9, "ПЗЩ", 1),
+    DEFENDER(0.5, "ЗАЩ", 2),
+    GOALKEEPER(0.1, "ВР", 3);
 
     private final double fatigueCoefficient;
     private final String abreviation;
+    private final int index;
 
-    private GlobalPosition(double fatigueCoefficient, String abreviation) {
+    private GlobalPosition(double fatigueCoefficient, String abreviation, int index) {
         this.fatigueCoefficient = fatigueCoefficient;
         this.abreviation = abreviation;
+        this.index = index;
     }
 
     public double getFatigueCoefficient() {
@@ -26,6 +28,16 @@ public enum GlobalPosition {
 
     public String getAbreviation() {
         return abreviation;
+    }
+
+    public static GlobalPosition getByIndex(int index) {
+        GlobalPosition[] values = GlobalPosition.values();
+        for (GlobalPosition globalPosition : values) {
+            if (globalPosition.index == index) {
+                return globalPosition;
+            }
+        }
+        return DEFENDER;
     }
 
     public EnumSet<LocalPosition> getLocalPositions() {

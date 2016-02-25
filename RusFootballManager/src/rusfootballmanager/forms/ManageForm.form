@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="title" type="java.lang.String" value="&#x41f;&#x435;&#x440;&#x435;&#x434; &#x43c;&#x430;&#x442;&#x447;&#x435;&#x43c;"/>
+    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[800, 500]"/>
+    </Property>
+    <Property name="resizable" type="boolean" value="false"/>
+    <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[800, 500]"/>
+    </Property>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="paneNextMatch" max="32767" attributes="0"/>
+                  <Component id="paneMail" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="paneNextMatch" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="paneMail" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace pref="93" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JPanel" name="paneNextMatch">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="bTeamManagement" max="32767" attributes="0"/>
+                              <Component id="bTraining" max="32767" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="bStartMatch" min="-2" pref="149" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="lYear" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lSeason" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Component id="lTournamentPlace" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="151" max="-2" attributes="0"/>
+                                  <Component id="lPlayedGames" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="lNextMatchInfo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="lSeason" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lPlayedGames" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lTournamentPlace" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="lYear" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lNextMatchInfo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bTeamManagement" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="bStartMatch" max="32767" attributes="0"/>
+                      <Component id="bTraining" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JButton" name="bStartMatch">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x447;&#x430;&#x442;&#x44c; &#x43c;&#x430;&#x442;&#x447;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bStartMatchActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bTraining">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x422;&#x440;&#x435;&#x43d;&#x438;&#x440;&#x43e;&#x432;&#x43a;&#x430;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="bTeamManagement">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x420;&#x443;&#x43a;&#x43e;&#x432;&#x43e;&#x434;&#x441;&#x442;&#x432;&#x43e; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x43e;&#x439;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lNextMatchInfo">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x43b;&#x435;&#x434;&#x443;&#x44e;&#x449;&#x438;&#x439; &#x43c;&#x430;&#x442;&#x447; &#x441; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x43e;&#x439;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lPlayedGames">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x44b;&#x433;&#x440;&#x430;&#x43d;&#x43e;: 0/30"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lSeason">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x435;&#x437;&#x43e;&#x43d; 1"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lTournamentPlace">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41c;&#x435;&#x441;&#x442;&#x43e;: 1/16"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lYear">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x413;&#x43e;&#x434;: 2016"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="paneMail">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder justification="2" title="&#x41f;&#x43e;&#x447;&#x442;&#x430;">
+              <Font PropertyName="font" name="Tahoma" size="14" style="0"/>
+            </TitledBorder>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="jScrollPane1" alignment="0" pref="443" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="bDeleteMessage" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="bClearPost" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                      <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="67" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jScrollPane1" min="-2" pref="79" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="bDeleteMessage" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="bClearPost" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="jLabel11" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jScrollPane2" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="jLabel10">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x43e;&#x43e;&#x431;&#x449;&#x435;&#x43d;&#x438;&#x44f;"/>
+          </Properties>
+        </Component>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JList" name="lMessages">
+              <Properties>
+                <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+                  <StringArray count="2">
+                    <StringItem index="0" value="&lt;html&gt;&lt;font color=&quot;red&quot;&gt;&#x414;&#x430;&#x442;&#x430;: 01.08.2016&lt;/font&gt; &#x422;&#x435;&#x43c;&#x430;: &#x41d;&#x430;&#x447;&#x430;&#x43b;&#x43e; &#x441;&#x435;&#x437;&#x43e;&#x43d;&#x430; &#x41e;&#x442; &#x43a;&#x43e;&#x433;&#x43e;: &#x421;&#x43e;&#x432;&#x435;&#x442; &#x434;&#x438;&#x440;&#x435;&#x43a;&#x442;&#x43e;&#x440;&#x43e;&#x432;"/>
+                    <StringItem index="1" value="&#x414;&#x430;&#x442;&#x430;: 01.08.2016 &#x422;&#x435;&#x43c;&#x430;: &#x422;&#x440;&#x435;&#x431;&#x43e;&#x432;&#x430;&#x43d;&#x438;&#x44f; &#x441;&#x43f;&#x43e;&#x43d;&#x441;&#x43e;&#x440;&#x430; &#x41e;&#x442; &#x43a;&#x43e;&#x433;&#x43e;: &#x421;&#x43f;&#x43e;&#x43d;&#x441;&#x43e;&#x440;&#x44b;"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Component class="javax.swing.JLabel" name="jLabel11">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41f;&#x43e;&#x434;&#x440;&#x43e;&#x431;&#x43d;&#x435;&#x435;"/>
+          </Properties>
+        </Component>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JTextArea" name="taDescriptions">
+              <Properties>
+                <Property name="editable" type="boolean" value="false"/>
+                <Property name="columns" type="int" value="20"/>
+                <Property name="rows" type="int" value="5"/>
+              </Properties>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Component class="javax.swing.JButton" name="bDeleteMessage">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x423;&#x434;&#x430;&#x43b;&#x438;&#x442;&#x44c; &#x432;&#x44b;&#x431;&#x440;&#x430;&#x43d;&#x43d;&#x43e;&#x435;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="bClearPost">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41e;&#x447;&#x438;&#x441;&#x442;&#x438;&#x442;&#x44c; &#x43f;&#x43e;&#x447;&#x442;&#x443;"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="jPanel3">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="pbSupportLevel" pref="197" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lBudget" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="lTrainerLevel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      </Group>
+                      <Component id="pbTeamwork" alignment="0" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="pbSupportLevel" min="-2" pref="27" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="pbTeamwork" min="-2" pref="25" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="lBudget" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="13" max="32767" attributes="0"/>
+                  <Component id="lTrainerLevel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="jLabel1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41f;&#x43e;&#x434;&#x434;&#x435;&#x440;&#x436;&#x43a;&#x430; &#x431;&#x43e;&#x43b;&#x435;&#x43b;&#x44c;&#x448;&#x438;&#x43a;&#x43e;&#x432;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JProgressBar" name="pbSupportLevel">
+          <Properties>
+            <Property name="value" type="int" value="50"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel2">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x44b;&#x433;&#x440;&#x430;&#x43d;&#x43d;&#x43e;&#x441;&#x442;&#x44c; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x44b;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JProgressBar" name="pbTeamwork">
+          <Properties>
+            <Property name="value" type="int" value="50"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lBudget">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x411;&#x44e;&#x434;&#x436;&#x435;&#x442;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lTrainerLevel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41e;&#x43f;&#x44b;&#x442; &#x442;&#x440;&#x435;&#x43d;&#x435;&#x440;&#x430;"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="jPanel4">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="bCommandStructure" min="-2" pref="197" max="-2" attributes="0"/>
+                      <Component id="bStaff" alignment="0" min="-2" pref="197" max="-2" attributes="0"/>
+                      <Component id="bSportSchool" alignment="0" min="-2" pref="197" max="-2" attributes="0"/>
+                      <Component id="bPlayersMarket" min="-2" pref="197" max="-2" attributes="0"/>
+                      <Component id="bTournamentTable" alignment="0" min="-2" pref="197" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="bCommandStructure" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bStaff" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bSportSchool" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bPlayersMarket" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
+                  <Component id="bTournamentTable" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JButton" name="bCommandStructure">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x43e;&#x441;&#x442;&#x430;&#x432;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bCommandStructureActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bStaff">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41f;&#x435;&#x440;&#x441;&#x43e;&#x43d;&#x430;&#x43b;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="bSportSchool">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x43f;&#x43e;&#x440;&#x442;&#x438;&#x432;&#x43d;&#x430;&#x44f; &#x448;&#x43a;&#x43e;&#x43b;&#x430;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="bPlayersMarket">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x422;&#x440;&#x430;&#x43d;&#x441;&#x444;&#x435;&#x440;&#x43d;&#x44b;&#x439; &#x440;&#x44b;&#x43d;&#x43e;&#x43a;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bPlayersMarketActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bTournamentTable">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x422;&#x443;&#x440;&#x43d;&#x438;&#x440;&#x43d;&#x430;&#x44f; &#x442;&#x430;&#x431;&#x43b;&#x438;&#x446;&#x430;"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>

@@ -1,6 +1,6 @@
 package rusfootballmanager.entities;
 
-import rusfootballmanager.common.Constants;
+import rusfootballmanager.common.Randomization;
 
 public enum LocalPosition {
 
@@ -46,7 +46,7 @@ public enum LocalPosition {
     }
 
     public static LocalPosition generatePosition() {
-        double chance = Constants.RANDOM.nextDouble();
+        double chance = Randomization.RANDOM.nextDouble();
         double probability = 0;
         LocalPosition[] values = LocalPosition.values();
         for (LocalPosition value : values) {

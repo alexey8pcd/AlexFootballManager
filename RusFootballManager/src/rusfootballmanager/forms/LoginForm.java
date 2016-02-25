@@ -1,6 +1,6 @@
 package rusfootballmanager.forms;
 
-import rusfootballmanager.Trainer;
+import rusfootballmanager.User;
 
 /**
  *
@@ -8,7 +8,7 @@ import rusfootballmanager.Trainer;
  */
 public class LoginForm extends javax.swing.JDialog {
 
-    private Trainer trainer;
+    private User trainer;
 
     public LoginForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -25,7 +25,7 @@ public class LoginForm extends javax.swing.JDialog {
         bEnter = new javax.swing.JButton();
         bNewCareer = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Вход");
 
         jLabel1.setText("Введите имя:");
@@ -80,11 +80,13 @@ public class LoginForm extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bEnterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bEnterActionPerformed
-        trainer = Trainer.load(tfLogin.getText());
+        trainer = User.load(tfLogin.getText());
+        dispose();
     }//GEN-LAST:event_bEnterActionPerformed
 
     private void bNewCareerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bNewCareerActionPerformed
-        trainer = Trainer.newInstance(tfLogin.getText());
+        trainer = User.newInstance(tfLogin.getText());
+        dispose();
     }//GEN-LAST:event_bNewCareerActionPerformed
 
 
@@ -95,7 +97,7 @@ public class LoginForm extends javax.swing.JDialog {
     private javax.swing.JTextField tfLogin;
     // End of variables declaration//GEN-END:variables
 
-    public Trainer getTrainer() {
+    public User getTrainer() {
         return trainer;
     }
 

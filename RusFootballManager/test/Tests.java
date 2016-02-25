@@ -17,10 +17,12 @@ import javax.xml.transform.TransformerException;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import rusfootballmanager.common.Constants;
+import rusfootballmanager.DataLoader;
 import rusfootballmanager.entities.GlobalPosition;
 import rusfootballmanager.entities.League;
+import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
+import rusfootballmanager.school.MasteryLevel;
 import rusfootballmanager.school.PlayerCreator;
 import rusfootballmanager.simulation.TournamentPair;
 import rusfootballmanager.simulation.TournamentSchedule;
@@ -80,23 +82,30 @@ public class Tests {
             }
         }
     }
-    
-    @Test
-    public void testPlayer(){
-        for (int i = 0; i < 59; i++) {
-            System.out.println(PlayerCreator.createPlayer(GlobalPosition.FORWARD));
+
+//    @Test
+    public void testPlayer() {
+        for (MasteryLevel level : MasteryLevel.values()) {
+            System.out.println(level);
+            for (int i = 0; i < 30; i++) {
+                Player player = PlayerCreator.createPlayer(GlobalPosition.FORWARD, level);
+                System.out.println(player.nameWithPositionAndAverage());
+            }
         }
     }
-    
-    
-    
+
+//    @Test
+    public void testCreateLeagues() throws Exception {
+        System.out.println(DataLoader.loadLeagues("config.xml"));
+    }
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
 
     private League createLeague() {
         int teamsCount = 16;
         League league = new League("league1", teamsCount);
         for (int i = 0; i < teamsCount; i++) {
-            Team team = new Team("team" + (i + 1));
+            Team team = new Team("team" + (i + 1), 0);
             league.addTeam(team);
             for (int j = 0; j < Team.MAX_PLAYERS_COUNT; j++) {
                 team.addPlayer(PlayerCreator.createYoungPlayerSimple());

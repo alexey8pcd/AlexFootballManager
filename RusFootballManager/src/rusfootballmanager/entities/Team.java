@@ -1,12 +1,13 @@
 package rusfootballmanager.entities;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Queue;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,24 +21,121 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     private Player goalkeeper;
     private int teamwork;
+    private int support;
     private String name;
     private final List<Player> startPlayers;
     private final List<Player> substitutes;
     private final List<Player> reserve;
+    private final Set<Player> playersOnTransfer;
+    private final Set<Player> playersOnRent;
     private final NavigableMap<Integer, Player> playersNumbers;
+    private final Queue<GameResult> lastFiveResults;
 
     private GameStrategy gameStrategy;
     public static final int MAX_PLAYERS_COUNT = 33;
+    private static final int TEAMWORK_DEFAULT = 20;
+    public static final int RECOMMENDED_PLAYERS_COUNT = 25;
     public static final int START_PLAYERS_COUNT = 11;
     public static final int SUBSTITUTES_COUNT = 7;
+    public static final int SUPPORT_LEVEL_DEFAULT = 40;
+    private long budget;
+    private Sponsor sponsor;
 
-    public Team(String name) {
+    public Team(String name, long budget) {
         this.name = name;
+        this.budget = budget;
+        this.support = SUPPORT_LEVEL_DEFAULT;
+        this.teamwork = TEAMWORK_DEFAULT;
         playersNumbers = new TreeMap<>();
         this.startPlayers = new ArrayList<>();
         this.substitutes = new ArrayList<>();
         this.reserve = new ArrayList<>();
         gameStrategy = GameStrategy.BALANCE;
+        lastFiveResults = new LinkedList<>();
+        playersOnTransfer = new HashSet<>();
+        playersOnRent = new HashSet<>();
+    }
+
+    public void onTransfer(Player player) {
+        playersOnTransfer.add(player);
+        player.decreaseMood(7);
+    }
+
+    public void onRent(Player player) {
+        playersOnRent.add(player);
+        player.decreaseMood(4);
+    }
+
+    public void cancelTransferOrRent(Player player) {
+        playersOnTransfer.remove(player);
+        playersOnRent.remove(player);
+    }
+
+    public Set<Player> getPlayersOnTransfer() {
+        return playersOnTransfer;
+    }
+
+    public Set<Player> getPlayersOnRent() {
+        return playersOnRent;
+    }
+
+    public Sponsor getSponsor() {
+        return sponsor;
+    }
+
+    public int getSupport() {
+        return support;
+    }
+
+    public void setSupport(int support) {
+        this.support = support;
+    }
+
+    public void setSponsor(Sponsor sponsor) {
+        this.sponsor = sponsor;
+    }
+
+    /**
+     *  * Симуляция желания покупки: 1) искать игрока, у которого среднее больше
+     * либо равно среднему по команде 2) стоимость игрока не превышает 65% от
+     * бюджета клуба 3) игрок в команде на данную позицию 1 либо 0 4) средний
+     * возраст игроков на данную позицию в команде больше 30 лет 5) количество
+     * игроков в команде меньше 30
+     *
+     * Симуляция желания продажи: 1) игроков на данную позицию 3 и больше 2)
+     * игроку больше 30 лет, а в команде есть более молодой игрок с большим
+     * показателем на этой позиции 3) игроков в команде больше 27 4) среднее
+     * игрока меньше среднего по команде, а возраст игрока больше среднего по
+     * команде
+     *
+     */
+    public void simulateTransfers() {
+
+    }
+
+    public long getBudget() {
+        return budget;
+    }
+
+    public void addGameResult(GameResult gameResult) {
+        if (lastFiveResults.size() == 5) {
+            lastFiveResults.remove();
+        }
+        lastFiveResults.add(gameResult);
+    }
+
+    /**
+     * Изменяет бюджет на заданную величину.
+     *
+     * @param value положительная для пополения или отрицательная для траты.
+     * @return true, если операция удалась.
+     */
+    public boolean budgetOperation(long value) {
+        if (budget + value < 0) {
+            return false;
+        }
+        this.budget += value;
+        return true;
     }
 
     public void addPlayer(Player player) {
@@ -72,22 +170,6 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     public int getPlayersCount() {
         return startPlayers.size() + substitutes.size() + reserve.size();
-    }
-
-    private int getFirstFreeNumber() {
-        if (playersNumbers.isEmpty()) {
-            return 1;
-        } else {
-            int lastNumber = 0;
-            for (Integer number : playersNumbers.keySet()) {
-                if (lastNumber == 0) {
-                    lastNumber = number;
-                } else if (number - lastNumber > 2) {
-                    return lastNumber + 1;
-                }
-            }
-            return playersNumbers.lastKey() + 1;
-        }
     }
 
     public void removePlayer(Player player) {
@@ -171,16 +253,6 @@ public class Team implements XMLParseable, Comparable<Team> {
         return goalkeeper;
     }
 
-    private List<Player> getPlayers(GlobalPosition position) {
-        List<Player> players = new ArrayList<>();
-        for (Player player : startPlayers) {
-            if (player.getCurrentPosition().getPositionOnField() == position) {
-                players.add(player);
-            }
-        }
-        return players;
-    }
-
     public List<Player> getAllPlayers() {
         ArrayList<Player> players = new ArrayList<>(startPlayers);
         players.addAll(substitutes);
@@ -212,7 +284,17 @@ public class Team implements XMLParseable, Comparable<Team> {
     }
 
     public int calculateForm() {
-        return 0;
+        int matchesPlayed = lastFiveResults.size();
+        if (matchesPlayed == 0) {
+            return 50;
+        } else {
+            float max = matchesPlayed * GameResult.WIN.getScore();
+            float scored = 0;
+            for (GameResult gameResult : lastFiveResults) {
+                scored += gameResult.getScore();
+            }
+            return Math.round(scored / max * 100);
+        }
     }
 
     public int getMood() {
@@ -284,6 +366,47 @@ public class Team implements XMLParseable, Comparable<Team> {
             System.err.println(ex);
             return "";
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder("\t<<<<<<<<<");
+        stringBuilder.append(name).append(">>>>>>>>>>\n\t");
+        for (Player player : getAllPlayers()) {
+            stringBuilder.append(player.toString());
+            stringBuilder.append("\t");
+        }
+        return stringBuilder.toString();
+    }
+
+    private int getFirstFreeNumber() {
+        if (playersNumbers.isEmpty()) {
+            return 1;
+        } else {
+            int lastNumber = 0;
+            int max = -1;
+            for (Integer number : playersNumbers.keySet()) {
+                if (number > max) {
+                    max = number;
+                }
+                if (lastNumber == 0 || number - lastNumber == 1) {
+                    lastNumber = number;
+                } else {
+                    return lastNumber + 1;
+                }
+            }
+            return max + 1;
+        }
+    }
+
+    private List<Player> getPlayers(GlobalPosition position) {
+        List<Player> players = new ArrayList<>();
+        for (Player player : startPlayers) {
+            if (player.getCurrentPosition().getPositionOnField() == position) {
+                players.add(player);
+            }
+        }
+        return players;
     }
 
 }

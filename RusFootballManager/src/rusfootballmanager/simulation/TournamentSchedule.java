@@ -17,23 +17,30 @@ public class TournamentSchedule {
     private static final int MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
     private Map<Date, List<TournamentPair>> schedule;
     private Map<Integer, Date> indexes;
+    private Date startDate;
+    private Date endDate;
+    private Date holidaysStartDate;
+    private Date holidaysEndDate;   
 
     /**
      * Создание расписания с каникулами
      *
-     * @param start
-     * @param end
-     * @param holidaysStart
-     * @param holidaysEnd
+     * @param startDate
+     * @param endDate
+     * @param holidaysStartDate
+     * @param holidaysEndDate
      * @param loopsCount
      * @param teams
      */
-    public TournamentSchedule(Date start, Date end, Date holidaysStart,
-            Date holidaysEnd, int loopsCount, List<Team> teams) {
-
+    public TournamentSchedule(Date startDate, Date endDate, Date holidaysStartDate,
+            Date holidaysEndDate, int loopsCount, List<Team> teams) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.holidaysStartDate = holidaysStartDate;
+        this.holidaysEndDate = holidaysEndDate;
         int gamesCount = (teams.size() - 1) * loopsCount;
-        long firstPartLength = holidaysStart.getTime() - start.getTime();
-        long secondPartLength = end.getTime() - holidaysEnd.getTime();
+        long firstPartLength = holidaysStartDate.getTime() - startDate.getTime();
+        long secondPartLength = endDate.getTime() - holidaysEndDate.getTime();
         int firstPartDaysCount = millisecondsToDays(firstPartLength);
         int secondPartDaysCount = millisecondsToDays(secondPartLength);
         int allDays = firstPartDaysCount + secondPartDaysCount;
@@ -42,8 +49,8 @@ public class TournamentSchedule {
                     + " недостаточно для проведения " + gamesCount + " матчей");
         }
         int daysPerTour = allDays / gamesCount;
-        schedule = calculateSchedule(teams, start, end, loopsCount,
-                daysPerTour, holidaysStart, holidaysEnd);
+        schedule = calculateSchedule(teams, startDate, endDate, loopsCount,
+                daysPerTour, holidaysStartDate, holidaysEndDate);
         indexes = new HashMap<>();
         int index = 1;
         for (Date date : schedule.keySet()) {
@@ -51,6 +58,22 @@ public class TournamentSchedule {
         }
     }
 
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public Date getHolidaysStartDate() {
+        return holidaysStartDate;
+    }
+
+    public Date getHolidaysEndDate() {
+        return holidaysEndDate;
+    }
+    
     /**
      * Получает дату тура с заданным номеров(нумерация начинается с 1)
      *
@@ -115,11 +138,11 @@ public class TournamentSchedule {
                 Team host = notPlayedTeams.get(0);
                 notPlayedTeams.remove(host);
                 int index = 0;
-                Team guest = notPlayedTeams.get(index);
+                Team guest = teams.get(index);
                 List<Team> withPlayed = played.get(host);
                 if (withPlayed != null) {
                     do {
-                        guest = notPlayedTeams.get(index++);
+                        guest = teams.get(index++);
                     } while (withPlayed.contains(guest));
                 }
                 pairs.add(new TournamentPair(host, guest));
@@ -152,5 +175,9 @@ public class TournamentSchedule {
             result.add(pairs);
         }
         return result;
+    }
+
+    public int getToursCount() {
+        return schedule.size();
     }
 }

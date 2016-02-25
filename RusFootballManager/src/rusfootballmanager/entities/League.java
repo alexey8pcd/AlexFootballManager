@@ -15,6 +15,15 @@ public class League implements XMLParseable {
 
     private final String name;
     private final List<Team> teams;
+    private int recommendedExperience;
+
+    public int getRecommendedExperience() {
+        return recommendedExperience;
+    }
+
+    public void setRecommendedExperience(int recommendedExperience) {
+        this.recommendedExperience = recommendedExperience;
+    }
 
     public League(String name, int teamsCount) {
         this.name = name;
@@ -31,6 +40,17 @@ public class League implements XMLParseable {
 
     public List<Team> getTeams() {
         return teams;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder("-----");
+        stringBuilder.append(name).append("-----\n");
+        for (Team team : teams) {
+            stringBuilder.append(team.toString());
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     @Override

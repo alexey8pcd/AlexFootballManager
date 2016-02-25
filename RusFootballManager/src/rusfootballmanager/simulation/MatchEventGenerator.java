@@ -1,7 +1,7 @@
 package rusfootballmanager.simulation;
 
 import rusfootballmanager.simulation.match.MatchEvent;
-import rusfootballmanager.common.Constants;
+import rusfootballmanager.common.Randomization;
 import rusfootballmanager.entities.InjureType;
 import rusfootballmanager.entities.Team;
 import rusfootballmanager.entities.Player;
@@ -112,7 +112,7 @@ public class MatchEventGenerator {
         }
         minutesForGoal = new int[scoredGoals];
         for (int i = 0; i < scoredGoals; i++) {
-            minutesForGoal[i] = Constants.RANDOM.nextInt(MINUTES_PER_MATCH) + 1;
+            minutesForGoal[i] = Randomization.RANDOM.nextInt(MINUTES_PER_MATCH) + 1;
         }
         Arrays.sort(minutesForGoal);
     }
@@ -133,12 +133,12 @@ public class MatchEventGenerator {
     private List<MatchEvent> createEvents(int minute) {
         for (PlayerWithCard playerWithCard : startPlayers) {
             Player player = playerWithCard.player;
-            player.addFatifue(Constants.RANDOM.nextDouble());
+            player.addFatifue(Randomization.RANDOM.nextDouble());
             player.addExperience(DEFAULT_EXPERIENCE_VALUE * experienceCoeff);
         }
-        int chance = Constants.RANDOM.nextInt(THOUSAND);
+        int chance = Randomization.RANDOM.nextInt(THOUSAND);
         if (chance < YELLOW_CARD_CHANCE) {
-            int playerIndex = Constants.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
             PlayerWithCard playerWithCard = startPlayers.get(playerIndex);
             Player player = playerWithCard.player;
             player.addYellowCard();
@@ -149,14 +149,14 @@ public class MatchEventGenerator {
                 ++playerWithCard.yellowCardsCount;
             }
         } else if (chance < RED_CARD_CHANCE) {
-            int playerIndex = Constants.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
             removePlayer(minute, playerIndex);
         } else if (chance < INJURE_CHANCE) {
-            int playerIndex = Constants.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
             PlayerWithCard injured = startPlayers.get(playerIndex);
             Player injuredPlayer = injured.player;
             events.add(new MatchEvent(MathEventType.INJURE, minute, injuredPlayer, team));
-            injuredPlayer.setInjured(InjureType.getInjure(Constants.RANDOM.nextInt(HUNDRED)));
+            injuredPlayer.setInjured(InjureType.getInjure(Randomization.RANDOM.nextInt(HUNDRED)));
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
                 changePlayer(minute, injured);
             }
@@ -180,19 +180,19 @@ public class MatchEventGenerator {
             hasGoals = false;
         }
         List<Player> playersGroupToScore = getPlayerGroupScored();
-        int scoredPlayerIndex = Constants.RANDOM.nextInt(playersGroupToScore.size());
+        int scoredPlayerIndex = Randomization.RANDOM.nextInt(playersGroupToScore.size());
         Player whoScored = playersGroupToScore.get(scoredPlayerIndex);
-        boolean fromPenalty = Constants.RANDOM.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
+        boolean fromPenalty = Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
         if (fromPenalty) {
             events.add(new MatchEvent(MathEventType.PENALTY, minute, whoScored, team));
             events.add(new MatchEvent(MathEventType.GOAL, minute, whoScored, team));
         } else {
             events.add(new MatchEvent(MathEventType.GOAL, minute, whoScored, team));
             Player assistent;
-            if (Constants.RANDOM.nextInt(HUNDRED) < CHANCE_TO_ASSIST) {
+            if (Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_ASSIST) {
                 do {
                     List<Player> playersGroupToAssist = getPlayerGroupAssist();
-                    int assistPlayerIndex = Constants.RANDOM.nextInt(playersGroupToAssist.size());
+                    int assistPlayerIndex = Randomization.RANDOM.nextInt(playersGroupToAssist.size());
                     assistent = playersGroupToAssist.get(assistPlayerIndex);
                 } while (assistent == whoScored);
 
@@ -203,7 +203,7 @@ public class MatchEventGenerator {
 
     private List<Player> getPlayerGroupAssist() {
         List<Player> playersGroup;
-        int playersGroupChance = Constants.RANDOM.nextInt(HUNDRED);
+        int playersGroupChance = Randomization.RANDOM.nextInt(HUNDRED);
         if (playersGroupChance < CHANCE_TO_ASSIST_BY_GOALKEEPER) {
             playersGroup = getPlayerGroup(startPlayers,
                     GlobalPosition.GOALKEEPER);
@@ -218,7 +218,7 @@ public class MatchEventGenerator {
     }
 
     private List<Player> getPlayerGroupScored() {
-        int playersGroupChance = Constants.RANDOM.nextInt(HUNDRED);
+        int playersGroupChance = Randomization.RANDOM.nextInt(HUNDRED);
         List<Player> playersGroup;
         if (playersGroupChance < CHANCE_SCORE_GOAL_BY_FORWARD) {
             playersGroup = getPlayerGroup(startPlayers, GlobalPosition.FORWARD);

@@ -44,10 +44,10 @@ public class NamesStore {
     }
 
     public String getRandomFirstName() {
-        return firstNames.get(Constants.RANDOM.nextInt(firstNames.size()));
+        return firstNames.get(Randomization.RANDOM.nextInt(firstNames.size()));
     }
 
     public String getRandomLastName() {
-        return lastNames.get(Constants.RANDOM.nextInt(lastNames.size()));
+        return lastNames.get(Randomization.RANDOM.nextInt(lastNames.size()));
     }
 }
