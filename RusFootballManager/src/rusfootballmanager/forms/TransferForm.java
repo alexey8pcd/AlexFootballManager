@@ -75,7 +75,7 @@ public class TransferForm extends javax.swing.JDialog {
                 case 5:
                     return transfer.getStatus().getDescription();
                 case 6:
-                    return transfer.getSum();
+                    return transfer.getCost();
                 case 7:
                     return transfer.getTeam().getName();
             }

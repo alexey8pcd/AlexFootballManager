@@ -1,18 +1,29 @@
 package rusfootballmanager.entities;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import rusfootballmanager.common.CostCalculator;
 import rusfootballmanager.common.XMLFormatter;
 import rusfootballmanager.common.XMLParseable;
+import rusfootballmanager.simulation.Calculator;
+import rusfootballmanager.transfers.Filter;
+import rusfootballmanager.transfers.TransferFilterType;
+import rusfootballmanager.transfers.TransferMarket;
+import rusfootballmanager.transfers.TransferPlayer;
+import rusfootballmanager.transfers.TransferStatus;
 
 /**
  * @author Alexey
@@ -97,10 +108,10 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     /**
      *  * Симуляция желания покупки: 1) искать игрока, у которого среднее больше
-     * либо равно среднему по команде 2) стоимость игрока не превышает 65% от
-     * бюджета клуба 3) игрок в команде на данную позицию 1 либо 0 4) средний
-     * возраст игроков на данную позицию в команде больше 30 лет 5) количество
-     * игроков в команде меньше 30
+     * либо равно среднему по команде 2) стоимость игрока не превышает 2/3% от
+     * бюджета клуба 3) игрок в команде на данную позицию 1 либо 0 4) количество
+     * игроков в команде меньше 30 5) средний возраст игроков на данную позицию
+     * в команде больше 30 лет
      *
      * Симуляция желания продажи: 1) игроков на данную позицию 3 и больше 2)
      * игроку больше 30 лет, а в команде есть более молодой игрок с большим
@@ -110,7 +121,62 @@ public class Team implements XMLParseable, Comparable<Team> {
      *
      */
     public void simulateTransfers() {
+        if (getPlayersCount() < 30) {
+            simulateSale();
+        }
+        if (getPlayersCount() > 27) {
+            simulateBuy();
+        }
+    }
 
+    private void simulateSale() {
+        int average = getAverage();
+        TransferMarket market = TransferMarket.getInstance();
+        List<TransferPlayer> transferPlayers = market.getTransfers(TransferStatus.ANY,
+                new Filter(TransferFilterType.BY_AVERAGE, Condition.MORE, average - 1));
+
+        Stream<TransferPlayer> filtered = transferPlayers.stream().filter((TransferPlayer t) -> {
+            return t.getCost() > getBudget() / 3 * 2;
+        });
+        filtered = filtered.filter((TransferPlayer t) -> {
+            return getPlayersOnPosition(t.getPlayer().getPreferredPosition()).size() > 1;
+        });
+        filtered = filtered.filter((TransferPlayer t) -> {
+            List<Player> playersOnPosition
+                    = getPlayersOnPosition(t.getPlayer().getPreferredPosition());
+            if (!playersOnPosition.isEmpty()) {
+                int avgAgeOnPosition = 0;
+                avgAgeOnPosition = playersOnPosition.stream().map((player) -> 
+                        player.getAge()).reduce(avgAgeOnPosition, Integer::sum);
+                avgAgeOnPosition /= playersOnPosition.size();
+                return avgAgeOnPosition <= 30;
+            } else {
+                return false;
+            }
+        });
+        if (filtered.count() > 0) {
+            Stream<TransferPlayer> sorted = filtered.sorted(TransferPlayer.AVG_AGE_COST);
+            TransferPlayer transfer = (TransferPlayer) sorted.toArray()[(int) sorted.count() - 1];
+            int age = transfer.getPlayer().getAge();
+            int averageOfCandidate = transfer.getPlayer().getAverage();
+            Offer offer = new Offer(TransferStatus.ON_TRANSFER_OR_TO_RENT,
+                    transfer.getCost() / 5 * 6,
+                    CostCalculator.calculatePayForMatch(age, averageOfCandidate));
+            transfer.addOffer(this, offer);
+        }
+
+    }
+
+    private void simulateBuy(){
+        
+    }
+    
+    private List<Player> getPlayersOnPosition(LocalPosition position) {
+        List<Player> players = getAllPlayers();
+        players.removeIf((Player p) -> {
+            return p.getPreferredPosition() != position;
+        });
+        return players;
     }
 
     public long getBudget() {
@@ -254,7 +320,8 @@ public class Team implements XMLParseable, Comparable<Team> {
     }
 
     public List<Player> getAllPlayers() {
-        ArrayList<Player> players = new ArrayList<>(startPlayers);
+        ArrayList<Player> players = new ArrayList<>(getPlayersCount());
+        players.addAll(startPlayers);
         players.addAll(substitutes);
         players.addAll(reserve);
         return players;
