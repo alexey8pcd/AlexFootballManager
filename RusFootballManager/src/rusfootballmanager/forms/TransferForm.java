@@ -2,12 +2,15 @@ package rusfootballmanager.forms;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import rusfootballmanager.entities.Condition;
 import rusfootballmanager.transfers.Filter;
 import rusfootballmanager.entities.GlobalPosition;
+import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
 import rusfootballmanager.transfers.TransferFilterType;
@@ -54,6 +57,11 @@ public class TransferForm extends javax.swing.JDialog {
         @Override
         public int getColumnCount() {
             return HEADERS.length;
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
         }
 
         @Override
@@ -112,7 +120,6 @@ public class TransferForm extends javax.swing.JDialog {
         rbAnyStatus.setEnabled(true);
         transferPlayers = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(team);
         tableTransfers.updateUI();
-
     }
 
     @SuppressWarnings("unchecked")
@@ -400,6 +407,11 @@ public class TransferForm extends javax.swing.JDialog {
         );
 
         bTryBuy.setText("Предложение покупки");
+        bTryBuy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bTryBuyActionPerformed(evt);
+            }
+        });
 
         bTryGetRent.setText("Предложение аренды");
 
@@ -465,6 +477,7 @@ public class TransferForm extends javax.swing.JDialog {
         filter.setFirstParameter(tfFromEquals.getText());
         filter.setSecondParameter(tfTo.getText());
         if (rbMyTeam.isSelected()) {
+            tableTransfers.setRowSelectionInterval(0, 0);
             if (cbFilterEnable.isSelected()) {
                 transferPlayers = TransferMarket.getInstance().getTransfersByTeam(transferStatus, team, filter);
             } else {
@@ -476,7 +489,21 @@ public class TransferForm extends javax.swing.JDialog {
             transferPlayers = TransferMarket.getInstance().getTransfersWithoutFilter();
         }
         tableTransfers.updateUI();
+    }
 
+    private void makeOfferToPlayer() {
+        int viewIndex = tableTransfers.getSelectedRow();
+        if (viewIndex >= 0 && viewIndex < transferPlayers.size()) {
+            int modelIndex = tableTransfers.convertRowIndexToModel(viewIndex);
+            TransferPlayer transferPlayer = transferPlayers.get(modelIndex);
+            if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
+                JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
+            } else {
+                TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
+                offerForm.setVisible(true);
+            }
+        }
     }
 
     private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
@@ -530,6 +557,10 @@ public class TransferForm extends javax.swing.JDialog {
     private void rbAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAllTeamsActionPerformed
         researchPlayers();
     }//GEN-LAST:event_rbAllTeamsActionPerformed
+
+    private void bTryBuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTryBuyActionPerformed
+        makeOfferToPlayer();
+    }//GEN-LAST:event_bTryBuyActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

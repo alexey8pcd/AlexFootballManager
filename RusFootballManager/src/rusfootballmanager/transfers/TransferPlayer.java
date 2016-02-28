@@ -1,5 +1,6 @@
 package rusfootballmanager.transfers;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,22 +14,22 @@ import rusfootballmanager.entities.Team;
  */
 public class TransferPlayer {
 
-    public static final Comparator<TransferPlayer> AVG_AGE_COST = 
-            (TransferPlayer tp1, TransferPlayer tp2) -> {
-        int average = tp1.getPlayer().getAverage();
-        int avgOther = tp2.getPlayer().getAverage();
-        if (average == avgOther) {
-            int age = tp1.getPlayer().getAge();
-            int ageOther = tp2.getPlayer().getAge();
-            if (age == ageOther) {
-                return Integer.compare(tp1.getCost(), tp2.getCost());
-            } else {
-                return Integer.compare(age, ageOther);
-            }
-        } else {
-            return Integer.compare(average, avgOther);
-        }
-    };
+    public static final Comparator<TransferPlayer> AVG_AGE_COST
+            = (TransferPlayer tp1, TransferPlayer tp2) -> {
+                int average = tp1.getPlayer().getAverage();
+                int avgOther = tp2.getPlayer().getAverage();
+                if (average == avgOther) {
+                    int age = tp1.getPlayer().getAge();
+                    int ageOther = tp2.getPlayer().getAge();
+                    if (age == ageOther) {
+                        return Integer.compare(tp1.getCost(), tp2.getCost());
+                    } else {
+                        return Integer.compare(age, ageOther);
+                    }
+                } else {
+                    return Integer.compare(average, avgOther);
+                }
+            };
 //    public static Comparator<TransferPlayer> AGE_AVG_COST;
 //    public static Comparator<TransferPlayer> COST_AVG_AGE;
 

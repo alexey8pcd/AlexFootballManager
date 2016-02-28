@@ -12,24 +12,24 @@ import rusfootballmanager.forms.StartCareerForm;
 public class Main {
 
     public static void main(String[] args) {
-        List<League> leagues;
+        
         try {
             LoginForm loginForm = new LoginForm(null, true);
             loginForm.setVisible(true);
-            User trainer = loginForm.getTrainer();
-            if (trainer.getSettings().isNewCareer()) {
-                CareerSettings careerSettings = new CareerSettings();
-                trainer.setSettings(careerSettings);
-                leagues = careerSettings.getLeagues();
+            User user = loginForm.getTrainer();
+            if (user.getSettings().isNewCareer()) {
+                CareerSettings careerSettings = new CareerSettings();                
+                user.setSettings(careerSettings);
+                List<League> leagues = careerSettings.getLeagues();                
                 StartCareerForm startCareerForm = new StartCareerForm(null, true);
                 startCareerForm.setData(leagues);
                 startCareerForm.setVisible(true);
+                careerSettings.createTournaments(user.getCurrentDate());
                 Team team = startCareerForm.getChoosenTeam();
-                trainer.setTeam(team);
+                user.setTeam(team);
             }
-
             ManageForm manageForm = new ManageForm(null, true);
-            manageForm.setUser(trainer);
+            manageForm.setUser(user);
             manageForm.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();

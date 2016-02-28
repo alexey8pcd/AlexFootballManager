@@ -28,10 +28,6 @@ public class Tournament {
     public Tournament(Date date, League league) {
         this.league = league;
         transferDates = new LinkedList<>();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_YEAR, 14);
-        currentDate = date;
     }
 
     public boolean containsTeam(Team team) {
@@ -154,6 +150,9 @@ public class Tournament {
     }
 
     public boolean isGameDays() {
+        if (schedule == null) {
+            return false;
+        }
         return (currentDate.after(schedule.getStartDate())
                 && currentDate.before(schedule.getHolidaysStartDate()))
                 || (currentDate.after(schedule.getHolidaysEndDate())

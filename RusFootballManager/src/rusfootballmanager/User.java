@@ -4,6 +4,7 @@ import rusfootballmanager.common.XMLFormatter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -44,6 +45,10 @@ public class User {
         this.login = login;
         settings = new CareerSettings();
         messages = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 14);
+        currentDate = calendar.getTime();
     }
 
     public Date getCurrentDate() {

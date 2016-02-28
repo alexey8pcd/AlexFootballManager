@@ -1,5 +1,7 @@
 package rusfootballmanager.common;
 
+import rusfootballmanager.entities.Player;
+
 /**
  * @author Alexey
  */
@@ -7,6 +9,10 @@ public class CostCalculator {
 
     private static final int PAY_AVG_FACTOR = 50;
     private static final int PAY_AGE_FACTOR = 3;
+
+    public static int calculatePayForMatch(Player player) {
+        return calculatePayForMatch(player.getAge(), player.getAverage());
+    }
 
     public static int calculatePayForMatch(int age, int avg) {
         int top = avg * avg * avg * PAY_AVG_FACTOR;
@@ -18,7 +24,7 @@ public class CostCalculator {
         double top = Math.pow(2, Math.sqrt(avg - COST_AVG_BASE_VALUE)
                 * COST_AVG_POWER_COEFF) * COST_AVG_FACTOR;
         double down = (double) age / A + B;
-        return (int)Math.round(top / down);
+        return (int) Math.round(top / down);
     }
     private static final double B = 0.2;
     private static final int A = 20;
