@@ -74,4 +74,8 @@ public class TransferPlayer {
         return status;
     }
 
+    public void setStatus(TransferStatus transferStatus) {
+        this.status = transferStatus;
+    }
+
 }

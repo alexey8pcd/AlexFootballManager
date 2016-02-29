@@ -13,6 +13,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import rusfootballmanager.common.XMLFormatter;
 import rusfootballmanager.common.XMLParseable;
+import rusfootballmanager.transfers.TransferMarket;
+import rusfootballmanager.transfers.TransferPlayer;
+import rusfootballmanager.transfers.TransferStatus;
 
 /**
  * @author Alexey
@@ -57,13 +60,33 @@ public class Team implements XMLParseable, Comparable<Team> {
     }
 
     public void onTransfer(Player player) {
-        playersOnTransfer.add(player);
-        player.decreaseMood(7);
+        boolean added = playersOnTransfer.add(player);
+        if (added) {
+            player.decreaseMood(7);
+        }
+        List<TransferPlayer> transfers
+                = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(this);
+        for (TransferPlayer transfer : transfers) {
+            if (transfer.getPlayer() == player) {
+                playersOnRent.remove(player);
+                transfer.setStatus(TransferStatus.ON_TRANSFER);
+            }
+        }
+
     }
 
     public void onRent(Player player) {
-        playersOnRent.add(player);
-        player.decreaseMood(4);
+        if (playersOnRent.add(player)) {
+            player.decreaseMood(4);
+        }
+        List<TransferPlayer> transfers
+                = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(this);
+        for (TransferPlayer transfer : transfers) {
+            if (transfer.getPlayer() == player) {
+                playersOnTransfer.remove(player);
+                transfer.setStatus(TransferStatus.TO_RENT);
+            }
+        }
     }
 
     public void cancelTransferOrRent(Player player) {
@@ -122,10 +145,10 @@ public class Team implements XMLParseable, Comparable<Team> {
         //TODO
     }
 
-    private void simulateBuy(){
+    private void simulateBuy() {
         //TODO
     }
-    
+
     private List<Player> getPlayersOnPosition(LocalPosition position) {
         List<Player> players = getAllPlayers();
         players.removeIf((Player p) -> {
@@ -268,6 +291,12 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     public List<Player> getDefenders() {
         return getPlayers(GlobalPosition.DEFENDER);
+    }
+
+    public boolean containsPlayer(Player player) {
+        return startPlayers.contains(player)
+                || reserve.contains(player)
+                || substitutes.contains(player);
     }
 
     public Player getGoalkeeper() {

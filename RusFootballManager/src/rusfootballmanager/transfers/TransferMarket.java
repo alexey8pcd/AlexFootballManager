@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javafx.util.Pair;
+import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
 
@@ -14,7 +19,7 @@ public class TransferMarket {
 
     private static TransferMarket market;
     private List<TransferPlayer> players;
-    private Map<Team, List<TransferPlayer>> cache;
+    private Map<Team, Stream<TransferPlayer>> cache;
 
     private TransferMarket() {
         players = new ArrayList<>();
@@ -48,24 +53,21 @@ public class TransferMarket {
         return getTransfersByTeam(TransferStatus.ANY, team, null);
     }
 
-    public List<TransferPlayer> getTransfersByTeam(TransferStatus transferStatus, 
+    public List<TransferPlayer> getTransfersByTeam(TransferStatus transferStatus,
             Team team, Filter filter) {
-        List<TransferPlayer> result;
+        Stream<TransferPlayer> playersFromTeam;
         if (cache.containsKey(team)) {
-            result = cache.get(team);
+            playersFromTeam = cache.get(team);
         } else {
-            result = new ArrayList<>(team.getPlayersCount());
-            for (TransferPlayer player : players) {
-                if (player.getTeam() == team) {
-                    result.add(player);
-                }
-            }
-            cache.put(team, result);
+            playersFromTeam = players.parallelStream().filter(
+                    player -> player.getTeam() == team);
+            cache.put(team, playersFromTeam);
         }
-        chooseByStatus(transferStatus, result);
+        Stream choosedByStatus = chooseByStatus(transferStatus, playersFromTeam);
         if (filter != null) {
-            filter.filter(result);
+            choosedByStatus = filter.filter(choosedByStatus);
         }
+        List result = (List) choosedByStatus.collect(Collectors.toList());
         return result;
     }
 
@@ -74,38 +76,51 @@ public class TransferMarket {
     }
 
     public List<TransferPlayer> getTransfers(TransferStatus transferStatus, Filter filter) {
-        List<TransferPlayer> result = new ArrayList<>(players);
-        chooseByStatus(transferStatus, result);
+        Stream choosedByStatus = chooseByStatus(transferStatus, players.parallelStream());
         if (filter != null) {
-            filter.filter(result);
+            choosedByStatus = filter.filter(choosedByStatus);
         }
+        List result = (List) choosedByStatus.collect(Collectors.toList());
         return result;
     }
 
-    private void chooseByStatus(TransferStatus transferStatus, List<TransferPlayer> result) {
+    public List<TransferPlayer> getTransfers(TransferStatus transferStatus) {
+        return getTransfers(transferStatus, null);
+    }
+
+    public List<Pair<Player, Offer>> getDesiredPlayers(Team team) {
+        List<Pair<Player, Offer>> offers = new ArrayList<>();
+        players.parallelStream().filter(tr -> {
+            return tr.getOffers().containsKey(team);
+        }).forEach(tr -> {
+            Offer offer = tr.getOffers().get(team);
+            offers.add(new Pair<>(tr.getPlayer(), offer));
+        });
+        return offers;
+    }
+
+    private Stream chooseByStatus(TransferStatus transferStatus, Stream<TransferPlayer> stream) {
         switch (transferStatus) {
             case ON_CONTRACT:
-                result.removeIf((p) -> {
-                    return p.getStatus() != TransferStatus.ON_CONTRACT;
+                return stream.filter(tr -> {
+                    return tr.getStatus() != TransferStatus.ON_CONTRACT;
                 });
-                break;
+
             case ON_TRANSFER:
-                result.removeIf((p) -> {
-                    return p.getStatus() != TransferStatus.ON_TRANSFER;
+                return stream.filter(tr -> {
+                    return tr.getStatus() != TransferStatus.ON_TRANSFER;
                 });
-                break;
             case TO_RENT:
-                result.removeIf((p) -> {
-                    return p.getStatus() != TransferStatus.TO_RENT;
+                return stream.filter(tr -> {
+                    return tr.getStatus() != TransferStatus.TO_RENT;
                 });
-                break;
-            case ON_TRANSFER_OR_TO_RENT:
-                result.removeIf((p) -> {
-                    return p.getStatus() != TransferStatus.TO_RENT
-                            && p.getStatus() != TransferStatus.TO_RENT;
+            case ON_TRANSFER_OR_RENT:
+                return stream.filter(tr -> {
+                    return tr.getStatus() != TransferStatus.TO_RENT
+                            && tr.getStatus() != TransferStatus.TO_RENT;
                 });
-                break;
         }
+        return stream;
     }
 
 }

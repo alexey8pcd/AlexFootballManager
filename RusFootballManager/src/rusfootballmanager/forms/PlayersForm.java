@@ -1,12 +1,15 @@
 package rusfootballmanager.forms;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import rusfootballmanager.RenderUtil;
 import rusfootballmanager.entities.Contract;
 import rusfootballmanager.entities.Player;
 
@@ -28,6 +31,21 @@ public class PlayersForm extends javax.swing.JDialog {
         "Контракт",
         "Настрой"
     };
+
+    private class PlayersTableCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(CENTER);
+            if (column == 4) {
+                int val = (int) table.getValueAt(row, column);
+                setBackground(RenderUtil.getPlayerAverageColor(val));
+            }
+            return this;
+        }
+    }
 
     private class PlayersTableModel extends DefaultTableModel {
 
@@ -108,6 +126,8 @@ public class PlayersForm extends javax.swing.JDialog {
         TableColumn column = tablePlayers.getColumnModel().getColumn(0);
         column.setResizable(false);
         column.setPreferredWidth(120);
+        tablePlayers.getColumnModel().getColumn(4).setCellRenderer(
+                new PlayersTableCellRenderer());
     }
 
     @SuppressWarnings("unchecked")
@@ -117,8 +137,6 @@ public class PlayersForm extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablePlayers = new javax.swing.JTable();
         bProlongContract = new javax.swing.JButton();
-        bOnSale = new javax.swing.JButton();
-        bToRent = new javax.swing.JButton();
         bPlayerDescription = new javax.swing.JButton();
         bClose = new javax.swing.JButton();
 
@@ -156,10 +174,6 @@ public class PlayersForm extends javax.swing.JDialog {
 
         bProlongContract.setText("Продлить контракт");
 
-        bOnSale.setText("На продажу");
-
-        bToRent.setText("В аренду");
-
         bPlayerDescription.setText("Подробнее об игроке");
         bPlayerDescription.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -181,16 +195,12 @@ public class PlayersForm extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(bProlongContract)
                         .addGap(18, 18, 18)
-                        .addComponent(bOnSale)
-                        .addGap(18, 18, 18)
-                        .addComponent(bToRent)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(bPlayerDescription)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 211, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bClose)))
                 .addContainerGap())
         );
@@ -202,8 +212,6 @@ public class PlayersForm extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bProlongContract)
-                    .addComponent(bOnSale)
-                    .addComponent(bToRent)
                     .addComponent(bPlayerDescription)
                     .addComponent(bClose))
                 .addContainerGap())
@@ -236,10 +244,8 @@ public class PlayersForm extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bClose;
-    private javax.swing.JButton bOnSale;
     private javax.swing.JButton bPlayerDescription;
     private javax.swing.JButton bProlongContract;
-    private javax.swing.JButton bToRent;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tablePlayers;
     // End of variables declaration//GEN-END:variables

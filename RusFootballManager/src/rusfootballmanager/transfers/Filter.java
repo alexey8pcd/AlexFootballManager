@@ -1,6 +1,7 @@
 package rusfootballmanager.transfers;
 
 import java.util.List;
+import java.util.stream.Stream;
 import rusfootballmanager.entities.Condition;
 import rusfootballmanager.entities.GlobalPosition;
 import rusfootballmanager.entities.LocalPosition;
@@ -9,7 +10,7 @@ public class Filter {
 
     private TransferFilterType filterType;
     private Condition condition;
-    
+
     private Object firstParameter;
     private Object secondParameter;
 
@@ -45,10 +46,10 @@ public class Filter {
         secondParameter = null;
     }
 
-    public void filter(List<TransferPlayer> players) {
+    public Stream filter(Stream<TransferPlayer> players) {
         switch (filterType) {
             case BY_NAME:
-                players.removeIf((transfer) -> {
+                return players.filter((transfer) -> {
                     String searchedName = firstParameter.toString().toLowerCase();
                     String candidateName = transfer.getPlayer().getFullName().toLowerCase();
                     boolean contains = candidateName.contains(searchedName);
@@ -60,7 +61,7 @@ public class Filter {
                 });
 
             case BY_AGE:
-                players.removeIf((transfer) -> {
+                return players.filter((transfer) -> {
                     int fromAge = (int) firstParameter;
                     int toAge = secondParameter == null ? 0 : (int) secondParameter;
                     int age = transfer.getPlayer().getAge();
@@ -79,7 +80,7 @@ public class Filter {
                     return true;
                 });
             case BY_AVERAGE:
-                players.removeIf((transfer) -> {
+                return players.filter((transfer) -> {
                     int fromAverage = (int) firstParameter;
                     int toAverage = secondParameter == null ? 0 : (int) secondParameter;
                     int average = transfer.getPlayer().getAverage();
@@ -98,18 +99,19 @@ public class Filter {
                     return true;
                 });
             case BY_LOCAL_POSITION:
-                players.removeIf((transfer) -> {
+                return players.filter((transfer) -> {
                     LocalPosition localPosition = (LocalPosition) firstParameter;
                     return transfer.getPlayer().getPreferredPosition() != localPosition;
                 });
             case BY_GLOBAL_POSITION:
-                players.removeIf((transfer) -> {
+                return players.filter((transfer) -> {
                     GlobalPosition position = (GlobalPosition) firstParameter;
                     return transfer.getPlayer().getPreferredPosition().
                             getPositionOnField() != position;
                 });
 
         }
+        return players;
     }
 
 }

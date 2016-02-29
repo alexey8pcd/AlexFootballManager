@@ -20,14 +20,20 @@ public class TransferOfferForm extends javax.swing.JDialog {
             TransferStatus transferStatus) {
         this.transferPlayer = transferPlayer;
         this.team = team;
+        if (transferStatus == TransferStatus.ON_TRANSFER) {
+            int cost = transferPlayer.getCost();
+            lDesiredSum.setText(String.valueOf(cost));
+            ftfSum.setValue(cost / 10 * 11);
+        } else {
+            lDesiredSum.setText("Отсутствует");
+            lOfferedSum.setVisible(false);
+            ftfSum.setVisible(false);
+        }
         int payForMatch = CostCalculator.calculatePayForMatch(
                 transferPlayer.getPlayer());
         lDesiredPay.setText(String.valueOf(payForMatch));
         ftfPay.setValue(payForMatch / 10 * 11);
 
-        int cost = transferPlayer.getCost();
-        lDesiredSum.setText(String.valueOf(cost));
-        ftfSum.setValue(cost / 10 * 11);
     }
 
     public TransferOfferForm(java.awt.Frame parent, boolean modal) {
@@ -36,7 +42,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
     }
 
     private void makeOffer() {
-        int sum = (int) ftfSum.getValue();
+        int sum = ftfSum.getValue() == null ? 0 : (int) ftfSum.getValue();
         int pay = (int) ftfPay.getValue();
         int contract = (int) spinnerContractDuration.getValue();
         transferPlayer.addOffer(team, new Offer(transferStatus, sum, pay, contract));
@@ -49,7 +55,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
 
         jLabel2 = new javax.swing.JLabel();
         lDesiredSum = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lOfferedSum = new javax.swing.JLabel();
         ftfSum = new javax.swing.JFormattedTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -76,13 +82,13 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 21, 5, 21);
         getContentPane().add(lDesiredSum, gridBagConstraints);
 
-        jLabel1.setText("Предлагаемая сумма:");
+        lOfferedSum.setText("Предлагаемая сумма:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(8, 21, 8, 21);
-        getContentPane().add(jLabel1, gridBagConstraints);
+        getContentPane().add(lOfferedSum, gridBagConstraints);
 
         ftfSum.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -168,13 +174,13 @@ public class TransferOfferForm extends javax.swing.JDialog {
     private javax.swing.JButton bOffer;
     private javax.swing.JFormattedTextField ftfPay;
     private javax.swing.JFormattedTextField ftfSum;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel lDesiredPay;
     private javax.swing.JLabel lDesiredSum;
+    private javax.swing.JLabel lOfferedSum;
     private javax.swing.JSpinner spinnerContractDuration;
     // End of variables declaration//GEN-END:variables
 

@@ -11,6 +11,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="title" type="java.lang.String" value="&#x422;&#x440;&#x430;&#x43d;&#x441;&#x444;&#x435;&#x440;&#x43d;&#x44b;&#x439; &#x440;&#x44b;&#x43d;&#x43e;&#x43a;"/>
     <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
@@ -36,21 +37,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jScrollPane1" max="32767" attributes="0"/>
-                  <Group type="102" attributes="0">
+                  <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="rbMyTeam" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                       <Component id="rbAllTeams" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
-                      <Component id="bTryBuy" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="bTryGetRent" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="bOnSale" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="bOnRent" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                      <Component id="jPanel2" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -67,18 +61,13 @@
                           <Component id="rbAllTeams" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="1" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="bTryBuy" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="bTryGetRent" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="bOnSale" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="bOnRent" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="259" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="246" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel1" max="32767" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -451,6 +440,7 @@
         <Component class="javax.swing.JButton" name="bApplyFilter">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x41f;&#x440;&#x438;&#x43c;&#x435;&#x43d;&#x438;&#x442;&#x44c;"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bApplyFilterActionPerformed"/>
@@ -458,28 +448,93 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="bTryBuy">
+    <Container class="javax.swing.JPanel" name="jPanel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x41f;&#x440;&#x435;&#x434;&#x43b;&#x43e;&#x436;&#x435;&#x43d;&#x438;&#x435; &#x43f;&#x43e;&#x43a;&#x443;&#x43f;&#x43a;&#x438;"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTryBuyActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JButton" name="bTryGetRent">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="&#x41f;&#x440;&#x435;&#x434;&#x43b;&#x43e;&#x436;&#x435;&#x43d;&#x438;&#x435; &#x430;&#x440;&#x435;&#x43d;&#x434;&#x44b;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JButton" name="bOnSale">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="&#x41d;&#x430; &#x43f;&#x440;&#x43e;&#x434;&#x430;&#x436;&#x443;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JButton" name="bOnRent">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="&#x412; &#x430;&#x440;&#x435;&#x43d;&#x434;&#x443;"/>
-      </Properties>
-    </Component>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="bTryBuy" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="bTryGetRent" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bMyOffers" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="bOnSale" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="bToRent" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="bToRent" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="bOnSale" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="bTryGetRent" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="bTryBuy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="bMyOffers" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JButton" name="bToRent">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x412; &#x430;&#x440;&#x435;&#x43d;&#x434;&#x443;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bToRentActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bOnSale">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41d;&#x430; &#x43f;&#x440;&#x43e;&#x434;&#x430;&#x436;&#x443;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bOnSaleActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bTryGetRent">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x410;&#x440;&#x435;&#x43d;&#x434;&#x43e;&#x432;&#x430;&#x442;&#x44c;"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTryGetRentActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bTryBuy">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41a;&#x443;&#x43f;&#x438;&#x442;&#x44c;"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTryBuyActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="bMyOffers">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x41c;&#x43e;&#x438; &#x43f;&#x440;&#x435;&#x434;&#x43b;&#x43e;&#x436;&#x435;&#x43d;&#x438;&#x44f;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bMyOffersActionPerformed"/>
+          </Events>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

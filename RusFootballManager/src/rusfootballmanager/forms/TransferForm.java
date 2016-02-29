@@ -1,16 +1,19 @@
 package rusfootballmanager.forms;
 
+import java.awt.Component;
+import java.awt.HeadlessException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import rusfootballmanager.RenderUtil;
 import rusfootballmanager.entities.Condition;
 import rusfootballmanager.transfers.Filter;
 import rusfootballmanager.entities.GlobalPosition;
-import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
 import rusfootballmanager.transfers.TransferFilterType;
@@ -26,7 +29,6 @@ public class TransferForm extends javax.swing.JDialog {
 
     private Team team;
     private List<TransferPlayer> transferPlayers = Collections.EMPTY_LIST;
-    ;
     private TransferFilterType transferFilterType;
     private TransferStatus transferStatus;
     private Filter filter = new Filter(transferFilterType, Condition.MORE, PROPERTIES);
@@ -110,6 +112,18 @@ public class TransferForm extends javax.swing.JDialog {
         tableTransfers.setModel(transferTableModel);
         TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(transferTableModel);
         tableTransfers.setRowSorter(rowSorter);
+        tableTransfers.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (column == 4) {
+                    int val = (int) table.getValueAt(row, column);
+                    setBackground(RenderUtil.getPlayerAverageColor(val));
+                }
+                return this;
+            }
+        });
     }
 
     public void setTeam(Team team) {
@@ -153,12 +167,15 @@ public class TransferForm extends javax.swing.JDialog {
         rbAnyStatus = new javax.swing.JRadioButton();
         jLabel4 = new javax.swing.JLabel();
         bApplyFilter = new javax.swing.JButton();
-        bTryBuy = new javax.swing.JButton();
-        bTryGetRent = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        bToRent = new javax.swing.JButton();
         bOnSale = new javax.swing.JButton();
-        bOnRent = new javax.swing.JButton();
+        bTryGetRent = new javax.swing.JButton();
+        bTryBuy = new javax.swing.JButton();
+        bMyOffers = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Трансферный рынок");
         setResizable(false);
 
         tableTransfers.setModel(new javax.swing.table.DefaultTableModel(
@@ -300,6 +317,7 @@ public class TransferForm extends javax.swing.JDialog {
         jLabel4.setText("Позиция");
 
         bApplyFilter.setText("Применить");
+        bApplyFilter.setEnabled(false);
         bApplyFilter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bApplyFilterActionPerformed(evt);
@@ -406,18 +424,74 @@ public class TransferForm extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
-        bTryBuy.setText("Предложение покупки");
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        bToRent.setText("В аренду");
+        bToRent.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bToRentActionPerformed(evt);
+            }
+        });
+
+        bOnSale.setText("На продажу");
+        bOnSale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bOnSaleActionPerformed(evt);
+            }
+        });
+
+        bTryGetRent.setText("Арендовать");
+        bTryGetRent.setEnabled(false);
+        bTryGetRent.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bTryGetRentActionPerformed(evt);
+            }
+        });
+
+        bTryBuy.setText("Купить");
+        bTryBuy.setEnabled(false);
         bTryBuy.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bTryBuyActionPerformed(evt);
             }
         });
 
-        bTryGetRent.setText("Предложение аренды");
+        bMyOffers.setText("Мои предложения");
+        bMyOffers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bMyOffersActionPerformed(evt);
+            }
+        });
 
-        bOnSale.setText("На продажу");
-
-        bOnRent.setText("В аренду");
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(bTryBuy)
+                .addGap(18, 18, 18)
+                .addComponent(bTryGetRent)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(bMyOffers)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(bOnSale)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(bToRent)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bToRent)
+                    .addComponent(bOnSale)
+                    .addComponent(bTryGetRent)
+                    .addComponent(bTryBuy)
+                    .addComponent(bMyOffers))
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -427,20 +501,13 @@ public class TransferForm extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(rbMyTeam)
                         .addGap(38, 38, 38)
                         .addComponent(rbAllTeams)
-                        .addGap(57, 57, 57)
-                        .addComponent(bTryBuy)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bTryGetRent)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bOnSale)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bOnRent)
-                        .addGap(0, 9, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(38, 38, 38)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -452,15 +519,11 @@ public class TransferForm extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(rbMyTeam)
                             .addComponent(rbAllTeams)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(bTryBuy)
-                            .addComponent(bTryGetRent)
-                            .addComponent(bOnSale)
-                            .addComponent(bOnRent))))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -471,6 +534,8 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void rbMyTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbMyTeamActionPerformed
         researchPlayers();
+        bTryBuy.setEnabled(false);
+        bTryGetRent.setEnabled(false);
     }//GEN-LAST:event_rbMyTeamActionPerformed
 
     private void researchPlayers() {
@@ -488,20 +553,82 @@ public class TransferForm extends javax.swing.JDialog {
         } else {
             transferPlayers = TransferMarket.getInstance().getTransfersWithoutFilter();
         }
+        tableTransfers.getRowSorter().modelStructureChanged();
         tableTransfers.updateUI();
     }
 
-    private void makeOfferToPlayer() {
-        int viewIndex = tableTransfers.getSelectedRow();
-        if (viewIndex >= 0 && viewIndex < transferPlayers.size()) {
-            int modelIndex = tableTransfers.convertRowIndexToModel(viewIndex);
-            TransferPlayer transferPlayer = transferPlayers.get(modelIndex);
-            if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
-                JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
-            } else {
-                TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
-                offerForm.setVisible(true);
+    private void makeTransferOfferToPlayer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (transferPlayer != null) {
+            if (!team.containsPlayer(transferPlayer.getPlayer())) {
+                if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
+                    JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
+                } else {
+                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                    offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
+                    offerForm.setVisible(true);
+                }
+            }
+        }
+    }
+
+    private void makeRentOfferToPlayer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (transferPlayer != null) {
+            if (!team.containsPlayer(transferPlayer.getPlayer())) {
+                if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
+                    JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
+                } else {
+                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                    offerForm.setParams(transferPlayer, team, TransferStatus.TO_RENT);
+                    offerForm.setVisible(true);
+                }
+            }
+        }
+
+    }
+
+    private TransferPlayer getSelectedTransferAll() {
+        int selectedIndex = tableTransfers.getSelectedRow();
+        if (selectedIndex >= 0 && selectedIndex < transferPlayers.size()) {
+            int index = tableTransfers.convertRowIndexToModel(selectedIndex);
+            return transferPlayers.get(index);
+        }
+        return null;
+    }
+
+    private TransferPlayer getSelectedTransfer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (team.containsPlayer(transferPlayer.getPlayer())) {
+            return transferPlayer;
+        } else {
+            return null;
+        }
+
+    }
+
+    private void onTransfer(TransferPlayer transferPlayer) throws HeadlessException {
+        if (transferPlayer != null) {
+            if (transferPlayer.getStatus() != TransferStatus.ON_TRANSFER) {
+                int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
+                        + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    team.onTransfer(transferPlayer.getPlayer());
+                    tableTransfers.updateUI();
+                }
+            }
+        }
+    }
+
+    private void toRent(TransferPlayer transferPlayer) throws HeadlessException {
+        if (transferPlayer != null) {
+            if (transferPlayer.getStatus() != TransferStatus.TO_RENT) {
+                int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
+                        + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    team.onRent(transferPlayer.getPlayer());
+                    tableTransfers.updateUI();
+                }
             }
         }
     }
@@ -515,7 +642,7 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_rbForRentActionPerformed
 
     private void rbOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbOnSaleOrRentActionPerformed
-        transferStatus = TransferStatus.ON_TRANSFER_OR_TO_RENT;
+        transferStatus = TransferStatus.ON_TRANSFER_OR_RENT;
     }//GEN-LAST:event_rbOnSaleOrRentActionPerformed
 
     private void rbAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAnyStatusActionPerformed
@@ -555,18 +682,38 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_comboPositionActionPerformed
 
     private void rbAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAllTeamsActionPerformed
+        bTryBuy.setEnabled(true);
+        bTryGetRent.setEnabled(true);
         researchPlayers();
     }//GEN-LAST:event_rbAllTeamsActionPerformed
 
     private void bTryBuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTryBuyActionPerformed
-        makeOfferToPlayer();
+        makeTransferOfferToPlayer();
     }//GEN-LAST:event_bTryBuyActionPerformed
 
+    private void bOnSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bOnSaleActionPerformed
+        TransferPlayer selectedTransfer = getSelectedTransfer();
+        onTransfer(selectedTransfer);
+    }//GEN-LAST:event_bOnSaleActionPerformed
+
+    private void bToRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bToRentActionPerformed
+        TransferPlayer selectedTransfer = getSelectedTransfer();
+        toRent(selectedTransfer);
+    }//GEN-LAST:event_bToRentActionPerformed
+
+    private void bTryGetRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTryGetRentActionPerformed
+        makeRentOfferToPlayer();
+    }//GEN-LAST:event_bTryGetRentActionPerformed
+
+    private void bMyOffersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bMyOffersActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bMyOffersActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bApplyFilter;
-    private javax.swing.JButton bOnRent;
+    private javax.swing.JButton bMyOffers;
     private javax.swing.JButton bOnSale;
+    private javax.swing.JButton bToRent;
     private javax.swing.JButton bTryBuy;
     private javax.swing.JButton bTryGetRent;
     private javax.swing.ButtonGroup bgFilterGroup;
@@ -580,6 +727,7 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JRadioButton rbAllTeams;
     private javax.swing.JRadioButton rbAnyStatus;

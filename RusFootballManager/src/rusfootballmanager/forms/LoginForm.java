@@ -25,7 +25,7 @@ public class LoginForm extends javax.swing.JDialog {
         bEnter = new javax.swing.JButton();
         bNewCareer = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Вход");
 
         jLabel1.setText("Введите имя:");

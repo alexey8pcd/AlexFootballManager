@@ -43,7 +43,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="lOfferedSum">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x41f;&#x440;&#x435;&#x434;&#x43b;&#x430;&#x433;&#x430;&#x435;&#x43c;&#x430;&#x44f; &#x441;&#x443;&#x43c;&#x43c;&#x430;:"/>
       </Properties>
