@@ -72,7 +72,6 @@ public class Team implements XMLParseable, Comparable<Team> {
                 transfer.setStatus(TransferStatus.ON_TRANSFER);
             }
         }
-
     }
 
     public void onRent(Player player) {

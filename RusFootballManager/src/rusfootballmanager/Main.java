@@ -5,9 +5,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import rusfootballmanager.entities.League;
 import rusfootballmanager.entities.Team;
-import rusfootballmanager.forms.LoginForm;
-import rusfootballmanager.forms.ManageForm;
-import rusfootballmanager.forms.StartCareerForm;
+import rusfootballmanager.represent.LoginForm;
+import rusfootballmanager.represent.ManageForm;
+import rusfootballmanager.represent.StartCareerForm;
 
 public class Main {
 

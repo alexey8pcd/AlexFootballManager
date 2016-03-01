@@ -1,15 +1,12 @@
 package rusfootballmanager.transfers;
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import rusfootballmanager.common.CostCalculator;
-import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
 
 /**
+ * Выставленный на трансфер игрок
  * @author Alexey
  */
 public class TransferPlayer {
@@ -30,14 +27,12 @@ public class TransferPlayer {
                     return Integer.compare(average, avgOther);
                 }
             };
-//    public static Comparator<TransferPlayer> AGE_AVG_COST;
-//    public static Comparator<TransferPlayer> COST_AVG_AGE;
 
     private Player player;
     private Team team;
     private int sum;
     private TransferStatus status;
-    private Map<Team, Offer> offers;
+
 
     public TransferPlayer(Player player, Team team, TransferStatus status) {
         this.player = player;
@@ -45,17 +40,6 @@ public class TransferPlayer {
         this.status = status;
         this.sum = CostCalculator.calculateTransferCost(player.getAge(),
                 player.getAverage());
-    }
-
-    public void addOffer(Team team, Offer offer) {
-        if (offers == null) {
-            offers = new HashMap<>();
-        }
-        offers.put(team, offer);
-    }
-
-    public Map<Team, Offer> getOffers() {
-        return offers;
     }
 
     public Player getPlayer() {

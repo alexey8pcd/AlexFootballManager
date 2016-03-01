@@ -1,4 +1,4 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import rusfootballmanager.User;
 

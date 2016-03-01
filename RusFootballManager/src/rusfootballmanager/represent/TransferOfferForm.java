@@ -1,8 +1,9 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import rusfootballmanager.common.CostCalculator;
 import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Team;
+import rusfootballmanager.transfers.TransferMarket;
 import rusfootballmanager.transfers.TransferPlayer;
 import rusfootballmanager.transfers.TransferStatus;
 
@@ -20,6 +21,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
             TransferStatus transferStatus) {
         this.transferPlayer = transferPlayer;
         this.team = team;
+        this.transferStatus = transferStatus;
         if (transferStatus == TransferStatus.ON_TRANSFER) {
             int cost = transferPlayer.getCost();
             lDesiredSum.setText(String.valueOf(cost));
@@ -45,7 +47,9 @@ public class TransferOfferForm extends javax.swing.JDialog {
         int sum = ftfSum.getValue() == null ? 0 : (int) ftfSum.getValue();
         int pay = (int) ftfPay.getValue();
         int contract = (int) spinnerContractDuration.getValue();
-        transferPlayer.addOffer(team, new Offer(transferStatus, sum, pay, contract));
+        Offer offer = new Offer(team, transferPlayer.getTeam(), 
+                transferPlayer.getPlayer(), transferStatus, sum, pay, contract);
+        TransferMarket.getInstance().makeOffer(offer);
     }
 
     @SuppressWarnings("unchecked")
@@ -66,14 +70,19 @@ public class TransferOfferForm extends javax.swing.JDialog {
         lDesiredPay = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Трансферное предложение");
+        setPreferredSize(new java.awt.Dimension(400, 400));
+        setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel2.setText("Желаемая сумма:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(6, 21, 6, 21);
         getContentPane().add(jLabel2, gridBagConstraints);
 
+        lDesiredSum.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lDesiredSum.setText("1 000 000");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -82,6 +91,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 21, 5, 21);
         getContentPane().add(lDesiredSum, gridBagConstraints);
 
+        lOfferedSum.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lOfferedSum.setText("Предлагаемая сумма:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -99,6 +109,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(4, 21, 4, 21);
         getContentPane().add(ftfSum, gridBagConstraints);
 
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setText("Желаемая зарплата:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -107,6 +118,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 21, 5, 21);
         getContentPane().add(jLabel3, gridBagConstraints);
 
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel4.setText("Предлагаемая зарплата:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -124,6 +136,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(4, 21, 4, 21);
         getContentPane().add(ftfPay, gridBagConstraints);
 
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel5.setText("Длительность контракта:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -141,6 +154,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 21, 5, 21);
         getContentPane().add(spinnerContractDuration, gridBagConstraints);
 
+        bOffer.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         bOffer.setText("Предложить");
         bOffer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -153,6 +167,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(8, 21, 8, 21);
         getContentPane().add(bOffer, gridBagConstraints);
 
+        lDesiredPay.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lDesiredPay.setText("50 000");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

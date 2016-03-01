@@ -1,4 +1,4 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import rusfootballmanager.Tournament;
 import rusfootballmanager.User;
@@ -85,7 +85,6 @@ public class ManageForm extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Перед матчем");
-        setPreferredSize(new java.awt.Dimension(800, 500));
         setResizable(false);
         setSize(new java.awt.Dimension(800, 500));
 

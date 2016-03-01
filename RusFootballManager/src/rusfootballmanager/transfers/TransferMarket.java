@@ -2,12 +2,12 @@ package rusfootballmanager.transfers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.util.Pair;
 import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
@@ -19,11 +19,13 @@ public class TransferMarket {
 
     private static TransferMarket market;
     private List<TransferPlayer> players;
+    private Set<Offer> offers;
     private Map<Team, Stream<TransferPlayer>> cache;
 
     private TransferMarket() {
         players = new ArrayList<>();
         cache = new HashMap<>();
+        offers = new HashSet<>();
     }
 
     public static TransferMarket getInstance() {
@@ -88,15 +90,11 @@ public class TransferMarket {
         return getTransfers(transferStatus, null);
     }
 
-    public List<Pair<Player, Offer>> getDesiredPlayers(Team team) {
-        List<Pair<Player, Offer>> offers = new ArrayList<>();
-        players.parallelStream().filter(tr -> {
-            return tr.getOffers().containsKey(team);
-        }).forEach(tr -> {
-            Offer offer = tr.getOffers().get(team);
-            offers.add(new Pair<>(tr.getPlayer(), offer));
-        });
-        return offers;
+    public List<Offer> getDesiredPlayers(Team team) {
+        List<Offer> myOffers = new ArrayList<>();
+        offers.parallelStream().filter(off -> off.getFrom() == team)
+                .forEach(off -> myOffers.add(off));
+        return myOffers;
     }
 
     private Stream chooseByStatus(TransferStatus transferStatus, Stream<TransferPlayer> stream) {
@@ -121,6 +119,14 @@ public class TransferMarket {
                 });
         }
         return stream;
+    }
+
+    public void makeOffer(Offer offer) {
+        this.offers.add(offer);
+    }
+
+    public void removeOffer(Offer selectedOffer) {
+        throw new UnsupportedOperationException();
     }
 
 }

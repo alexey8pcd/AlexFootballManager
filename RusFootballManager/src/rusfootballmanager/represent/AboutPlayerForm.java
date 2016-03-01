@@ -1,4 +1,4 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import java.util.List;
 import javafx.util.Pair;
@@ -72,7 +72,6 @@ public class AboutPlayerForm extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Подробнее об игроке");
-        setPreferredSize(new java.awt.Dimension(400, 500));
         setResizable(false);
         setSize(new java.awt.Dimension(400, 500));
 
@@ -105,10 +104,10 @@ public class AboutPlayerForm extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(bClose)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();

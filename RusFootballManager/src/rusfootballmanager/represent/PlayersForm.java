@@ -1,9 +1,11 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JTable;
+import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -12,6 +14,7 @@ import javax.swing.table.TableRowSorter;
 import rusfootballmanager.RenderUtil;
 import rusfootballmanager.entities.Contract;
 import rusfootballmanager.entities.Player;
+import rusfootballmanager.represent.AboutPlayerForm;
 
 /**
  *
@@ -19,38 +22,21 @@ import rusfootballmanager.entities.Player;
  */
 public class PlayersForm extends javax.swing.JDialog {
 
-    private List<Player> players;
-    private final String[] tableHeaders = {
-        "Имя/Фамилия",
-        "Возраст",
-        "Позиция",
-        "Номер",
-        "Общее",
-        "Состояние",
-        "Зарплата",
-        "Контракт",
-        "Настрой"
-    };
-
-    private class PlayersTableCellRenderer extends DefaultTableCellRenderer {
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            setHorizontalAlignment(CENTER);
-            if (column == 4) {
-                int val = (int) table.getValueAt(row, column);
-                setBackground(RenderUtil.getPlayerAverageColor(val));
-            }
-            return this;
-        }
-    }
+    private List<Player> players = Collections.EMPTY_LIST;
+    private static final String[] PLAYERS_TABLE_HEADERS = {
+            "Имя/Фамилия",
+            "Возраст",
+            "Позиция",
+            "Номер",
+            "Общее",
+            "Состояние",
+            "Зарплата",
+            "Контракт",
+            "Настрой"
+        };
 
     private class PlayersTableModel extends DefaultTableModel {
-
-        public PlayersTableModel() {
-        }
+        
 
         @Override
         public int getRowCount() {
@@ -59,7 +45,12 @@ public class PlayersForm extends javax.swing.JDialog {
 
         @Override
         public int getColumnCount() {
-            return 9;
+            return PLAYERS_TABLE_HEADERS.length;
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
         }
 
         @Override
@@ -110,7 +101,23 @@ public class PlayersForm extends javax.swing.JDialog {
 
         @Override
         public String getColumnName(int column) {
-            return tableHeaders[column];
+            return PLAYERS_TABLE_HEADERS[column];
+        }
+
+    }
+
+    private class PlayersTableCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(CENTER);
+            if (column == 4) {
+                int val = (int) table.getValueAt(row, column);
+                setBackground(RenderUtil.getPlayerAverageColor(val));
+            }
+            return this;
         }
 
     }
@@ -141,6 +148,7 @@ public class PlayersForm extends javax.swing.JDialog {
         bClose = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Текущий состав");
         setResizable(false);
         setSize(new java.awt.Dimension(800, 500));
 

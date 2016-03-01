@@ -1,8 +1,9 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import java.util.Collections;
 import java.util.List;
 import javafx.util.Pair;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
@@ -15,16 +16,18 @@ import rusfootballmanager.transfers.TransferMarket;
  */
 public class MyOffersForm extends javax.swing.JDialog {
 
-    private List<Pair<Player, Offer>> myOffers = Collections.EMPTY_LIST;
+    private List<Offer> myOffers = Collections.EMPTY_LIST;
 
     private static final String[] OFFER_TABLE_HEADERS = {
         "Имя/Фамилия",
         "Возраст",
         "Позиция",
         "Общее",
+        "Предложение",
         "Зарплата",
         "Стоимость"
     };
+
     private class OffersTableModel extends DefaultTableModel {
 
         public OffersTableModel() {
@@ -42,49 +45,30 @@ public class MyOffersForm extends javax.swing.JDialog {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            Pair<Player, Offer> pair = myOffers.get(rowIndex);
-            Offer offer = pair.getValue();
-            /*switch (columnIndex) {
-            case 0:
-            return offer.getFullName();
-            case 1:
-            return offer.getAge();
-            case 2:
-            return offer.getPreferredPosition().getAbreviation();
-            case 3:
-            return offer.getNumber();
-            case 4:
-            return offer.getAverage();
-            case 5:
-            return offer.getStatusOfPlayer().getDescription();
-            case 6:
-            return offer.getCurrentFare();
-            case 7:
-            Contract contract = offer.getContract();
-            if (contract == null) {
-            return "0";
-            } else {
-            return contract.getDuration();
+            Offer offer = myOffers.get(rowIndex);
+            Player player = offer.getPlayer();
+            switch (columnIndex) {
+                case 0:
+                    return player.getFullName();
+                case 1:
+                    return player.getAge();
+                case 2:
+                    return player.getPreferredPosition().getAbreviation();
+                case 3:
+                    return player.getAverage();
+                case 4:
+                    return offer.getStatus().getDescription();
+                case 5:
+                    return offer.getFare();
+                case 6:
+                    return offer.getSumOfTransfer();
             }
-            case 8:
-            return offer.getMood();
-            }*/
             return "";
         }
 
         @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            switch (columnIndex) {
-                case 1:
-                case 3:
-                case 4:
-                case 6:
-                case 7:
-                case 8:
-                    return Integer.class;
-                default:
-                    return String.class;
-            }
+        public boolean isCellEditable(int row, int column) {
+            return false;
         }
 
         @Override
@@ -93,14 +77,23 @@ public class MyOffersForm extends javax.swing.JDialog {
         }
 
     }
-    
-    public void init(Team team) {
-        myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
-    }
 
     public MyOffersForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        tableOffers.setModel(new OffersTableModel());
+    }
+
+    public void init(Team team) {
+        myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
+    }
+
+    private Offer getSelectedOffer() {
+        int selectedIndex = tableOffers.getSelectedRow();
+        if (selectedIndex >= 0 && selectedIndex < myOffers.size()) {
+            return myOffers.get(selectedIndex);
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -143,30 +136,39 @@ public class MyOffersForm extends javax.swing.JDialog {
         jScrollPane2.setViewportView(tableOffers);
 
         bRemoveOffer.setText("Отказаться от предложения");
+        bRemoveOffer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bRemoveOfferActionPerformed(evt);
+            }
+        });
 
         bChangeOffer.setText("Изменить предложение");
+        bChangeOffer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bChangeOfferActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(440, Short.MAX_VALUE)
                         .addComponent(bRemoveOffer)
                         .addGap(18, 18, 18)
-                        .addComponent(bChangeOffer)))
+                        .addComponent(bChangeOffer))
+                    .addComponent(jScrollPane2))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(14, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 334, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bRemoveOffer)
                     .addComponent(bChangeOffer))
@@ -175,6 +177,19 @@ public class MyOffersForm extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bChangeOfferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeOfferActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bChangeOfferActionPerformed
+
+    private void bRemoveOfferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRemoveOfferActionPerformed
+        int result = JOptionPane.showConfirmDialog(null,
+                "Отказаться?", "Подтверждение отказа", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            Offer selectedOffer = getSelectedOffer();
+            TransferMarket.getInstance().removeOffer(selectedOffer);
+        }
+    }//GEN-LAST:event_bRemoveOfferActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

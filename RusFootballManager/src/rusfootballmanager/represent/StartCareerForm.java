@@ -1,4 +1,4 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import java.util.ArrayList;
 import java.util.List;

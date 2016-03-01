@@ -1,4 +1,4 @@
-package rusfootballmanager.forms;
+package rusfootballmanager.represent;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
@@ -14,6 +14,7 @@ import rusfootballmanager.RenderUtil;
 import rusfootballmanager.entities.Condition;
 import rusfootballmanager.transfers.Filter;
 import rusfootballmanager.entities.GlobalPosition;
+import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
 import rusfootballmanager.transfers.TransferFilterType;
@@ -561,7 +562,15 @@ public class TransferForm extends javax.swing.JDialog {
         TransferPlayer transferPlayer = getSelectedTransferAll();
         if (transferPlayer != null) {
             if (!team.containsPlayer(transferPlayer.getPlayer())) {
-                if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
+                List<Offer> myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
+                boolean did = false;
+                for (Offer myOffer : myOffers) {
+                    if(myOffer.getPlayer() == transferPlayer.getPlayer()){
+                        did = true;
+                        break;
+                    }
+                }
+                if (did) {
                     JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
                 } else {
                     TransferOfferForm offerForm = new TransferOfferForm(null, true);
@@ -576,9 +585,15 @@ public class TransferForm extends javax.swing.JDialog {
         TransferPlayer transferPlayer = getSelectedTransferAll();
         if (transferPlayer != null) {
             if (!team.containsPlayer(transferPlayer.getPlayer())) {
-                if (transferPlayer.getOffers() != null && transferPlayer.getOffers().containsKey(team)) {
-                    JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
-                } else {
+                List<Offer> myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
+                boolean did = false;
+                for (Offer myOffer : myOffers) {
+                    if(myOffer.getPlayer() == transferPlayer.getPlayer()){
+                        did = true;
+                        break;
+                    }
+                }
+                if (did) {
                     TransferOfferForm offerForm = new TransferOfferForm(null, true);
                     offerForm.setParams(transferPlayer, team, TransferStatus.TO_RENT);
                     offerForm.setVisible(true);
@@ -706,7 +721,9 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_bTryGetRentActionPerformed
 
     private void bMyOffersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bMyOffersActionPerformed
-        // TODO add your handling code here:
+        MyOffersForm myOffersForm = new MyOffersForm(null, true);
+        myOffersForm.init(team);
+        myOffersForm.setVisible(true);
     }//GEN-LAST:event_bMyOffersActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
