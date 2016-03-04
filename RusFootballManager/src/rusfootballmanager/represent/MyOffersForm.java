@@ -85,7 +85,7 @@ public class MyOffersForm extends javax.swing.JDialog {
     }
 
     public void init(Team team) {
-        myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
+        myOffers = TransferMarket.getInstance().getOffers(team);
     }
 
     private Offer getSelectedOffer() {
@@ -106,6 +106,7 @@ public class MyOffersForm extends javax.swing.JDialog {
         bChangeOffer = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Мои предложения");
 
         tableOffers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

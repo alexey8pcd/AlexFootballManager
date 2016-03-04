@@ -65,7 +65,7 @@ public class Team implements XMLParseable, Comparable<Team> {
             player.decreaseMood(7);
         }
         List<TransferPlayer> transfers
-                = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(this);
+                = TransferMarket.getInstance().getTransfers(this);
         for (TransferPlayer transfer : transfers) {
             if (transfer.getPlayer() == player) {
                 playersOnRent.remove(player);
@@ -79,7 +79,7 @@ public class Team implements XMLParseable, Comparable<Team> {
             player.decreaseMood(4);
         }
         List<TransferPlayer> transfers
-                = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(this);
+                = TransferMarket.getInstance().getTransfers(this);
         for (TransferPlayer transfer : transfers) {
             if (transfer.getPlayer() == player) {
                 playersOnTransfer.remove(player);

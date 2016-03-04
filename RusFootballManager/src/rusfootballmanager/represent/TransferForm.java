@@ -3,7 +3,9 @@ package rusfootballmanager.represent;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -11,13 +13,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import rusfootballmanager.RenderUtil;
-import rusfootballmanager.entities.Condition;
 import rusfootballmanager.transfers.Filter;
 import rusfootballmanager.entities.GlobalPosition;
+import rusfootballmanager.entities.LocalPosition;
 import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
-import rusfootballmanager.transfers.TransferFilterType;
 import rusfootballmanager.transfers.TransferMarket;
 import rusfootballmanager.transfers.TransferPlayer;
 import rusfootballmanager.transfers.TransferStatus;
@@ -30,9 +31,8 @@ public class TransferForm extends javax.swing.JDialog {
 
     private Team team;
     private List<TransferPlayer> transferPlayers = Collections.EMPTY_LIST;
-    private TransferFilterType transferFilterType;
-    private TransferStatus transferStatus;
-    private Filter filter = new Filter(transferFilterType, Condition.MORE, PROPERTIES);
+    private Filter filter = new Filter();
+    private boolean filtered = false;
 
     private static final String[] HEADERS = {
         "Имя/фамилия",
@@ -44,6 +44,32 @@ public class TransferForm extends javax.swing.JDialog {
         "Стоимость",
         "Команда"
     };
+
+    private String[] localPositionCurrentData;
+    private String[][] localPositionData;
+    private String[] empty = {};
+
+    {
+        EnumSet<LocalPosition> defenders = GlobalPosition.DEFENDER.getLocalPositions();
+        EnumSet<LocalPosition> midfielders = GlobalPosition.MIDFIELDER.getLocalPositions();
+        EnumSet<LocalPosition> forwards = GlobalPosition.FORWARD.getLocalPositions();
+        localPositionData = new String[][]{
+            namesToArray(defenders),
+            namesToArray(midfielders),
+            namesToArray(forwards)
+        };
+        localPositionCurrentData = empty;
+    }
+
+    private String[] namesToArray(EnumSet<LocalPosition> positions) {
+        int index = 1;
+        String[] result = new String[positions.size() + 1];
+        result[0] = "Не важно";
+        for (LocalPosition position : positions) {
+            result[index++] = position.getAbreviation();
+        }
+        return result;
+    }
 
     private TableModel transferTableModel = new DefaultTableModel() {
 
@@ -125,16 +151,164 @@ public class TransferForm extends javax.swing.JDialog {
                 return this;
             }
         });
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(localPositionCurrentData);
+        comboLocal.setModel(model);
+        comboLocal.setEnabled(false);
     }
 
     public void setTeam(Team team) {
         this.team = team;
-        transferStatus = TransferStatus.ANY;
-        transferFilterType = TransferFilterType.BY_AGE;
-        filter = new Filter(transferFilterType, Condition.MORE, null);
+        filter.setTransferStatus(TransferStatus.ANY);
         rbAnyStatus.setEnabled(true);
-        transferPlayers = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(team);
+        transferPlayers = TransferMarket.getInstance().getTransfers(team);
         tableTransfers.updateUI();
+    }
+
+    private void researchPlayersWithoutFilter() {
+        if (rbMyTeam.isSelected()) {
+            transferPlayers = TransferMarket.getInstance().getTransfers(team);
+        } else {
+            transferPlayers = TransferMarket.getInstance().getTransfers();
+        }
+        tableTransfers.getSelectionModel().clearSelection();
+        tableTransfers.getRowSorter().modelStructureChanged();
+        tableTransfers.updateUI();
+    }
+
+    private void researchPlayersWithFilter() {
+        filter.setName(tfName.getText());
+        filter.setAgeFrom(cbAgeFrom.isSelected() 
+                ? (int) spinnerAgeFrom.getValue() : Filter.DEFAULT_VALUE);
+        filter.setAgeTo(cbAgeTo.isSelected() 
+                ? (int) spinnerAgeTo.getValue() : Filter.DEFAULT_VALUE);
+        filter.setAvgFrom(cbAvgFrom.isSelected() 
+                ? (int) spinnerAvgFrom.getValue() : Filter.DEFAULT_VALUE);
+        filter.setAvgTo(cbAvgTo.isSelected() 
+                ? (int) spinnerAvgTo.getValue() : Filter.DEFAULT_VALUE);
+        if (rbMyTeam.isSelected()) {
+            transferPlayers = TransferMarket.getInstance().getTransfers(team, filter);
+        } else {
+            transferPlayers = TransferMarket.getInstance().getTransfers(filter);
+        }
+        tableTransfers.getSelectionModel().clearSelection();
+        tableTransfers.getRowSorter().modelStructureChanged();
+        tableTransfers.updateUI();
+    }
+
+    private void makeTransferOfferToPlayer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (transferPlayer != null && !team.containsPlayer(transferPlayer.getPlayer())) {
+            List<Offer> offers = TransferMarket.getInstance().getOffers(team);
+            boolean did = false;
+            for (Offer offer : offers) {
+                if (offer.getPlayer() == transferPlayer.getPlayer()) {
+                    did = true;
+                    break;
+                }
+            }
+            if (did) {
+                JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
+            } else {
+                TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
+                offerForm.setVisible(true);
+            }
+        }
+    }
+
+    private void makeRentOfferToPlayer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (transferPlayer != null) {
+            if (!team.containsPlayer(transferPlayer.getPlayer())) {
+                List<Offer> myOffers = TransferMarket.getInstance().getOffers(team);
+                boolean did = false;
+                for (Offer myOffer : myOffers) {
+                    if (myOffer.getPlayer() == transferPlayer.getPlayer()) {
+                        did = true;
+                        break;
+                    }
+                }
+                if (did) {
+                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                    offerForm.setParams(transferPlayer, team, TransferStatus.TO_RENT);
+                    offerForm.setVisible(true);
+                }
+            }
+        }
+
+    }
+
+    private TransferPlayer getSelectedTransferAll() {
+        int selectedIndex = tableTransfers.getSelectedRow();
+        if (selectedIndex >= 0 && selectedIndex < transferPlayers.size()) {
+            int index = tableTransfers.convertRowIndexToModel(selectedIndex);
+            return transferPlayers.get(index);
+        }
+        return null;
+    }
+
+    private TransferPlayer getSelectedTransfer() {
+        TransferPlayer transferPlayer = getSelectedTransferAll();
+        if (team.containsPlayer(transferPlayer.getPlayer())) {
+            return transferPlayer;
+        } else {
+            return null;
+        }
+
+    }
+
+    private void onTransfer(TransferPlayer transferPlayer) throws HeadlessException {
+        if (transferPlayer != null) {
+            if (transferPlayer.getStatus() != TransferStatus.ON_TRANSFER) {
+                int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
+                        + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    team.onTransfer(transferPlayer.getPlayer());
+                    tableTransfers.updateUI();
+                }
+            }
+        }
+    }
+
+    private void toRent(TransferPlayer transferPlayer) throws HeadlessException {
+        if (transferPlayer != null) {
+            if (transferPlayer.getStatus() != TransferStatus.TO_RENT) {
+                int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
+                        + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    team.onRent(transferPlayer.getPlayer());
+                    tableTransfers.updateUI();
+                }
+            }
+        }
+    }
+
+    private void globalPositionComboAction() {
+        int index = comboGlobal.getSelectedIndex();
+        if (index > 1 && index < 5) {
+            localPositionCurrentData = localPositionData[index - 2];
+            comboLocal.setEnabled(true);
+            switch (index) {
+                case 2:
+                    filter.setGlobalPosition(GlobalPosition.DEFENDER);
+                    break;
+                case 3:
+                    filter.setGlobalPosition(GlobalPosition.MIDFIELDER);
+                    break;
+                case 4:
+                    filter.setGlobalPosition(GlobalPosition.FORWARD);
+            }
+            DefaultComboBoxModel<String> model
+                    = new DefaultComboBoxModel<>(localPositionCurrentData);
+            filter.setLocalPosition(null);
+            comboLocal.setModel(model);
+            comboLocal.updateUI();
+        } else {
+            localPositionCurrentData = empty;
+            filter.setGlobalPosition(index == 0 ? null : GlobalPosition.GOALKEEPER);
+            comboLocal.setEnabled(false);
+            comboLocal.updateUI();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -149,25 +323,29 @@ public class TransferForm extends javax.swing.JDialog {
         rbMyTeam = new javax.swing.JRadioButton();
         rbAllTeams = new javax.swing.JRadioButton();
         jPanel1 = new javax.swing.JPanel();
-        rbByName = new javax.swing.JRadioButton();
-        rbByAge = new javax.swing.JRadioButton();
-        rbByAverage = new javax.swing.JRadioButton();
-        rbByPosition = new javax.swing.JRadioButton();
-        rbByGlobalPosition = new javax.swing.JRadioButton();
-        comboBoxCondition = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
-        cbFilterEnable = new javax.swing.JCheckBox();
-        jLabel2 = new javax.swing.JLabel();
-        tfFromEquals = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        tfTo = new javax.swing.JTextField();
-        comboPosition = new javax.swing.JComboBox<>();
+        comboGlobal = new javax.swing.JComboBox<>();
+        comboLocal = new javax.swing.JComboBox<>();
+        jPanel3 = new javax.swing.JPanel();
+        rbAnyStatus = new javax.swing.JRadioButton();
         rbForSale = new javax.swing.JRadioButton();
         rbForRent = new javax.swing.JRadioButton();
         rbOnSaleOrRent = new javax.swing.JRadioButton();
-        rbAnyStatus = new javax.swing.JRadioButton();
-        jLabel4 = new javax.swing.JLabel();
+        rbFreeAgentStatus = new javax.swing.JRadioButton();
+        tfName = new javax.swing.JTextField();
+        jPanel4 = new javax.swing.JPanel();
+        cbAgeFrom = new javax.swing.JCheckBox();
+        cbAgeTo = new javax.swing.JCheckBox();
+        cbAvgFrom = new javax.swing.JCheckBox();
+        cbAvgTo = new javax.swing.JCheckBox();
+        spinnerAgeFrom = new javax.swing.JSpinner();
+        spinnerAgeTo = new javax.swing.JSpinner();
+        spinnerAvgFrom = new javax.swing.JSpinner();
+        spinnerAvgTo = new javax.swing.JSpinner();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         bApplyFilter = new javax.swing.JButton();
+        bClearFilter = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         bToRent = new javax.swing.JButton();
         bOnSale = new javax.swing.JButton();
@@ -219,66 +397,28 @@ public class TransferForm extends javax.swing.JDialog {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Фильтр"));
 
-        bgFilterGroup.add(rbByName);
-        rbByName.setText("По имени/фамилии");
-        rbByName.addActionListener(new java.awt.event.ActionListener() {
+        comboGlobal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Не важно", "Вратарь", "Защитник", "Полузащитник", "Нападающий" }));
+        comboGlobal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbByNameActionPerformed(evt);
+                comboGlobalActionPerformed(evt);
             }
         });
 
-        bgFilterGroup.add(rbByAge);
-        rbByAge.setSelected(true);
-        rbByAge.setText("По возрасту");
-        rbByAge.addActionListener(new java.awt.event.ActionListener() {
+        comboLocal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Не важно" }));
+        comboLocal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbByAgeActionPerformed(evt);
+                comboLocalActionPerformed(evt);
             }
         });
 
-        bgFilterGroup.add(rbByAverage);
-        rbByAverage.setText("По общему");
-        rbByAverage.addActionListener(new java.awt.event.ActionListener() {
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Статус"));
+
+        bgTransferStatus.add(rbAnyStatus);
+        rbAnyStatus.setSelected(true);
+        rbAnyStatus.setText("Не важно");
+        rbAnyStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbByAverageActionPerformed(evt);
-            }
-        });
-
-        bgFilterGroup.add(rbByPosition);
-        rbByPosition.setText("По позиции");
-        rbByPosition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbByPositionActionPerformed(evt);
-            }
-        });
-
-        bgFilterGroup.add(rbByGlobalPosition);
-        rbByGlobalPosition.setText("По амплуа");
-        rbByGlobalPosition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbByGlobalPositionActionPerformed(evt);
-            }
-        });
-
-        comboBoxCondition.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Равно или содержит", "Не равно или не содержит", "Больше", "Меньше", "Больше, чем и меньше, чем" }));
-        comboBoxCondition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboBoxConditionActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("Условие");
-
-        cbFilterEnable.setText("Активен");
-
-        jLabel2.setText("От/Соответствует");
-
-        jLabel3.setText("До");
-
-        comboPosition.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Вратарь", "Защитник", "Полузащитник", "Нападающий" }));
-        comboPosition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboPositionActionPerformed(evt);
+                rbAnyStatusActionPerformed(evt);
             }
         });
 
@@ -306,22 +446,150 @@ public class TransferForm extends javax.swing.JDialog {
             }
         });
 
-        bgTransferStatus.add(rbAnyStatus);
-        rbAnyStatus.setSelected(true);
-        rbAnyStatus.setText("Не важно");
-        rbAnyStatus.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(rbFreeAgentStatus);
+        rbFreeAgentStatus.setText("Свободный агент");
+        rbFreeAgentStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbAnyStatusActionPerformed(evt);
+                rbFreeAgentStatusActionPerformed(evt);
             }
         });
 
-        jLabel4.setText("Позиция");
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(rbAnyStatus)
+                    .addComponent(rbForSale)
+                    .addComponent(rbForRent)
+                    .addComponent(rbOnSaleOrRent)
+                    .addComponent(rbFreeAgentStatus))
+                .addContainerGap(9, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(rbAnyStatus)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(rbForSale)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rbForRent)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rbOnSaleOrRent)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(rbFreeAgentStatus)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
-        bApplyFilter.setText("Применить");
-        bApplyFilter.setEnabled(false);
+        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        cbAgeFrom.setText("Возраст от:");
+        cbAgeFrom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbAgeFromActionPerformed(evt);
+            }
+        });
+
+        cbAgeTo.setText("Возраст до:");
+        cbAgeTo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbAgeToActionPerformed(evt);
+            }
+        });
+
+        cbAvgFrom.setText("Общее от:");
+        cbAvgFrom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbAvgFromActionPerformed(evt);
+            }
+        });
+
+        cbAvgTo.setText("Общее до:");
+        cbAvgTo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbAvgToActionPerformed(evt);
+            }
+        });
+
+        spinnerAgeFrom.setModel(new javax.swing.SpinnerNumberModel(16, 16, 36, 1));
+        spinnerAgeFrom.setEnabled(false);
+
+        spinnerAgeTo.setModel(new javax.swing.SpinnerNumberModel(36, 16, 36, 1));
+        spinnerAgeTo.setEnabled(false);
+
+        spinnerAvgFrom.setModel(new javax.swing.SpinnerNumberModel(50, 1, 90, 5));
+        spinnerAvgFrom.setEnabled(false);
+
+        spinnerAvgTo.setModel(new javax.swing.SpinnerNumberModel(50, 25, 99, 5));
+        spinnerAvgTo.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbAgeFrom)
+                    .addComponent(cbAgeTo)
+                    .addComponent(cbAvgFrom)
+                    .addComponent(cbAvgTo))
+                .addGap(12, 12, 12)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbAgeFrom)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(8, 8, 8)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbAgeTo)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(8, 8, 8)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbAvgFrom)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(3, 3, 3)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbAvgTo)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jLabel1.setText("Амплуа");
+
+        jLabel2.setText("Позиция");
+
+        jLabel3.setText("Имя/фамилия");
+
+        bApplyFilter.setText("Отфильтровать");
         bApplyFilter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bApplyFilterActionPerformed(evt);
+            }
+        });
+
+        bClearFilter.setText("Сбросить");
+        bClearFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bClearFilterActionPerformed(evt);
             }
         });
 
@@ -331,97 +599,52 @@ public class TransferForm extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbFilterEnable)
-                    .addComponent(rbForSale)
-                    .addComponent(rbForRent)
-                    .addComponent(rbOnSaleOrRent)
-                    .addComponent(rbAnyStatus))
-                .addGap(52, 52, 52)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rbByAverage)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(rbByGlobalPosition)
-                                    .addComponent(rbByPosition))
-                                .addGap(44, 44, 44)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(comboBoxCondition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel3)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel3))
+                        .addGap(48, 48, 48)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rbByAge)
-                            .addComponent(rbByName))
-                        .addGap(8, 8, 8)
-                        .addComponent(jLabel4)
+                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(bApplyFilter)
                         .addGap(18, 18, 18)
-                        .addComponent(comboPosition, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(42, 42, 42)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bApplyFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tfFromEquals)
-                    .addComponent(tfTo))
+                        .addComponent(bClearFilter)
+                        .addGap(67, 67, 67)))
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(rbByPosition)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(rbByGlobalPosition, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rbByAverage)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rbByAge)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(rbByName)
-                            .addComponent(bApplyFilter)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(tfFromEquals, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cbFilterEnable, javax.swing.GroupLayout.Alignment.TRAILING))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addComponent(rbForSale)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(rbForRent))
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(49, 49, 49)
-                                                .addComponent(rbOnSaleOrRent)))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(rbAnyStatus))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(21, 21, 21)
-                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                    .addComponent(tfTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(jLabel3)))
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(4, 4, 4)
-                                                .addComponent(comboBoxCondition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                            .addComponent(comboPosition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel4)))))
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))))
+                            .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addGap(14, 14, 14)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(bApplyFilter)
+                            .addComponent(bClearFilter)))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -534,172 +757,43 @@ public class TransferForm extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void rbMyTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbMyTeamActionPerformed
-        researchPlayers();
         bTryBuy.setEnabled(false);
         bTryGetRent.setEnabled(false);
+        if (filtered) {
+            researchPlayersWithFilter();
+        } else {
+            researchPlayersWithoutFilter();
+        }
     }//GEN-LAST:event_rbMyTeamActionPerformed
 
-    private void researchPlayers() {
-        filter.setFirstParameter(tfFromEquals.getText());
-        filter.setSecondParameter(tfTo.getText());
-        if (rbMyTeam.isSelected()) {
-            tableTransfers.setRowSelectionInterval(0, 0);
-            if (cbFilterEnable.isSelected()) {
-                transferPlayers = TransferMarket.getInstance().getTransfersByTeam(transferStatus, team, filter);
-            } else {
-                transferPlayers = TransferMarket.getInstance().getTransfersByTeamWithoutFilter(team);
-            }
-        } else if (cbFilterEnable.isSelected()) {
-            transferPlayers = TransferMarket.getInstance().getTransfers(transferStatus, filter);
-        } else {
-            transferPlayers = TransferMarket.getInstance().getTransfersWithoutFilter();
-        }
-        tableTransfers.getRowSorter().modelStructureChanged();
-        tableTransfers.updateUI();
-    }
-
-    private void makeTransferOfferToPlayer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
-        if (transferPlayer != null) {
-            if (!team.containsPlayer(transferPlayer.getPlayer())) {
-                List<Offer> myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
-                boolean did = false;
-                for (Offer myOffer : myOffers) {
-                    if(myOffer.getPlayer() == transferPlayer.getPlayer()){
-                        did = true;
-                        break;
-                    }
-                }
-                if (did) {
-                    JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
-                } else {
-                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
-                    offerForm.setVisible(true);
-                }
-            }
-        }
-    }
-
-    private void makeRentOfferToPlayer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
-        if (transferPlayer != null) {
-            if (!team.containsPlayer(transferPlayer.getPlayer())) {
-                List<Offer> myOffers = TransferMarket.getInstance().getDesiredPlayers(team);
-                boolean did = false;
-                for (Offer myOffer : myOffers) {
-                    if(myOffer.getPlayer() == transferPlayer.getPlayer()){
-                        did = true;
-                        break;
-                    }
-                }
-                if (did) {
-                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transferPlayer, team, TransferStatus.TO_RENT);
-                    offerForm.setVisible(true);
-                }
-            }
-        }
-
-    }
-
-    private TransferPlayer getSelectedTransferAll() {
-        int selectedIndex = tableTransfers.getSelectedRow();
-        if (selectedIndex >= 0 && selectedIndex < transferPlayers.size()) {
-            int index = tableTransfers.convertRowIndexToModel(selectedIndex);
-            return transferPlayers.get(index);
-        }
-        return null;
-    }
-
-    private TransferPlayer getSelectedTransfer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
-        if (team.containsPlayer(transferPlayer.getPlayer())) {
-            return transferPlayer;
-        } else {
-            return null;
-        }
-
-    }
-
-    private void onTransfer(TransferPlayer transferPlayer) throws HeadlessException {
-        if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != TransferStatus.ON_TRANSFER) {
-                int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
-                        + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    team.onTransfer(transferPlayer.getPlayer());
-                    tableTransfers.updateUI();
-                }
-            }
-        }
-    }
-
-    private void toRent(TransferPlayer transferPlayer) throws HeadlessException {
-        if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != TransferStatus.TO_RENT) {
-                int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
-                        + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    team.onRent(transferPlayer.getPlayer());
-                    tableTransfers.updateUI();
-                }
-            }
-        }
-    }
-
     private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
-        transferStatus = TransferStatus.ON_TRANSFER;
+        filter.setTransferStatus(TransferStatus.ON_TRANSFER);
     }//GEN-LAST:event_rbForSaleActionPerformed
 
     private void rbForRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForRentActionPerformed
-        transferStatus = TransferStatus.TO_RENT;
+        filter.setTransferStatus(TransferStatus.TO_RENT);
     }//GEN-LAST:event_rbForRentActionPerformed
 
     private void rbOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbOnSaleOrRentActionPerformed
-        transferStatus = TransferStatus.ON_TRANSFER_OR_RENT;
+        filter.setTransferStatus(TransferStatus.ON_TRANSFER_OR_RENT);
     }//GEN-LAST:event_rbOnSaleOrRentActionPerformed
 
     private void rbAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAnyStatusActionPerformed
-        transferStatus = TransferStatus.ANY;
+        filter.setTransferStatus(TransferStatus.ANY);
     }//GEN-LAST:event_rbAnyStatusActionPerformed
 
-    private void bApplyFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bApplyFilterActionPerformed
-        researchPlayers();
-    }//GEN-LAST:event_bApplyFilterActionPerformed
-
-    private void rbByPositionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbByPositionActionPerformed
-        this.transferFilterType = TransferFilterType.BY_LOCAL_POSITION;
-    }//GEN-LAST:event_rbByPositionActionPerformed
-
-    private void rbByGlobalPositionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbByGlobalPositionActionPerformed
-        this.transferFilterType = TransferFilterType.BY_GLOBAL_POSITION;
-    }//GEN-LAST:event_rbByGlobalPositionActionPerformed
-
-    private void rbByAverageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbByAverageActionPerformed
-        this.transferFilterType = TransferFilterType.BY_AVERAGE;
-    }//GEN-LAST:event_rbByAverageActionPerformed
-
-    private void rbByAgeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbByAgeActionPerformed
-        this.transferFilterType = TransferFilterType.BY_AGE;
-    }//GEN-LAST:event_rbByAgeActionPerformed
-
-    private void rbByNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbByNameActionPerformed
-        this.transferFilterType = TransferFilterType.BY_NAME;
-    }//GEN-LAST:event_rbByNameActionPerformed
-
-    private void comboBoxConditionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxConditionActionPerformed
-        filter.setCondition(Condition.getByIndex(comboBoxCondition.getSelectedIndex()));
-    }//GEN-LAST:event_comboBoxConditionActionPerformed
-
-    private void comboPositionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboPositionActionPerformed
-        filter.setFirstParameter(GlobalPosition.getByIndex(comboPosition.getSelectedIndex()));
-    }//GEN-LAST:event_comboPositionActionPerformed
+    private void comboGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGlobalActionPerformed
+        globalPositionComboAction();
+    }//GEN-LAST:event_comboGlobalActionPerformed
 
     private void rbAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAllTeamsActionPerformed
         bTryBuy.setEnabled(true);
         bTryGetRent.setEnabled(true);
-        researchPlayers();
+        if (filtered) {
+            researchPlayersWithFilter();
+        } else {
+            researchPlayersWithoutFilter();
+        }
     }//GEN-LAST:event_rbAllTeamsActionPerformed
 
     private void bTryBuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTryBuyActionPerformed
@@ -726,8 +820,44 @@ public class TransferForm extends javax.swing.JDialog {
         myOffersForm.setVisible(true);
     }//GEN-LAST:event_bMyOffersActionPerformed
 
+    private void rbFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbFreeAgentStatusActionPerformed
+        filter.setTransferStatus(TransferStatus.FREE_AGENT);
+    }//GEN-LAST:event_rbFreeAgentStatusActionPerformed
+
+    private void comboLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLocalActionPerformed
+        filter.setLocalPosition(LocalPosition.getByAbreviation(
+                comboLocal.getSelectedItem().toString()));
+    }//GEN-LAST:event_comboLocalActionPerformed
+
+    private void cbAgeFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAgeFromActionPerformed
+        spinnerAgeFrom.setEnabled(cbAgeFrom.isSelected());
+    }//GEN-LAST:event_cbAgeFromActionPerformed
+
+    private void cbAgeToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAgeToActionPerformed
+        spinnerAgeTo.setEnabled(cbAgeTo.isSelected());
+    }//GEN-LAST:event_cbAgeToActionPerformed
+
+    private void cbAvgFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAvgFromActionPerformed
+        spinnerAvgFrom.setEnabled(cbAvgFrom.isSelected());
+    }//GEN-LAST:event_cbAvgFromActionPerformed
+
+    private void cbAvgToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAvgToActionPerformed
+        spinnerAvgTo.setEnabled(cbAvgTo.isSelected());
+    }//GEN-LAST:event_cbAvgToActionPerformed
+
+    private void bApplyFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bApplyFilterActionPerformed
+        filtered = true;
+        researchPlayersWithFilter();
+    }//GEN-LAST:event_bApplyFilterActionPerformed
+
+    private void bClearFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bClearFilterActionPerformed
+        filtered = false;
+        researchPlayersWithoutFilter();
+    }//GEN-LAST:event_bClearFilterActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bApplyFilter;
+    private javax.swing.JButton bClearFilter;
     private javax.swing.JButton bMyOffers;
     private javax.swing.JButton bOnSale;
     private javax.swing.JButton bToRent;
@@ -736,30 +866,33 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.ButtonGroup bgFilterGroup;
     private javax.swing.ButtonGroup bgTeamGroup;
     private javax.swing.ButtonGroup bgTransferStatus;
-    private javax.swing.JCheckBox cbFilterEnable;
-    private javax.swing.JComboBox<String> comboBoxCondition;
-    private javax.swing.JComboBox<String> comboPosition;
+    private javax.swing.JCheckBox cbAgeFrom;
+    private javax.swing.JCheckBox cbAgeTo;
+    private javax.swing.JCheckBox cbAvgFrom;
+    private javax.swing.JCheckBox cbAvgTo;
+    private javax.swing.JComboBox<String> comboGlobal;
+    private javax.swing.JComboBox<String> comboLocal;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JRadioButton rbAllTeams;
     private javax.swing.JRadioButton rbAnyStatus;
-    private javax.swing.JRadioButton rbByAge;
-    private javax.swing.JRadioButton rbByAverage;
-    private javax.swing.JRadioButton rbByGlobalPosition;
-    private javax.swing.JRadioButton rbByName;
-    private javax.swing.JRadioButton rbByPosition;
     private javax.swing.JRadioButton rbForRent;
     private javax.swing.JRadioButton rbForSale;
+    private javax.swing.JRadioButton rbFreeAgentStatus;
     private javax.swing.JRadioButton rbMyTeam;
     private javax.swing.JRadioButton rbOnSaleOrRent;
+    private javax.swing.JSpinner spinnerAgeFrom;
+    private javax.swing.JSpinner spinnerAgeTo;
+    private javax.swing.JSpinner spinnerAvgFrom;
+    private javax.swing.JSpinner spinnerAvgTo;
     private javax.swing.JTable tableTransfers;
-    private javax.swing.JTextField tfFromEquals;
-    private javax.swing.JTextField tfTo;
+    private javax.swing.JTextField tfName;
     // End of variables declaration//GEN-END:variables
 
 }

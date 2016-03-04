@@ -16,6 +16,16 @@ public enum LocalPosition {
     CENTRAL_FORWARD("ЦФ", 0.0909),
     LEFT_WING_FORWARD("ЛКФ", 0.0909);
 
+    public static LocalPosition getByAbreviation(String abreviation) {
+        LocalPosition[] values = LocalPosition.values();
+        for (LocalPosition value : values) {
+            if(value.abreviation.equalsIgnoreCase(abreviation)){
+                return value;
+            }
+        }
+        return null;
+    }
+
     private final String abreviation;
     private final double probability;
 

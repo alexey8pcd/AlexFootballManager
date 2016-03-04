@@ -1,117 +1,127 @@
 package rusfootballmanager.transfers;
 
-import java.util.List;
-import java.util.stream.Stream;
-import rusfootballmanager.entities.Condition;
 import rusfootballmanager.entities.GlobalPosition;
 import rusfootballmanager.entities.LocalPosition;
+import rusfootballmanager.entities.Player;
 
 public class Filter {
 
-    private TransferFilterType filterType;
-    private Condition condition;
+    public static final int DEFAULT_VALUE = 0;
 
-    private Object firstParameter;
-    private Object secondParameter;
+    private TransferStatus transferStatus;
+    private GlobalPosition globalPosition;
+    private LocalPosition localPosition;
+    private String name;
+    private int ageFrom;
+    private int ageTo;
+    private int avgFrom;
+    private int avgTo;
 
-    public Filter(TransferFilterType filterType, Condition condition,
-            Object firstParameter, Object secondParameter) {
-        this.filterType = filterType;
-        this.condition = condition;
-        this.firstParameter = firstParameter;
-        this.secondParameter = secondParameter;
+    public Filter(TransferStatus transferStatus) {
+        this.transferStatus = transferStatus;
     }
 
-    public void setFilterType(TransferFilterType filterType) {
-        this.filterType = filterType;
+    public Filter() {
+        transferStatus = TransferStatus.ANY;
     }
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
+    public GlobalPosition getGlobalPosition() {
+        return globalPosition;
     }
 
-    public void setFirstParameter(Object firstParameter) {
-        this.firstParameter = firstParameter;
+    public void setGlobalPosition(GlobalPosition globalPosition) {
+        this.globalPosition = globalPosition;
     }
 
-    public void setSecondParameter(Object secondParameter) {
-        this.secondParameter = secondParameter;
+    public LocalPosition getLocalPosition() {
+        return localPosition;
     }
 
-    public Filter(TransferFilterType filterType, Condition condition,
-            Object firstParameter) {
-        this.filterType = filterType;
-        this.condition = condition;
-        this.firstParameter = firstParameter;
-        secondParameter = null;
+    public void setLocalPosition(LocalPosition localPosition) {
+        this.localPosition = localPosition;
     }
 
-    public Stream filter(Stream<TransferPlayer> players) {
-        switch (filterType) {
-            case BY_NAME:
-                return players.filter((transfer) -> {
-                    String searchedName = firstParameter.toString().toLowerCase();
-                    String candidateName = transfer.getPlayer().getFullName().toLowerCase();
-                    boolean contains = candidateName.contains(searchedName);
-                    if (condition == Condition.EQUALS) {
-                        return !contains;
-                    } else {
-                        return contains;
-                    }
-                });
+    public String getName() {
+        return name;
+    }
 
-            case BY_AGE:
-                return players.filter((transfer) -> {
-                    int fromAge = (int) firstParameter;
-                    int toAge = secondParameter == null ? 0 : (int) secondParameter;
-                    int age = transfer.getPlayer().getAge();
-                    switch (condition) {
-                        case EQUALS:
-                            return age != fromAge;
-                        case NOT_EQUALS:
-                            return age == fromAge;
-                        case MORE:
-                            return age <= fromAge;
-                        case LESS:
-                            return age >= fromAge;
-                        case MORE_AND_LESS:
-                            return !(age > fromAge && age < toAge);
-                    }
-                    return true;
-                });
-            case BY_AVERAGE:
-                return players.filter((transfer) -> {
-                    int fromAverage = (int) firstParameter;
-                    int toAverage = secondParameter == null ? 0 : (int) secondParameter;
-                    int average = transfer.getPlayer().getAverage();
-                    switch (condition) {
-                        case EQUALS:
-                            return average != fromAverage;
-                        case NOT_EQUALS:
-                            return average == fromAverage;
-                        case MORE:
-                            return average <= fromAverage;
-                        case LESS:
-                            return average >= fromAverage;
-                        case MORE_AND_LESS:
-                            return !(average > fromAverage && average < toAverage);
-                    }
-                    return true;
-                });
-            case BY_LOCAL_POSITION:
-                return players.filter((transfer) -> {
-                    LocalPosition localPosition = (LocalPosition) firstParameter;
-                    return transfer.getPlayer().getPreferredPosition() != localPosition;
-                });
-            case BY_GLOBAL_POSITION:
-                return players.filter((transfer) -> {
-                    GlobalPosition position = (GlobalPosition) firstParameter;
-                    return transfer.getPlayer().getPreferredPosition().
-                            getPositionOnField() != position;
-                });
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    public int getAgeFrom() {
+        return ageFrom;
+    }
+
+    public void setAgeFrom(int ageFrom) {
+        this.ageFrom = ageFrom;
+    }
+
+    public int getAgeTo() {
+        return ageTo;
+    }
+
+    public void setAgeTo(int ageTo) {
+        this.ageTo = ageTo;
+    }
+
+    public int getAvgFrom() {
+        return avgFrom;
+    }
+
+    public void setAvgFrom(int avgFrom) {
+        this.avgFrom = avgFrom;
+    }
+
+    public int getAvgTo() {
+        return avgTo;
+    }
+
+    public void setAvgTo(int avgTo) {
+        this.avgTo = avgTo;
+    }
+
+    public TransferStatus getTransferStatus() {
+        return transferStatus;
+    }
+
+    public void setTransferStatus(TransferStatus transferStatus) {
+        this.transferStatus = transferStatus;
+    }
+
+    public boolean accept(TransferPlayer transferPlayer) {
+        boolean matchByStatus;
+        switch (transferStatus) {
+            case ON_TRANSFER:
+            case TO_RENT:
+            case ON_CONTRACT:
+            case FREE_AGENT:
+                matchByStatus = transferStatus == transferPlayer.getStatus();
+                break;
+            case ON_TRANSFER_OR_RENT:
+                matchByStatus
+                        = TransferStatus.TO_RENT == transferPlayer.getStatus()
+                        || TransferStatus.ON_TRANSFER == transferPlayer.getStatus();
+                break;
+            default:
+                matchByStatus = true;
         }
-        return players;
+        Player player = transferPlayer.getPlayer();
+        boolean matchByGlobal = globalPosition == null
+                ? true : globalPosition == player.getCurrentPositionOnField();
+        boolean matchByLocalPosition = localPosition == null
+                ? true : localPosition == player.getPreferredPosition();
+        boolean matchByName = name == null
+                ? true : player.getFullName().toLowerCase().contains(name.toLowerCase());
+        boolean matchByAgeFrom = ageFrom == DEFAULT_VALUE
+                ? true : player.getAge() >= ageFrom;
+        boolean matchByAgeTo = ageTo == DEFAULT_VALUE
+                ? true : player.getAge() <= ageTo;
+        boolean matchByAvgFrom = avgFrom == DEFAULT_VALUE
+                ? true : player.getAverage() >= avgFrom;
+        boolean matchByAvgTo = avgTo == DEFAULT_VALUE
+                ? true : player.getAverage() <= avgTo;
+        return matchByAgeFrom && matchByAgeTo && matchByAvgFrom && matchByAvgTo
+                && matchByGlobal && matchByLocalPosition && matchByName && matchByStatus;
     }
-
 }
