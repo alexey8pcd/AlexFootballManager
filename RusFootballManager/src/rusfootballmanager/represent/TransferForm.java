@@ -816,7 +816,7 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void bMyOffersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bMyOffersActionPerformed
         MyOffersForm myOffersForm = new MyOffersForm(null, true);
-        myOffersForm.init(team);
+        myOffersForm.setTeam(team);
         myOffersForm.setVisible(true);
     }//GEN-LAST:event_bMyOffersActionPerformed
 

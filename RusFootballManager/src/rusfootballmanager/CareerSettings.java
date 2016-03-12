@@ -41,15 +41,16 @@ public class CareerSettings implements XMLParseable {
         }
         if (transferMarket == null) {
             transferMarket = TransferMarket.getInstance();
-            for (League league : leagues) {
-                List<Team> teams = league.getTeams();
-                for (Team team : teams) {
-                    List<Player> players = team.getAllPlayers();
-                    for (Player player : players) {
-                        transferMarket.addPlayer(player, team, TransferStatus.ON_CONTRACT);
-                    }
-                }
-            }
+            leagues.stream().map((league) -> league.getTeams()).
+                    parallel().forEach((teams) -> {
+                        teams.stream().forEach((team) -> {
+                            List<Player> players = team.getAllPlayers();
+                            players.stream().forEach((player) -> {
+                                transferMarket.addPlayer(player, 
+                                        team, TransferStatus.ON_CONTRACT);
+                            });
+                        });
+                    });
         }
         return leagues;
     }
@@ -76,7 +77,7 @@ public class CareerSettings implements XMLParseable {
     }
 
     public void simulateTransfers() {
-        
+
     }
 
 }

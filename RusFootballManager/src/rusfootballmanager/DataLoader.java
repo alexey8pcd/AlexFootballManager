@@ -78,14 +78,18 @@ public class DataLoader {
                 Team team = new Team(teamName + " (" + city + ")", budget);
                 team.setSponsor(new Sponsor(sponsorName,
                         SponsorStatus.valueOf(sponsorStatus)));
-
                 league.addTeam(team);
                 List<Player> players = createPlayers(masteryLevel);
-                for (Player player : players) {
+                players.stream().map(player -> {
                     player.setContract(new Contract(Randomization.getValueInBounds(1, 6),
                             CostCalculator.calculatePayForMatch(
                                     player.getAge(), player.getAverage())));
+                    return player;
+                }).forEach(player -> {
                     team.addPlayer(player);
+                });
+                for (int i = 0; i < 5; i++) {
+                    team.addJuniorPlayer();
                 }
             }
         }
@@ -93,19 +97,14 @@ public class DataLoader {
     }
 
     private static List<Player> createPlayers(MasteryLevel masteryLevel) {
-        int playersCount = Randomization.getValueInBounds(
-                Team.RECOMMENDED_PLAYERS_COUNT, Team.MAX_PLAYERS_COUNT);
-        List<Player> players = new ArrayList<>(playersCount);
+        List<Player> players = new ArrayList<>();
         LocalPosition[] values = LocalPosition.values();
         for (int i = 0; i < values.length * 2; i++) {
             players.add(PlayerCreator.createPlayer(values[i / 2], masteryLevel));
         }
         players.add(PlayerCreator.createPlayer(GlobalPosition.GOALKEEPER, masteryLevel));
-        --playersCount;
-        playersCount -= values.length * 2;
-        for (int i = 0; i < playersCount; i++) {
-            players.add(PlayerCreator.createYoungPlayerSimple());
-        }
+        players.add(PlayerCreator.createPlayer(LocalPosition.CENTRAL_DEFENDER, masteryLevel));
+        players.add(PlayerCreator.createPlayer(LocalPosition.CENTRAL_DEFENDER, masteryLevel));
         return players;
     }
 

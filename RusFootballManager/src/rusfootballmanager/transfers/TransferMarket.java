@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import rusfootballmanager.entities.Offer;
 import rusfootballmanager.entities.Player;
 import rusfootballmanager.entities.Team;
@@ -76,7 +75,8 @@ public class TransferMarket {
             playersFromTeam = cache.get(team);
         } else {
             playersFromTeam = players.parallelStream().filter(
-                    player -> player.getTeam() == team).collect(Collectors.toList());
+                    player -> player.getTeam() == team).
+                    collect(Collectors.toList());
             cache.put(team, playersFromTeam);
         }
         return playersFromTeam;
@@ -94,9 +94,9 @@ public class TransferMarket {
     }
 
     public List<Offer> getOffers(Team team) {
-        List<Offer> offersByTeam = new ArrayList<>();
-        offersByTeam.parallelStream().filter(off -> off.getFrom() == team)
-                .forEach(off -> offersByTeam.add(off));
+        List<Offer> offersByTeam = offers.parallelStream().
+                filter(off -> off.getFrom() == team)
+                .collect(Collectors.toList());
         return offersByTeam;
     }
 
@@ -105,7 +105,7 @@ public class TransferMarket {
     }
 
     public void removeOffer(Offer selectedOffer) {
-        throw new UnsupportedOperationException();
+        this.offers.remove(selectedOffer);
     }
 
 }

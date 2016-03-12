@@ -11,8 +11,10 @@ import java.util.TreeMap;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import rusfootballmanager.common.CostCalculator;
 import rusfootballmanager.common.XMLFormatter;
 import rusfootballmanager.common.XMLParseable;
+import rusfootballmanager.school.PlayerCreator;
 import rusfootballmanager.transfers.TransferMarket;
 import rusfootballmanager.transfers.TransferPlayer;
 import rusfootballmanager.transfers.TransferStatus;
@@ -31,6 +33,8 @@ public class Team implements XMLParseable, Comparable<Team> {
     private final List<Player> reserve;
     private final Set<Player> playersOnTransfer;
     private final Set<Player> playersOnRent;
+    private final Set<Player> juniors;
+    private int sportschoolLevel;
     private final NavigableMap<Integer, Player> playersNumbers;
     private final Queue<GameResult> lastFiveResults;
 
@@ -57,6 +61,7 @@ public class Team implements XMLParseable, Comparable<Team> {
         lastFiveResults = new LinkedList<>();
         playersOnTransfer = new HashSet<>();
         playersOnRent = new HashSet<>();
+        juniors = new HashSet<>();
     }
 
     public void onTransfer(Player player) {
@@ -66,12 +71,12 @@ public class Team implements XMLParseable, Comparable<Team> {
         }
         List<TransferPlayer> transfers
                 = TransferMarket.getInstance().getTransfers(this);
-        for (TransferPlayer transfer : transfers) {
-            if (transfer.getPlayer() == player) {
-                playersOnRent.remove(player);
-                transfer.setStatus(TransferStatus.ON_TRANSFER);
-            }
-        }
+        transfers.stream()
+                .filter(transfer -> transfer.getPlayer() == player)
+                .forEach(transfer -> {
+                    playersOnRent.remove(player);
+                    transfer.setStatus(TransferStatus.ON_TRANSFER);
+                });
     }
 
     public void onRent(Player player) {
@@ -80,12 +85,32 @@ public class Team implements XMLParseable, Comparable<Team> {
         }
         List<TransferPlayer> transfers
                 = TransferMarket.getInstance().getTransfers(this);
-        for (TransferPlayer transfer : transfers) {
-            if (transfer.getPlayer() == player) {
-                playersOnTransfer.remove(player);
-                transfer.setStatus(TransferStatus.TO_RENT);
-            }
+        transfers.stream()
+                .filter(transfer -> transfer.getPlayer() == player)
+                .forEach((transfer) -> {
+                    playersOnTransfer.remove(player);
+                    transfer.setStatus(TransferStatus.TO_RENT);
+                });
+    }
+
+    public void addSportschollLevel() {
+        if (sportschoolLevel < 10) {
+            ++sportschoolLevel;
         }
+    }
+
+    public void addJuniorPlayer() {
+        Player junior = PlayerCreator.createYoungPlayer(sportschoolLevel);
+        juniors.add(junior);
+        TransferMarket.getInstance().addPlayer(junior, this, TransferStatus.ON_CONTRACT);
+    }
+
+    public List<Player> getJuniors() {
+        return new ArrayList<>(juniors);
+    }
+
+    public int getSportschoolLevel() {
+        return sportschoolLevel;
     }
 
     public void cancelTransferOrRent(Player player) {
@@ -148,7 +173,7 @@ public class Team implements XMLParseable, Comparable<Team> {
         //TODO
     }
 
-    private List<Player> getPlayersOnPosition(LocalPosition position) {
+    public List<Player> getPlayersOnPosition(LocalPosition position) {
         List<Player> players = getAllPlayers();
         players.removeIf((Player p) -> {
             return p.getPreferredPosition() != position;
@@ -181,7 +206,7 @@ public class Team implements XMLParseable, Comparable<Team> {
         return true;
     }
 
-    public void addPlayer(Player player) {
+    public boolean addPlayer(Player player) {
         if (getPlayersCount() < MAX_PLAYERS_COUNT) {
             if (player.getPreferredPosition() == LocalPosition.GOALKEEPER) {
                 if (goalkeeper == null) {
@@ -198,7 +223,9 @@ public class Team implements XMLParseable, Comparable<Team> {
             int number = getFirstFreeNumber();
             playersNumbers.put(number, player);
             player.setNumber(number);
+            return true;
         }
+        return false;
     }
 
     public String getName() {
@@ -451,12 +478,26 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     private List<Player> getPlayers(GlobalPosition position) {
         List<Player> players = new ArrayList<>();
-        for (Player player : startPlayers) {
-            if (player.getCurrentPosition().getPositionOnField() == position) {
-                players.add(player);
+        startPlayers.stream()
+                .filter((player)
+                        -> (player.getCurrentPosition().getPositionOnField() == position))
+                .forEach((player) -> {
+                    players.add(player);
+                });
+        return players;
+    }
+
+    public boolean addPlayerFromSportSchool(Player player) {
+        if (juniors.contains(player)) {
+            if (getPlayersCount() < MAX_PLAYERS_COUNT) {
+                addPlayer(player);
+                juniors.remove(player);
+                player.setContract(
+                        new Contract(2, CostCalculator.calculatePayForMatch(player)));
+                return true;
             }
         }
-        return players;
+        return false;
     }
 
 }

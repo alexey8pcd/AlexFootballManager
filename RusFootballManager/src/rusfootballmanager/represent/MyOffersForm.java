@@ -2,7 +2,6 @@ package rusfootballmanager.represent;
 
 import java.util.Collections;
 import java.util.List;
-import javafx.util.Pair;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import rusfootballmanager.entities.Offer;
@@ -17,6 +16,7 @@ import rusfootballmanager.transfers.TransferMarket;
 public class MyOffersForm extends javax.swing.JDialog {
 
     private List<Offer> myOffers = Collections.EMPTY_LIST;
+    private Team team;
 
     private static final String[] OFFER_TABLE_HEADERS = {
         "Имя/Фамилия",
@@ -84,7 +84,8 @@ public class MyOffersForm extends javax.swing.JDialog {
         tableOffers.setModel(new OffersTableModel());
     }
 
-    public void init(Team team) {
+    public void setTeam(Team team) {
+        this.team = team;
         myOffers = TransferMarket.getInstance().getOffers(team);
     }
 
@@ -189,6 +190,8 @@ public class MyOffersForm extends javax.swing.JDialog {
         if (result == JOptionPane.YES_OPTION) {
             Offer selectedOffer = getSelectedOffer();
             TransferMarket.getInstance().removeOffer(selectedOffer);
+            myOffers = TransferMarket.getInstance().getOffers(team);
+            tableOffers.updateUI();
         }
     }//GEN-LAST:event_bRemoveOfferActionPerformed
 

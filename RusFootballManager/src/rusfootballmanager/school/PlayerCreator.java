@@ -20,13 +20,11 @@ import rusfootballmanager.simulation.PlayerProgressParams;
 public class PlayerCreator {
 
     public static final int MIN_COMMON = 20;
-    public static final int MAX_YOUNG_COMMON = 50;
+    public static final int MAX_YOUNG_COMMON = 40;
 
     public static final int MID_YOUNG_COMMON = (MAX_YOUNG_COMMON + MIN_COMMON) / 2;
     public static final int BETWEEN_YOUNG_COMMON = MAX_YOUNG_COMMON - MIN_COMMON;
 
-    
-    
     public static final int BETWEEN_YOUNG_AGE = MAX_YOUNG_AGE - MIN_AGE;
     public static final int BETWEEN_AGE = MAX_AGE - MAX_YOUNG_AGE;
 
@@ -46,8 +44,9 @@ public class PlayerCreator {
             throw new IllegalArgumentException("Уроверь спортивной школы может быть от 0 до 10");
         }
         int age = RANDOM.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
-        int averageByMinAge = RANDOM.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON + sportschoolLevel;
-        Player player = new Player(LocalPosition.generatePosition(), averageByMinAge, age,
+        int averageByMinAge = RANDOM.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON
+                + sportschoolLevel * 2;
+        Player player = new Player(LocalPosition.generatePosition(), averageByMinAge, MIN_AGE,
                 NamesStore.getInstance().getRandomFirstName(),
                 NamesStore.getInstance().getRandomLastName());
         if (age > MIN_AGE) {

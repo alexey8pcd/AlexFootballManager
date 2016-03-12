@@ -440,6 +440,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x421;&#x43f;&#x43e;&#x440;&#x442;&#x438;&#x432;&#x43d;&#x430;&#x44f; &#x448;&#x43a;&#x43e;&#x43b;&#x430;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bSportSchoolActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bPlayersMarket">
           <Properties>
