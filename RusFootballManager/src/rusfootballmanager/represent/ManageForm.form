@@ -435,6 +435,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x41f;&#x435;&#x440;&#x441;&#x43e;&#x43d;&#x430;&#x43b;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bStaffActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bSportSchool">
           <Properties>

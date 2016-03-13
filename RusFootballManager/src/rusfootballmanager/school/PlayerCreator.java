@@ -3,10 +3,12 @@ package rusfootballmanager.school;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import static rusfootballmanager.MathUtils.generateGaussian;
 import static rusfootballmanager.common.Randomization.RANDOM;
 import rusfootballmanager.common.NamesStore;
 import rusfootballmanager.entities.GlobalPosition;
 import rusfootballmanager.entities.LocalPosition;
+import rusfootballmanager.entities.Personal;
 import rusfootballmanager.entities.Player;
 import static rusfootballmanager.entities.Player.MAX_AGE;
 import static rusfootballmanager.entities.Player.MAX_YOUNG_AGE;
@@ -40,8 +42,8 @@ public class PlayerCreator {
      * @return
      */
     public static Player createYoungPlayer(int sportschoolLevel) {
-        if (sportschoolLevel < 0 || sportschoolLevel > 10) {
-            throw new IllegalArgumentException("Уроверь спортивной школы может быть от 0 до 10");
+        if (sportschoolLevel < 0 || sportschoolLevel > Personal.MAX_LEVEL) {
+            throw new IllegalArgumentException("Уроверь спортивной школы может быть от 0 до 9");
         }
         int age = RANDOM.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
         int averageByMinAge = RANDOM.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON
@@ -57,30 +59,7 @@ public class PlayerCreator {
         return player;
     }
 
-    /**
-     * Получает случайное целое число от left до right с нормальный
-     * распределением.
-     *
-     * @param left
-     * @param right
-     * @return
-     */
-    public static int generateGaussian(int left, int right) {
-        double g = RANDOM.nextGaussian();
-        double gamma = 3;//параметр, который определяет "разброс" значений: 
-        //чем больше гамма, тем ближе к центру
-        if (g > gamma) {
-            g = gamma;
-        }
-        if (g < -gamma) {
-            g = -gamma;
-        }
-        double center = ((double) (right - left)) / 2;
-        double gdisperse = center / gamma;
-        g *= gdisperse;
-        g = g + left + center;
-        return (int) Math.round(g);
-    }
+    
 
     /**
      * Получает случайное среднее игрока от MIN до MAX, центр распределения

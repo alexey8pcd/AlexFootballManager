@@ -275,6 +275,11 @@ public class ManageForm extends javax.swing.JDialog {
         });
 
         bStaff.setText("Персонал");
+        bStaff.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bStaffActionPerformed(evt);
+            }
+        });
 
         bSportSchool.setText("Спортивная школа");
         bSportSchool.addActionListener(new java.awt.event.ActionListener() {
@@ -377,6 +382,12 @@ public class ManageForm extends javax.swing.JDialog {
         schoolForm.setTeam(user.getTeam());
         schoolForm.setVisible(true);
     }//GEN-LAST:event_bSportSchoolActionPerformed
+
+    private void bStaffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bStaffActionPerformed
+        PersonalForm personalForm = new PersonalForm(null, true);
+        personalForm.setTeam(user.getTeam());
+        personalForm.setVisible(true);
+    }//GEN-LAST:event_bStaffActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

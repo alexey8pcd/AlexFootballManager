@@ -4,12 +4,11 @@ package rusfootballmanager.school;
  * @author Alexey
  */
 public enum MasteryLevel {
-    LOW(25, 45),
-    LOW_MID(35, 55),
-    MID(45, 65),
-    HIGH_MID(55, 75),
-    HIGH(65, 85),
-    VERY_HIGH(75, 93);
+    LOW(30, 50),
+    LOW_MID(40, 60),
+    MID(50, 70),
+    HIGH(60, 80),
+    VERY_HIGH(70, 93);
     private int min;
     private int max;
 

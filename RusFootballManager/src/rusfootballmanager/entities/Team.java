@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import rusfootballmanager.MathUtils;
 import rusfootballmanager.common.CostCalculator;
 import rusfootballmanager.common.XMLFormatter;
 import rusfootballmanager.common.XMLParseable;
@@ -28,29 +29,35 @@ public class Team implements XMLParseable, Comparable<Team> {
     private int teamwork;
     private int support;
     private String name;
+    
     private final List<Player> startPlayers;
     private final List<Player> substitutes;
     private final List<Player> reserve;
     private final Set<Player> playersOnTransfer;
     private final Set<Player> playersOnRent;
     private final Set<Player> juniors;
-    private int sportschoolLevel;
+    private Personal personal;
     private final NavigableMap<Integer, Player> playersNumbers;
     private final Queue<GameResult> lastFiveResults;
 
     private GameStrategy gameStrategy;
     public static final int MAX_PLAYERS_COUNT = 33;
-    private static final int TEAMWORK_DEFAULT = 20;
+    
     public static final int RECOMMENDED_PLAYERS_COUNT = 25;
     public static final int START_PLAYERS_COUNT = 11;
     public static final int SUBSTITUTES_COUNT = 7;
     public static final int SUPPORT_LEVEL_DEFAULT = 40;
+    private static final int BUDGET_LEVEL_OFFSET = 18;
+    private static final int TEAMWORK_DEFAULT = 20;
     private long budget;
     private Sponsor sponsor;
 
     public Team(String name, long budget) {
         this.name = name;
         this.budget = budget;
+        int level = Math.max(BUDGET_LEVEL_OFFSET, MathUtils.log2(budget));
+        int budgetLevel = Math.min(level - BUDGET_LEVEL_OFFSET, Personal.MAX_LEVEL);
+        personal = new Personal(budgetLevel);
         this.support = SUPPORT_LEVEL_DEFAULT;
         this.teamwork = TEAMWORK_DEFAULT;
         playersNumbers = new TreeMap<>();
@@ -63,6 +70,9 @@ public class Team implements XMLParseable, Comparable<Team> {
         playersOnRent = new HashSet<>();
         juniors = new HashSet<>();
     }
+    
+
+    
 
     public void onTransfer(Player player) {
         boolean added = playersOnTransfer.add(player);
@@ -93,14 +103,8 @@ public class Team implements XMLParseable, Comparable<Team> {
                 });
     }
 
-    public void addSportschollLevel() {
-        if (sportschoolLevel < 10) {
-            ++sportschoolLevel;
-        }
-    }
-
     public void addJuniorPlayer() {
-        Player junior = PlayerCreator.createYoungPlayer(sportschoolLevel);
+        Player junior = PlayerCreator.createYoungPlayer(personal.getJuniorsTrainer());
         juniors.add(junior);
         TransferMarket.getInstance().addPlayer(junior, this, TransferStatus.ON_CONTRACT);
     }
@@ -109,8 +113,8 @@ public class Team implements XMLParseable, Comparable<Team> {
         return new ArrayList<>(juniors);
     }
 
-    public int getSportschoolLevel() {
-        return sportschoolLevel;
+    public Personal getPersonal() {
+        return personal;
     }
 
     public void cancelTransferOrRent(Player player) {
