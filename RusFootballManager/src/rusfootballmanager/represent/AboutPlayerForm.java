@@ -2,9 +2,9 @@ package rusfootballmanager.represent;
 
 import java.util.List;
 import javafx.util.Pair;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.school.PlayerCreator;
-import rusfootballmanager.simulation.PlayerProgressParams;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.school.PlayerCreator;
+import rusfootballmanager.entities.player.ProgressParameters;
 
 /**
  *
@@ -51,7 +51,7 @@ public class AboutPlayerForm extends javax.swing.JDialog {
             }
 
             for (int i = age + 1, j = age - Player.MIN_AGE; i <= age + limit; ++i, ++j) {
-                avg += PlayerProgressParams.CONSTANTS.get(player.getTalentType()).get(j);
+                avg += ProgressParameters.CONSTANTS.get(player.getTalentType()).get(j);
                 if (avg > 99) {
                     avg = 99;
                 }

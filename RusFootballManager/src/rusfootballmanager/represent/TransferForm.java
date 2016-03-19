@@ -12,16 +12,16 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import rusfootballmanager.RenderUtil;
-import rusfootballmanager.transfers.Filter;
-import rusfootballmanager.entities.GlobalPosition;
-import rusfootballmanager.entities.LocalPosition;
-import rusfootballmanager.entities.Offer;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.transfers.TransferMarket;
-import rusfootballmanager.transfers.TransferPlayer;
-import rusfootballmanager.transfers.TransferStatus;
+import rusfootballmanager.common.util.RenderUtil;
+import rusfootballmanager.entities.transfer.Filter;
+import rusfootballmanager.entities.player.GlobalPosition;
+import rusfootballmanager.entities.player.LocalPosition;
+import rusfootballmanager.entities.transfer.Offer;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.transfer.Market;
+import rusfootballmanager.entities.transfer.Transfer;
+import rusfootballmanager.entities.transfer.Status;
 
 /**
  *
@@ -30,7 +30,7 @@ import rusfootballmanager.transfers.TransferStatus;
 public class TransferForm extends javax.swing.JDialog {
 
     private Team team;
-    private List<TransferPlayer> transferPlayers = Collections.EMPTY_LIST;
+    private List<Transfer> transferPlayers = Collections.EMPTY_LIST;
     private Filter filter = new Filter();
     private boolean filtered = false;
 
@@ -95,7 +95,7 @@ public class TransferForm extends javax.swing.JDialog {
 
         @Override
         public Object getValueAt(int row, int column) {
-            TransferPlayer transfer = transferPlayers.get(row);
+            Transfer transfer = transferPlayers.get(row);
             Player player = transfer.getPlayer();
             switch (column) {
                 case 0:
@@ -158,17 +158,17 @@ public class TransferForm extends javax.swing.JDialog {
 
     public void setTeam(Team team) {
         this.team = team;
-        filter.setTransferStatus(TransferStatus.ANY);
+        filter.setTransferStatus(Status.ANY);
         rbAnyStatus.setEnabled(true);
-        transferPlayers = TransferMarket.getInstance().getTransfers(team);
+        transferPlayers = Market.getInstance().getTransfers(team);
         tableTransfers.updateUI();
     }
 
     private void researchPlayersWithoutFilter() {
         if (rbMyTeam.isSelected()) {
-            transferPlayers = TransferMarket.getInstance().getTransfers(team);
+            transferPlayers = Market.getInstance().getTransfers(team);
         } else {
-            transferPlayers = TransferMarket.getInstance().getTransfers();
+            transferPlayers = Market.getInstance().getTransfers();
         }
         tableTransfers.getSelectionModel().clearSelection();
         tableTransfers.getRowSorter().modelStructureChanged();
@@ -186,9 +186,9 @@ public class TransferForm extends javax.swing.JDialog {
         filter.setAvgTo(cbAvgTo.isSelected() 
                 ? (int) spinnerAvgTo.getValue() : Filter.DEFAULT_VALUE);
         if (rbMyTeam.isSelected()) {
-            transferPlayers = TransferMarket.getInstance().getTransfers(team, filter);
+            transferPlayers = Market.getInstance().getTransfers(team, filter);
         } else {
-            transferPlayers = TransferMarket.getInstance().getTransfers(filter);
+            transferPlayers = Market.getInstance().getTransfers(filter);
         }
         tableTransfers.getSelectionModel().clearSelection();
         tableTransfers.getRowSorter().modelStructureChanged();
@@ -196,9 +196,9 @@ public class TransferForm extends javax.swing.JDialog {
     }
 
     private void makeTransferOfferToPlayer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
+        Transfer transferPlayer = getSelectedTransferAll();
         if (transferPlayer != null && !team.containsPlayer(transferPlayer.getPlayer())) {
-            List<Offer> offers = TransferMarket.getInstance().getOffers(team);
+            List<Offer> offers = Market.getInstance().getOffers(team);
             boolean did = false;
             for (Offer offer : offers) {
                 if (offer.getPlayer() == transferPlayer.getPlayer()) {
@@ -210,17 +210,17 @@ public class TransferForm extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
             } else {
                 TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                offerForm.setParams(transferPlayer, team, TransferStatus.ON_TRANSFER);
+                offerForm.setParams(transferPlayer, team, Status.ON_TRANSFER);
                 offerForm.setVisible(true);
             }
         }
     }
 
     private void makeRentOfferToPlayer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
+        Transfer transferPlayer = getSelectedTransferAll();
         if (transferPlayer != null) {
             if (!team.containsPlayer(transferPlayer.getPlayer())) {
-                List<Offer> myOffers = TransferMarket.getInstance().getOffers(team);
+                List<Offer> myOffers = Market.getInstance().getOffers(team);
                 boolean did = false;
                 for (Offer myOffer : myOffers) {
                     if (myOffer.getPlayer() == transferPlayer.getPlayer()) {
@@ -230,7 +230,7 @@ public class TransferForm extends javax.swing.JDialog {
                 }
                 if (did) {
                     TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transferPlayer, team, TransferStatus.TO_RENT);
+                    offerForm.setParams(transferPlayer, team, Status.TO_RENT);
                     offerForm.setVisible(true);
                 }
             }
@@ -238,7 +238,7 @@ public class TransferForm extends javax.swing.JDialog {
 
     }
 
-    private TransferPlayer getSelectedTransferAll() {
+    private Transfer getSelectedTransferAll() {
         int selectedIndex = tableTransfers.getSelectedRow();
         if (selectedIndex >= 0 && selectedIndex < transferPlayers.size()) {
             int index = tableTransfers.convertRowIndexToModel(selectedIndex);
@@ -247,8 +247,8 @@ public class TransferForm extends javax.swing.JDialog {
         return null;
     }
 
-    private TransferPlayer getSelectedTransfer() {
-        TransferPlayer transferPlayer = getSelectedTransferAll();
+    private Transfer getSelectedTransfer() {
+        Transfer transferPlayer = getSelectedTransferAll();
         if (team.containsPlayer(transferPlayer.getPlayer())) {
             return transferPlayer;
         } else {
@@ -257,9 +257,9 @@ public class TransferForm extends javax.swing.JDialog {
 
     }
 
-    private void onTransfer(TransferPlayer transferPlayer) throws HeadlessException {
+    private void onTransfer(Transfer transferPlayer) throws HeadlessException {
         if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != TransferStatus.ON_TRANSFER) {
+            if (transferPlayer.getStatus() != Status.ON_TRANSFER) {
                 int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
                         + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
@@ -270,9 +270,9 @@ public class TransferForm extends javax.swing.JDialog {
         }
     }
 
-    private void toRent(TransferPlayer transferPlayer) throws HeadlessException {
+    private void toRent(Transfer transferPlayer) throws HeadlessException {
         if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != TransferStatus.TO_RENT) {
+            if (transferPlayer.getStatus() != Status.TO_RENT) {
                 int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
                         + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
@@ -767,19 +767,19 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_rbMyTeamActionPerformed
 
     private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
-        filter.setTransferStatus(TransferStatus.ON_TRANSFER);
+        filter.setTransferStatus(Status.ON_TRANSFER);
     }//GEN-LAST:event_rbForSaleActionPerformed
 
     private void rbForRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForRentActionPerformed
-        filter.setTransferStatus(TransferStatus.TO_RENT);
+        filter.setTransferStatus(Status.TO_RENT);
     }//GEN-LAST:event_rbForRentActionPerformed
 
     private void rbOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbOnSaleOrRentActionPerformed
-        filter.setTransferStatus(TransferStatus.ON_TRANSFER_OR_RENT);
+        filter.setTransferStatus(Status.ON_TRANSFER_OR_RENT);
     }//GEN-LAST:event_rbOnSaleOrRentActionPerformed
 
     private void rbAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAnyStatusActionPerformed
-        filter.setTransferStatus(TransferStatus.ANY);
+        filter.setTransferStatus(Status.ANY);
     }//GEN-LAST:event_rbAnyStatusActionPerformed
 
     private void comboGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGlobalActionPerformed
@@ -801,12 +801,12 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_bTryBuyActionPerformed
 
     private void bOnSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bOnSaleActionPerformed
-        TransferPlayer selectedTransfer = getSelectedTransfer();
+        Transfer selectedTransfer = getSelectedTransfer();
         onTransfer(selectedTransfer);
     }//GEN-LAST:event_bOnSaleActionPerformed
 
     private void bToRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bToRentActionPerformed
-        TransferPlayer selectedTransfer = getSelectedTransfer();
+        Transfer selectedTransfer = getSelectedTransfer();
         toRent(selectedTransfer);
     }//GEN-LAST:event_bToRentActionPerformed
 
@@ -821,7 +821,7 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_bMyOffersActionPerformed
 
     private void rbFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbFreeAgentStatusActionPerformed
-        filter.setTransferStatus(TransferStatus.FREE_AGENT);
+        filter.setTransferStatus(Status.FREE_AGENT);
     }//GEN-LAST:event_rbFreeAgentStatusActionPerformed
 
     private void comboLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLocalActionPerformed

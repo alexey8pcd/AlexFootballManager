@@ -1,11 +1,11 @@
 package rusfootballmanager.represent;
 
 import rusfootballmanager.common.CostCalculator;
-import rusfootballmanager.entities.Offer;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.transfers.TransferMarket;
-import rusfootballmanager.transfers.TransferPlayer;
-import rusfootballmanager.transfers.TransferStatus;
+import rusfootballmanager.entities.transfer.Offer;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.transfer.Market;
+import rusfootballmanager.entities.transfer.Transfer;
+import rusfootballmanager.entities.transfer.Status;
 
 /**
  *
@@ -13,16 +13,16 @@ import rusfootballmanager.transfers.TransferStatus;
  */
 public class TransferOfferForm extends javax.swing.JDialog {
 
-    private TransferPlayer transferPlayer;
+    private Transfer transferPlayer;
     private Team team;
-    private TransferStatus transferStatus;
+    private Status transferStatus;
 
-    public void setParams(TransferPlayer transferPlayer, Team team,
-            TransferStatus transferStatus) {
+    public void setParams(Transfer transferPlayer, Team team,
+            Status transferStatus) {
         this.transferPlayer = transferPlayer;
         this.team = team;
         this.transferStatus = transferStatus;
-        if (transferStatus == TransferStatus.ON_TRANSFER) {
+        if (transferStatus == Status.ON_TRANSFER) {
             int cost = transferPlayer.getCost();
             lDesiredSum.setText(String.valueOf(cost));
             ftfSum.setValue(cost / 10 * 11);
@@ -49,7 +49,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
         int contract = (int) spinnerContractDuration.getValue();
         Offer offer = new Offer(team, transferPlayer.getTeam(), 
                 transferPlayer.getPlayer(), transferStatus, sum, pay, contract);
-        TransferMarket.getInstance().makeOffer(offer);
+        Market.getInstance().makeOffer(offer);
     }
 
     @SuppressWarnings("unchecked")

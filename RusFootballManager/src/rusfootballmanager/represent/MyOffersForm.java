@@ -4,10 +4,10 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import rusfootballmanager.entities.Offer;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.transfers.TransferMarket;
+import rusfootballmanager.entities.transfer.Offer;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.transfer.Market;
 
 /**
  *
@@ -86,7 +86,7 @@ public class MyOffersForm extends javax.swing.JDialog {
 
     public void setTeam(Team team) {
         this.team = team;
-        myOffers = TransferMarket.getInstance().getOffers(team);
+        myOffers = Market.getInstance().getOffers(team);
     }
 
     private Offer getSelectedOffer() {
@@ -189,8 +189,8 @@ public class MyOffersForm extends javax.swing.JDialog {
                 "Отказаться?", "Подтверждение отказа", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             Offer selectedOffer = getSelectedOffer();
-            TransferMarket.getInstance().removeOffer(selectedOffer);
-            myOffers = TransferMarket.getInstance().getOffers(team);
+            Market.getInstance().removeOffer(selectedOffer);
+            myOffers = Market.getInstance().getOffers(team);
             tableOffers.updateUI();
         }
     }//GEN-LAST:event_bRemoveOfferActionPerformed

@@ -1,8 +1,8 @@
 package rusfootballmanager.represent;
 
 import javax.swing.JOptionPane;
-import rusfootballmanager.entities.Personal;
-import rusfootballmanager.entities.Team;
+import rusfootballmanager.entities.team.Personal;
+import rusfootballmanager.entities.team.Team;
 
 /**
  *

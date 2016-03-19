@@ -11,9 +11,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import rusfootballmanager.RenderUtil;
-import rusfootballmanager.entities.Contract;
-import rusfootballmanager.entities.Player;
+import rusfootballmanager.common.util.RenderUtil;
+import rusfootballmanager.entities.player.Contract;
+import rusfootballmanager.entities.player.Player;
 import rusfootballmanager.represent.AboutPlayerForm;
 
 /**
@@ -106,7 +106,7 @@ public class PlayersForm extends javax.swing.JDialog {
 
     }
 
-    private class PlayersTableCellRenderer extends DefaultTableCellRenderer {
+    private static class PlayersTableCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,

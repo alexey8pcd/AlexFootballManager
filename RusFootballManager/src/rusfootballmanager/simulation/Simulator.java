@@ -1,9 +1,9 @@
 package rusfootballmanager.simulation;
 
-import rusfootballmanager.simulation.match.MatchEvent;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.entities.StatusOfTeam;
-import rusfootballmanager.simulation.match.MatchResult;
+import rusfootballmanager.entities.match.Event;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.team.Status;
+import rusfootballmanager.entities.match.Match;
 import java.util.List;
 
 /**
@@ -11,24 +11,24 @@ import java.util.List;
  */
 public class Simulator {
 
-    public static MatchResult simulate(Team teamHome, Team teamGuest) {
+    public static Match simulate(Team teamHome, Team teamGuest) {
         int resultHomeTeam = Calculator.calculateGoalsCount(teamHome, teamGuest,
-                StatusOfTeam.HOST);
+                Status.HOST);
         if (resultHomeTeam < 0) {
             resultHomeTeam = 0;
         }
         int resultGuestTeam = Calculator.calculateGoalsCount(teamGuest, teamHome,
-                StatusOfTeam.GUEST);
+                Status.GUEST);
         if (resultGuestTeam < 0) {
             resultGuestTeam = 0;
         }
         int teamHomeAvg = teamHome.getAverage();
         int teamGuestAvg = teamGuest.getAverage();
-        MatchResult mathResult = new MatchResult(teamHome, teamGuest);
-        List<MatchEvent> homeTeamMatchEvents = new MatchEventGenerator(
+        Match mathResult = new Match(teamHome, teamGuest);
+        List<Event> homeTeamMatchEvents = new MatchEventGenerator(
                 teamHome, resultHomeTeam, teamHomeAvg - teamGuestAvg).createMatchEvents();
         mathResult.addMatchEvent(homeTeamMatchEvents);
-        List<MatchEvent> guestTeamMatchEvents = new MatchEventGenerator(
+        List<Event> guestTeamMatchEvents = new MatchEventGenerator(
                 teamGuest, resultGuestTeam, teamGuestAvg - teamHomeAvg).createMatchEvents();
         mathResult.addMatchEvent(guestTeamMatchEvents);
         return mathResult;

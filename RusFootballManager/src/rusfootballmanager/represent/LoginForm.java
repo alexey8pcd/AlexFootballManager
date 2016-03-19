@@ -1,6 +1,6 @@
 package rusfootballmanager.represent;
 
-import rusfootballmanager.User;
+import rusfootballmanager.career.User;
 
 /**
  *

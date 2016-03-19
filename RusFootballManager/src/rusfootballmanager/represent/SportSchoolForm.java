@@ -8,9 +8,9 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.simulation.PlayerProgressParams;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.player.ProgressParameters;
 
 /**
  *
@@ -92,7 +92,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
             int avg = p.getAverage();
             for (int i = age + 1, j = age - Player.MIN_AGE, k = 0;
                     i <= age + limit; ++i, ++j, ++k) {
-                avg += PlayerProgressParams.CONSTANTS.get(p.getTalentType()).get(j);
+                avg += ProgressParameters.CONSTANTS.get(p.getTalentType()).get(j);
                 if (avg > 99) {
                     avg = 99;
                 }

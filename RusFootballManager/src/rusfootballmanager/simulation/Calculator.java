@@ -1,9 +1,9 @@
 package rusfootballmanager.simulation;
 
 import rusfootballmanager.common.Randomization;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.StatusOfTeam;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.team.Status;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class Calculator {
     private static final double GAUSSIAN_RANDOM_CENTER = 0.5;
 
     public  static int calculateGoalsCount(Team teamAttack, Team teamDefence,
-            StatusOfTeam statusOfTeam) {
+            Status statusOfTeam) {
         double attackTeamResult = calculateAttackResultTeam(teamAttack);
         double defenceTeamResult = calculateDefendResultTeam(teamDefence);
 

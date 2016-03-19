@@ -1,12 +1,12 @@
 package rusfootballmanager.simulation;
 
-import rusfootballmanager.simulation.match.MatchEvent;
+import rusfootballmanager.entities.match.Event;
 import rusfootballmanager.common.Randomization;
-import rusfootballmanager.entities.InjureType;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.GlobalPosition;
-import rusfootballmanager.simulation.match.MathEventType;
+import rusfootballmanager.entities.player.InjureType;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.player.GlobalPosition;
+import rusfootballmanager.entities.match.EventType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +82,7 @@ public class MatchEventGenerator {
     private final Team team;
     private final List<PlayerWithCard> startPlayers;
     private final List<PlayerWithCard> reservePlayers;
-    private final List<MatchEvent> events;
+    private final List<Event> events;
     private final int scoredGoals;
     private int substitutesCount;
     private boolean hasGoals;
@@ -117,12 +117,12 @@ public class MatchEventGenerator {
         Arrays.sort(minutesForGoal);
     }
 
-    public List<MatchEvent> createMatchEvents() {
+    public List<Event> createMatchEvents() {
         events.clear();
         minuteForGoalIndex = 0;
         substitutesCount = 0;
         for (int minute = 1; minute < MINUTES_PER_MATCH; minute++) {
-            List<MatchEvent> createdEvents = createEvents(minute);
+            List<Event> createdEvents = createEvents(minute);
             if (!createdEvents.isEmpty()) {
                 events.addAll(createdEvents);
             }
@@ -130,7 +130,7 @@ public class MatchEventGenerator {
         return new ArrayList<>(events);
     }
 
-    private List<MatchEvent> createEvents(int minute) {
+    private List<Event> createEvents(int minute) {
         for (PlayerWithCard playerWithCard : startPlayers) {
             Player player = playerWithCard.player;
             player.addFatifue(Randomization.RANDOM.nextDouble());
@@ -142,7 +142,7 @@ public class MatchEventGenerator {
             PlayerWithCard playerWithCard = startPlayers.get(playerIndex);
             Player player = playerWithCard.player;
             player.addYellowCard();
-            events.add(new MatchEvent(MathEventType.YELLOW_CARD, minute, player, team));
+            events.add(new Event(EventType.YELLOW_CARD, minute, player, team));
             if (playerWithCard.yellowCardsCount == 1) {
                 removePlayer(minute, playerIndex);
             } else {
@@ -155,7 +155,7 @@ public class MatchEventGenerator {
             int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
             PlayerWithCard injured = startPlayers.get(playerIndex);
             Player injuredPlayer = injured.player;
-            events.add(new MatchEvent(MathEventType.INJURE, minute, injuredPlayer, team));
+            events.add(new Event(EventType.INJURE, minute, injuredPlayer, team));
             injuredPlayer.setInjured(InjureType.getInjure(Randomization.RANDOM.nextInt(HUNDRED)));
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
                 changePlayer(minute, injured);
@@ -184,10 +184,10 @@ public class MatchEventGenerator {
         Player whoScored = playersGroupToScore.get(scoredPlayerIndex);
         boolean fromPenalty = Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
         if (fromPenalty) {
-            events.add(new MatchEvent(MathEventType.PENALTY, minute, whoScored, team));
-            events.add(new MatchEvent(MathEventType.GOAL, minute, whoScored, team));
+            events.add(new Event(EventType.PENALTY, minute, whoScored, team));
+            events.add(new Event(EventType.GOAL, minute, whoScored, team));
         } else {
-            events.add(new MatchEvent(MathEventType.GOAL, minute, whoScored, team));
+            events.add(new Event(EventType.GOAL, minute, whoScored, team));
             Player assistent;
             if (Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_ASSIST) {
                 do {
@@ -196,7 +196,7 @@ public class MatchEventGenerator {
                     assistent = playersGroupToAssist.get(assistPlayerIndex);
                 } while (assistent == whoScored);
 
-                events.add(new MatchEvent(MathEventType.ASSIST, minute, assistent, team));
+                events.add(new Event(EventType.ASSIST, minute, assistent, team));
             }
         }
     }
@@ -233,7 +233,7 @@ public class MatchEventGenerator {
     private void changePlayer(int minute, PlayerWithCard from) {
         Player player = from.player;
         PlayerWithCard substitute = findSamePlayer(reservePlayers, player);
-        events.add(new MatchEvent(MathEventType.SUBSTITUTE, minute, player, substitute.player, team));
+        events.add(new Event(EventType.SUBSTITUTE, minute, player, substitute.player, team));
         startPlayers.remove(from);
         startPlayers.add(substitute);
         reservePlayers.remove(substitute);
@@ -243,7 +243,7 @@ public class MatchEventGenerator {
     private void removePlayer(int minute, int playerIndex) {
         PlayerWithCard playerFrom = startPlayers.get(playerIndex);
         Player playerFromField = playerFrom.player;
-        events.add(new MatchEvent(MathEventType.RED_CARD, minute, playerFromField, team));
+        events.add(new Event(EventType.RED_CARD, minute, playerFromField, team));
         playerFromField.addRedCard();
         if (playerFromField.getCurrentPosition().getPositionOnField() == GlobalPosition.GOALKEEPER) {
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {

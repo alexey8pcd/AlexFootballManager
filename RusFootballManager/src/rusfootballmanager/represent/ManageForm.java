@@ -1,8 +1,8 @@
 package rusfootballmanager.represent;
 
-import rusfootballmanager.Tournament;
-import rusfootballmanager.User;
-import rusfootballmanager.entities.Team;
+import rusfootballmanager.entities.tournament.Tournament;
+import rusfootballmanager.career.User;
+import rusfootballmanager.entities.team.Team;
 
 /**
  *

@@ -26,16 +26,14 @@ public class NamesStore {
     }
 
     private void fillCollection(List<String> collection, File file) {
-        try {
-            try (BufferedReader firstNamesReader
-                    = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-                while (firstNamesReader.ready()) {
-                    String line = firstNamesReader.readLine();
-                    collection.add(line);
-                }
+        try (BufferedReader firstNamesReader
+                = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+            while (firstNamesReader.ready()) {
+                String line = firstNamesReader.readLine();
+                collection.add(line);
             }
-        } catch (Exception ex) {
-            System.err.println(ex);
+        } catch (Exception e) {
+            System.err.println(e);
         }
     }
 

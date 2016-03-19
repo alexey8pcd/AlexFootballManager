@@ -1,6 +1,6 @@
 package rusfootballmanager.common;
 
-import rusfootballmanager.entities.Player;
+import rusfootballmanager.entities.player.Player;
 
 /**
  * @author Alexey

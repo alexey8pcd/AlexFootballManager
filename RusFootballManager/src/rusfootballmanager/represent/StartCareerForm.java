@@ -3,8 +3,8 @@ package rusfootballmanager.represent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractListModel;
-import rusfootballmanager.entities.League;
-import rusfootballmanager.entities.Team;
+import rusfootballmanager.entities.tournament.League;
+import rusfootballmanager.entities.team.Team;
 
 /**
  *

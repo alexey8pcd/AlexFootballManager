@@ -1,31 +1,20 @@
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import org.junit.Before;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import rusfootballmanager.DataLoader;
-import rusfootballmanager.entities.GlobalPosition;
-import rusfootballmanager.entities.League;
-import rusfootballmanager.entities.Player;
-import rusfootballmanager.entities.Team;
-import rusfootballmanager.school.MasteryLevel;
-import rusfootballmanager.school.PlayerCreator;
-import rusfootballmanager.simulation.TournamentPair;
-import rusfootballmanager.simulation.TournamentSchedule;
+import rusfootballmanager.common.DataLoader;
+import rusfootballmanager.entities.player.GlobalPosition;
+import rusfootballmanager.entities.tournament.League;
+import rusfootballmanager.entities.player.Player;
+import rusfootballmanager.entities.team.Team;
+import rusfootballmanager.entities.school.MasteryLevel;
+import rusfootballmanager.entities.school.PlayerCreator;
+import rusfootballmanager.entities.tournament.Opponents;
+import rusfootballmanager.entities.tournament.Schedule;
 
 /**
  *
@@ -38,39 +27,25 @@ public class Tests {
 
     @Before
     public void setUp() {
-        Logger.getLogger("log").setLevel(Level.FINE);
-    }
-
-//    @Test
-    public void testConvertToXml() throws ParserConfigurationException, IOException, TransformerException {
-        League league = createLeague();
-        Document document = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().newDocument();
-        String result = league.toXmlString(document);
-
-        try (BufferedWriter bufferedWriter = new BufferedWriter(
-                new FileWriter(new File("test.xml")))) {
-            bufferedWriter.write(result);
-            bufferedWriter.flush();
-        }
-    }
+    }   
 
 //    @Test
     public void testScheduleWithHolidays() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         League league = createLeague();
-        Date start = DATE_FORMAT.parse("01.08.2016");
-        Date end = DATE_FORMAT.parse("31.06.2017");
-        Date holidaysStart = DATE_FORMAT.parse("15.11.2016");
-        Date holidaysEnd = DATE_FORMAT.parse("01.03.2017");
-        TournamentSchedule schedule = new TournamentSchedule(start, end,
+        Date start = dateFormat.parse("01.08.2016");
+        Date end = dateFormat.parse("31.06.2017");
+        Date holidaysStart = dateFormat.parse("15.11.2016");
+        Date holidaysEnd = dateFormat.parse("01.03.2017");
+        Schedule tournamentSchedule = new Schedule(start, end,
                 holidaysStart, holidaysEnd, 2, league.getTeams());
-        Map<Date, List<TournamentPair>> schedule1 = schedule.getSchedule();
-        for (Map.Entry<Date, List<TournamentPair>> entry : schedule1.entrySet()) {
+        Map<Date, List<Opponents>> schedule = tournamentSchedule.getSchedule();
+        schedule.entrySet().stream().forEach((entry) -> {
             Date date = entry.getKey();
-            List<TournamentPair> pairs = entry.getValue();
+            List<Opponents> pairs = entry.getValue();
             System.out.println("Date: " + date);
             System.out.println("Matches: " + Arrays.toString(pairs.toArray()));
-        }
+        });
     }
 
 //    @Test
@@ -99,7 +74,7 @@ public class Tests {
         System.out.println(DataLoader.loadLeagues("config.xml"));
     }
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    
 
     private League createLeague() {
         int teamsCount = 16;
