@@ -96,25 +96,27 @@ public class TransferForm extends javax.swing.JDialog {
         @Override
         public Object getValueAt(int row, int column) {
             Transfer transfer = transferPlayers.get(row);
-            Player player = transfer.getPlayer();
-            switch (column) {
-                case 0:
-                    return player.getFullName();
-                case 1:
-                    return player.getAge();
-                case 2:
-                    return player.getPreferredPosition().
-                            getPositionOnField().getAbreviation();
-                case 3:
-                    return player.getPreferredPosition().getAbreviation();
-                case 4:
-                    return player.getAverage();
-                case 5:
-                    return transfer.getStatus().getDescription();
-                case 6:
-                    return transfer.getCost();
-                case 7:
-                    return transfer.getTeam().getName();
+            if (transfer != null) {
+                Player player = transfer.getPlayer();
+                switch (column) {
+                    case 0:
+                        return player.getFullName();
+                    case 1:
+                        return player.getAge();
+                    case 2:
+                        return player.getPreferredPosition().
+                                getPositionOnField().getAbreviation();
+                    case 3:
+                        return player.getPreferredPosition().getAbreviation();
+                    case 4:
+                        return player.getAverage();
+                    case 5:
+                        return transfer.getStatus().getDescription();
+                    case 6:
+                        return transfer.getCost();
+                    case 7:
+                        return transfer.getTeam().getName();
+                }
             }
             return "";
         }
@@ -136,6 +138,7 @@ public class TransferForm extends javax.swing.JDialog {
     public TransferForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
         tableTransfers.setModel(transferTableModel);
         TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(transferTableModel);
         tableTransfers.setRowSorter(rowSorter);
@@ -177,13 +180,13 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void researchPlayersWithFilter() {
         filter.setName(tfName.getText());
-        filter.setAgeFrom(cbAgeFrom.isSelected() 
+        filter.setAgeFrom(cbAgeFrom.isSelected()
                 ? (int) spinnerAgeFrom.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAgeTo(cbAgeTo.isSelected() 
+        filter.setAgeTo(cbAgeTo.isSelected()
                 ? (int) spinnerAgeTo.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAvgFrom(cbAvgFrom.isSelected() 
+        filter.setAvgFrom(cbAvgFrom.isSelected()
                 ? (int) spinnerAvgFrom.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAvgTo(cbAvgTo.isSelected() 
+        filter.setAvgTo(cbAvgTo.isSelected()
                 ? (int) spinnerAvgTo.getValue() : Filter.DEFAULT_VALUE);
         if (rbMyTeam.isSelected()) {
             transferPlayers = Market.getInstance().getTransfers(team, filter);
@@ -298,17 +301,20 @@ public class TransferForm extends javax.swing.JDialog {
                 case 4:
                     filter.setGlobalPosition(GlobalPosition.FORWARD);
             }
-            DefaultComboBoxModel<String> model
-                    = new DefaultComboBoxModel<>(localPositionCurrentData);
             filter.setLocalPosition(null);
-            comboLocal.setModel(model);
-            comboLocal.updateUI();
         } else {
             localPositionCurrentData = empty;
-            filter.setGlobalPosition(index == 0 ? null : GlobalPosition.GOALKEEPER);
+            if (index == 0) {
+                filter.setGlobalPosition(null);
+            } else {
+                filter.setGlobalPosition(GlobalPosition.GOALKEEPER);
+            }
             comboLocal.setEnabled(false);
-            comboLocal.updateUI();
         }
+        DefaultComboBoxModel<String> model
+                = new DefaultComboBoxModel<>(localPositionCurrentData);
+        comboLocal.setModel(model);
+        comboLocal.updateUI();
     }
 
     @SuppressWarnings("unchecked")
@@ -894,5 +900,9 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.JTable tableTransfers;
     private javax.swing.JTextField tfName;
     // End of variables declaration//GEN-END:variables
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
 
 }

@@ -15,6 +15,7 @@ public class ManageForm extends javax.swing.JDialog {
     public ManageForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
     }
 
     public void setUser(User user) {
@@ -296,6 +297,11 @@ public class ManageForm extends javax.swing.JDialog {
         });
 
         bTournamentTable.setText("Турнирная таблица");
+        bTournamentTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bTournamentTableActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -389,6 +395,10 @@ public class ManageForm extends javax.swing.JDialog {
         personalForm.setVisible(true);
     }//GEN-LAST:event_bStaffActionPerformed
 
+    private void bTournamentTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTournamentTableActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bTournamentTableActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bClearPost;
@@ -423,5 +433,9 @@ public class ManageForm extends javax.swing.JDialog {
     private javax.swing.JProgressBar pbTeamwork;
     private javax.swing.JTextArea taDescriptions;
     // End of variables declaration//GEN-END:variables
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
 
 }

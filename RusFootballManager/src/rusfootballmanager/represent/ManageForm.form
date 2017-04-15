@@ -459,6 +459,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x422;&#x443;&#x440;&#x43d;&#x438;&#x440;&#x43d;&#x430;&#x44f; &#x442;&#x430;&#x431;&#x43b;&#x438;&#x446;&#x430;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTournamentTableActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

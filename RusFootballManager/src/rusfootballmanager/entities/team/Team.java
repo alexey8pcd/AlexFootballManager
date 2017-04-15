@@ -112,7 +112,6 @@ public class Team implements XMLParseable, Comparable<Team> {
     public void addJuniorPlayer() {
         Player junior = PlayerCreator.createYoungPlayer(personal.getJuniorsTrainer());
         juniors.add(junior);
-        Market.getInstance().addPlayer(junior, this, Status.ON_CONTRACT);
     }
 
     public List<Player> getJuniors() {
@@ -504,6 +503,7 @@ public class Team implements XMLParseable, Comparable<Team> {
                 juniors.remove(player);
                 player.setContract(
                         new Contract(2, CostCalculator.calculatePayForMatch(player)));
+                Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
                 return true;
             }
         }

@@ -25,6 +25,7 @@ public class PersonalForm extends javax.swing.JDialog {
     public PersonalForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
     }
 
     public void setTeam(Team team) {
@@ -491,5 +492,9 @@ public class PersonalForm extends javax.swing.JDialog {
     private javax.swing.JProgressBar pbTrainerGoalkeepers;
     private javax.swing.JProgressBar pbTrainerMidfielders;
     // End of variables declaration//GEN-END:variables
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
 
 }

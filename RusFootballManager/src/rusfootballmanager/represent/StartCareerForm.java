@@ -33,6 +33,7 @@ public class StartCareerForm extends javax.swing.JDialog {
                 return teamsInLeague.get(index).getName();
             }
         });
+        initLocation();
     }
 
     @SuppressWarnings("unchecked")
@@ -51,6 +52,7 @@ public class StartCareerForm extends javax.swing.JDialog {
         bNext = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Выбор команды");
         setResizable(false);
 
         listLeagues.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
@@ -202,5 +204,9 @@ public class StartCareerForm extends javax.swing.JDialog {
     private javax.swing.JList<String> listTeams;
     private javax.swing.JProgressBar pbTeamLevel;
     // End of variables declaration//GEN-END:variables
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
 
 }

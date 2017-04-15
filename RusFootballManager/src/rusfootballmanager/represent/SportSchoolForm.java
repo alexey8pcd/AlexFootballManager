@@ -80,6 +80,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
     public SportSchoolForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
     }
 
     public void setTeam(Team team) {
@@ -201,5 +202,9 @@ public class SportSchoolForm extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tableYoungPlayers;
     // End of variables declaration//GEN-END:variables
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
 
 }

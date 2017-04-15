@@ -13,7 +13,7 @@ public class LoginForm extends javax.swing.JDialog {
     public LoginForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-
+        initLocation();
     }
 
     @SuppressWarnings("unchecked")
@@ -99,6 +99,10 @@ public class LoginForm extends javax.swing.JDialog {
 
     public User getTrainer() {
         return trainer;
+    }
+
+    private void initLocation() {
+        setLocationRelativeTo(null);
     }
 
 }

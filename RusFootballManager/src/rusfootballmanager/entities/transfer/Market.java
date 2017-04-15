@@ -74,8 +74,8 @@ public class Market {
         if (cache.containsKey(team)) {
             playersFromTeam = cache.get(team);
         } else {
-            playersFromTeam = players.parallelStream().filter(
-                    player -> player.getTeam() == team).
+            playersFromTeam = players.stream().filter(
+                    player -> player != null && player.getTeam() == team).
                     collect(Collectors.toList());
             cache.put(team, playersFromTeam);
         }
@@ -85,7 +85,7 @@ public class Market {
     public List<Transfer> getTransfers(Team team, Filter filter) {
         List<Transfer> playersFromTeam = getTransfers(team);
         if (filter != null) {
-            return playersFromTeam.parallelStream().
+            return playersFromTeam.stream().
                     filter(tr -> filter.accept(tr)).
                     collect(Collectors.toList());
         } else {

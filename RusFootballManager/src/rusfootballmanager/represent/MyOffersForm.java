@@ -28,6 +28,10 @@ public class MyOffersForm extends javax.swing.JDialog {
         "Стоимость"
     };
 
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
+
     private class OffersTableModel extends DefaultTableModel {
 
         public OffersTableModel() {
@@ -81,6 +85,7 @@ public class MyOffersForm extends javax.swing.JDialog {
     public MyOffersForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
         tableOffers.setModel(new OffersTableModel());
     }
 

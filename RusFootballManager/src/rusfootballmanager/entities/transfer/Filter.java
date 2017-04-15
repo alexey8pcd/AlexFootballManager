@@ -30,6 +30,12 @@ public class Filter {
     }
 
     public void setGlobalPosition(GlobalPosition globalPosition) {
+        if (globalPosition == null) {
+            this.localPosition = null;
+        }
+        if (globalPosition == GlobalPosition.GOALKEEPER) {
+            this.localPosition = LocalPosition.GOALKEEPER;
+        }
         this.globalPosition = globalPosition;
     }
 

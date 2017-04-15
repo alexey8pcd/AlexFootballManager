@@ -35,6 +35,10 @@ public class PlayersForm extends javax.swing.JDialog {
             "Настрой"
         };
 
+    private void initLocation() {
+        setLocationRelativeTo(null);
+    }
+
     private class PlayersTableModel extends DefaultTableModel {
         
 
@@ -125,6 +129,7 @@ public class PlayersForm extends javax.swing.JDialog {
     public PlayersForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocation();
         players = new ArrayList<>();
         tablePlayers.setModel(new PlayersTableModel());
         TableRowSorter<TableModel> rowSorter
