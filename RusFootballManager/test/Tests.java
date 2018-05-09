@@ -6,15 +6,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import rusfootballmanager.common.DataLoader;
-import rusfootballmanager.entities.player.GlobalPosition;
-import rusfootballmanager.entities.tournament.League;
-import rusfootballmanager.entities.player.Player;
-import rusfootballmanager.entities.team.Team;
-import rusfootballmanager.entities.school.MasteryLevel;
-import rusfootballmanager.entities.school.PlayerCreator;
-import rusfootballmanager.entities.tournament.Opponents;
-import rusfootballmanager.entities.tournament.Schedule;
+import ru.alexey_ovcharov.rusfootballmanager.common.DataLoader;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.school.MasteryLevel;
+import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Schedule;
 
 /**
  *
