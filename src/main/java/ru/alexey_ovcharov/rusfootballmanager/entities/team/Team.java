@@ -1,62 +1,57 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
-import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
+import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
+import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeMap;
-import javax.xml.transform.TransformerException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
-import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
-import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
-import ru.alexey_ovcharov.rusfootballmanager.common.XMLParseable;
-import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
 import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
+import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
+import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
+
+import javax.xml.transform.TransformerException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexey
  */
-public class Team implements XMLParseable, Comparable<Team> {
+public class Team {
 
-    private Player goalkeeper;
-    private int teamwork;
-    private int support;
-    private String name;
-    
+    public static final int MAX_PLAYERS_COUNT = 33;
+    public static final int RECOMMENDED_PLAYERS_COUNT = 25;
+
+    private static final int START_PLAYERS_COUNT = 11;
+    private static final int SUBSTITUTES_COUNT = 7;
+    private static final int SUPPORT_LEVEL_DEFAULT = 40;
+    private static final int BUDGET_LEVEL_OFFSET = 18;
+    private static final int TEAMWORK_DEFAULT = 20;
+
     private final List<Player> startPlayers;
     private final List<Player> substitutes;
     private final List<Player> reserve;
     private final Set<Player> playersOnTransfer;
     private final Set<Player> playersOnRent;
     private final Set<Player> juniors;
-    private Personal personal;
+    private final Personal personal;
     private final NavigableMap<Integer, Player> playersNumbers;
     private final Queue<GameResult> lastFiveResults;
 
-    private Strategy gameStrategy;
-    public static final int MAX_PLAYERS_COUNT = 33;
-    
-    public static final int RECOMMENDED_PLAYERS_COUNT = 25;
-    public static final int START_PLAYERS_COUNT = 11;
-    public static final int SUBSTITUTES_COUNT = 7;
-    public static final int SUPPORT_LEVEL_DEFAULT = 40;
-    private static final int BUDGET_LEVEL_OFFSET = 18;
-    private static final int TEAMWORK_DEFAULT = 20;
+
+    private Player goalkeeper;
+    private int teamwork;
+    private int support;
+    private final String name;
     private long budget;
     private Sponsor sponsor;
+    private Strategy gameStrategy;
 
     public Team(String name, long budget) {
         this.name = name;
@@ -76,9 +71,7 @@ public class Team implements XMLParseable, Comparable<Team> {
         playersOnRent = new HashSet<>();
         juniors = new HashSet<>();
     }
-    
 
-    
 
     public void onTransfer(Player player) {
         boolean added = playersOnTransfer.add(player);
@@ -88,11 +81,11 @@ public class Team implements XMLParseable, Comparable<Team> {
         List<Transfer> transfers
                 = Market.getInstance().getTransfers(this);
         transfers.stream()
-                .filter(transfer -> transfer.getPlayer() == player)
-                .forEach(transfer -> {
-                    playersOnRent.remove(player);
-                    transfer.setStatus(Status.ON_TRANSFER);
-                });
+                 .filter(transfer -> transfer.getPlayer() == player)
+                 .forEach(transfer -> {
+                     playersOnRent.remove(player);
+                     transfer.setStatus(Status.ON_TRANSFER);
+                 });
     }
 
     public void onRent(Player player) {
@@ -102,11 +95,11 @@ public class Team implements XMLParseable, Comparable<Team> {
         List<Transfer> transfers
                 = Market.getInstance().getTransfers(this);
         transfers.stream()
-                .filter(transfer -> transfer.getPlayer() == player)
-                .forEach((transfer) -> {
-                    playersOnTransfer.remove(player);
-                    transfer.setStatus(Status.TO_RENT);
-                });
+                 .filter(transfer -> transfer.getPlayer() == player)
+                 .forEach((transfer) -> {
+                     playersOnTransfer.remove(player);
+                     transfer.setStatus(Status.TO_RENT);
+                 });
     }
 
     public void addJuniorPlayer() {
@@ -152,18 +145,17 @@ public class Team implements XMLParseable, Comparable<Team> {
     }
 
     /**
-     *  * Симуляция желания покупки: 1) искать игрока, у которого среднее больше
+     * * Симуляция желания покупки: 1) искать игрока, у которого среднее больше
      * либо равно среднему по команде 2) стоимость игрока не превышает 2/3% от
      * бюджета клуба 3) игрок в команде на данную позицию 1 либо 0 4) количество
      * игроков в команде меньше 30 5) средний возраст игроков на данную позицию
      * в команде больше 30 лет
-     *
+     * <p>
      * Симуляция желания продажи: 1) игроков на данную позицию 3 и больше 2)
      * игроку больше 30 лет, а в команде есть более молодой игрок с большим
      * показателем на этой позиции 3) игроков в команде больше 27 4) среднее
      * игрока меньше среднего по команде, а возраст игрока больше среднего по
      * команде
-     *
      */
     public void simulateTransfers() {
         if (getPlayersCount() < 30) {
@@ -217,10 +209,8 @@ public class Team implements XMLParseable, Comparable<Team> {
 
     public boolean addPlayer(Player player) {
         if (getPlayersCount() < MAX_PLAYERS_COUNT) {
-            if (player.getPreferredPosition() == LocalPosition.GOALKEEPER) {
-                if (goalkeeper == null) {
-                    goalkeeper = player;
-                }
+            if (player.getPreferredPosition() == LocalPosition.GOALKEEPER && goalkeeper == null) {
+                goalkeeper = player;
             }
             if (startPlayers.size() < START_PLAYERS_COUNT) {
                 startPlayers.add(player);
@@ -400,7 +390,6 @@ public class Team implements XMLParseable, Comparable<Team> {
         return fatigue / startPlayers.size();
     }
 
-    @Override
     public Element toXmlElement(Document document) {
         Element teamElement = document.createElement("team");
         teamElement.setAttribute("name", name);
@@ -433,8 +422,7 @@ public class Team implements XMLParseable, Comparable<Team> {
         return teamElement;
     }
 
-    @Override
-    public int compareTo(Team other) {
+    public int compareByAverage(Team other) {
         if (other == this) {
             return 0;
         }
@@ -444,7 +432,6 @@ public class Team implements XMLParseable, Comparable<Team> {
         return Integer.compare(getAverage(), other.getAverage());
     }
 
-    @Override
     public String toXmlString(Document document) {
         try {
             return XMLFormatter.elementToString(toXmlElement(document));
@@ -486,26 +473,19 @@ public class Team implements XMLParseable, Comparable<Team> {
     }
 
     private List<Player> getPlayers(GlobalPosition position) {
-        List<Player> players = new ArrayList<>();
-        startPlayers.stream()
-                .filter((player)
-                        -> (player.getCurrentPosition().getPositionOnField() == position))
-                .forEach((player) -> {
-                    players.add(player);
-                });
-        return players;
+        return startPlayers.stream()
+                           .filter(player -> (player.getCurrentPosition().getPositionOnField() == position))
+                           .collect(Collectors.toList());
     }
 
     public boolean addPlayerFromSportSchool(Player player) {
-        if (juniors.contains(player)) {
-            if (getPlayersCount() < MAX_PLAYERS_COUNT) {
-                addPlayer(player);
-                juniors.remove(player);
-                player.setContract(
-                        new Contract(2, CostCalculator.calculatePayForMatch(player)));
-                Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
-                return true;
-            }
+        if (juniors.contains(player) && getPlayersCount() < MAX_PLAYERS_COUNT) {
+            addPlayer(player);
+            juniors.remove(player);
+            player.setContract(
+                    new Contract(2, CostCalculator.calculatePayForMatch(player)));
+            Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
+            return true;
         }
         return false;
     }

@@ -78,7 +78,7 @@ public class Calculator {
     }
 
     private static double getGaussianTranslated() {
-        return Randomization.RANDOM.nextGaussian() - GAUSSIAN_RANDOM_CENTER;
+        return Randomization.nextGaussian() - GAUSSIAN_RANDOM_CENTER;
     }
 
     private static double calculateAttackResultTeam(Team team) {

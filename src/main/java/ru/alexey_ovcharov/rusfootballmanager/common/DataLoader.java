@@ -4,8 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
+import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,6 +31,11 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
  */
 public class DataLoader {
 
+    private DataLoader() {
+
+    }
+
+    @Nonnull
     public static List<League> loadLeagues(String configName) throws Exception {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
@@ -43,10 +51,8 @@ public class DataLoader {
                     Element leagueElement = (Element) leagueNode;
                     String leagueName = leagueElement.getAttribute("name");
                     String leagueLevel = leagueElement.getAttribute("level");
-                    int recommendedExperience
-                            = Integer.parseInt(leagueElement.getAttribute("experience"));
-                    MasteryLevel masteryLevel
-                            = MasteryLevel.valueOf(leagueLevel);
+                    int recommendedExperience = Integer.parseInt(leagueElement.getAttribute("experience"));
+                    MasteryLevel masteryLevel = MasteryLevel.valueOf(leagueLevel);
                     NodeList teamsList = leagueElement.getElementsByTagName("team");
                     int teamsCount = teamsList.getLength();
                     if (teamsCount > 0) {
@@ -58,12 +64,12 @@ public class DataLoader {
             }
             return leagues;
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private static League createLeague(String leagueName, int teamsCount,
-            int recommendedExperience, NodeList teamsList,
-            MasteryLevel masteryLevel) throws NumberFormatException {
+                                       int recommendedExperience, NodeList teamsList,
+                                       MasteryLevel masteryLevel) throws NumberFormatException {
         League league = new League(leagueName, teamsCount);
         league.setRecommendedExperience(recommendedExperience);
         for (int j = 0; j < teamsCount; j++) {
@@ -80,17 +86,12 @@ public class DataLoader {
                         Status.valueOf(sponsorStatus)));
                 league.addTeam(team);
                 List<Player> players = createPlayers(masteryLevel);
-                players.stream().map(player -> {
-                    player.setContract(new Contract(Randomization.getValueInBounds(1, 6),
-                            CostCalculator.calculatePayForMatch(
-                                    player.getAge(), player.getAverage())));
-                    return player;
-                }).forEach(player -> {
-                    team.addPlayer(player);
-                });
-                for (int i = 0; i < 5; i++) {
-                    team.addJuniorPlayer();
-                }
+                players.stream()
+                       .peek(player -> player.setContract(new Contract(Randomization.getValueInBounds(1, 6),
+                               CostCalculator.calculatePayForMatch(player))))
+                       .forEach(team::addPlayer);
+                IntStream.range(0, 5)
+                         .forEach(index -> team.addJuniorPlayer());
             }
         }
         return league;

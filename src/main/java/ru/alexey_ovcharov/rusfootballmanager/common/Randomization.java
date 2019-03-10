@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Randomization {
 
-    public static final Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
 
     /**
      * Получает случайное число от base до base + disperse
@@ -22,5 +22,21 @@ public class Randomization {
 
     public static int getValueInBounds(int from, int to) {
         return RANDOM.nextInt(to - from) + from;
+    }
+
+    private Randomization() {
+
+    }
+
+    public static double nextGaussian() {
+        return RANDOM.nextGaussian();
+    }
+
+    public static int nextInt(int bound) {
+        return RANDOM.nextInt(bound);
+    }
+
+    public static double nextDouble() {
+        return RANDOM.nextDouble();
     }
 }

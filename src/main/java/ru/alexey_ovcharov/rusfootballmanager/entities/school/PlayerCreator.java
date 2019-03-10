@@ -1,34 +1,31 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.school;
 
+import ru.alexey_ovcharov.rusfootballmanager.common.NamesStore;
+import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Personal;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
 import static ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils.generateGaussian;
-import static ru.alexey_ovcharov.rusfootballmanager.common.Randomization.RANDOM;
-import ru.alexey_ovcharov.rusfootballmanager.common.NamesStore;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.team.Personal;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Player.MAX_AGE;
-import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Player.MAX_YOUNG_AGE;
-import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Player.MIN_AGE;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.TalentType;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.ProgressParameters;
+import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Player.*;
 
 /**
  * @author Alexey
  */
 public class PlayerCreator {
 
-    public static final int MIN_COMMON = 20;
-    public static final int MAX_YOUNG_COMMON = 40;
+    private static final int MIN_COMMON = 20;
+    private static final int MAX_YOUNG_COMMON = 40;
 
-    public static final int MID_YOUNG_COMMON = (MAX_YOUNG_COMMON + MIN_COMMON) / 2;
-    public static final int BETWEEN_YOUNG_COMMON = MAX_YOUNG_COMMON - MIN_COMMON;
+    private static final int MID_YOUNG_COMMON = (MAX_YOUNG_COMMON + MIN_COMMON) / 2;
+    private static final int BETWEEN_YOUNG_COMMON = MAX_YOUNG_COMMON - MIN_COMMON;
 
-    public static final int BETWEEN_YOUNG_AGE = MAX_YOUNG_AGE - MIN_AGE;
-    public static final int BETWEEN_AGE = MAX_AGE - MAX_YOUNG_AGE;
+    private static final int BETWEEN_YOUNG_AGE = MAX_YOUNG_AGE - MIN_AGE;
+    private static final int BETWEEN_AGE = MAX_AGE - MAX_YOUNG_AGE;
 
     public static Player createYoungPlayerSimple() {
         return createYoungPlayer(0);
@@ -45,8 +42,8 @@ public class PlayerCreator {
         if (sportschoolLevel < 0 || sportschoolLevel > Personal.MAX_LEVEL) {
             throw new IllegalArgumentException("Уроверь спортивной школы может быть от 0 до 9");
         }
-        int age = RANDOM.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
-        int averageByMinAge = RANDOM.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON
+        int age = Randomization.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
+        int averageByMinAge = Randomization.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON
                 + sportschoolLevel * 2;
         Player player = new Player(LocalPosition.generatePosition(), averageByMinAge, MIN_AGE,
                 NamesStore.getInstance().getRandomFirstName(),
@@ -59,7 +56,6 @@ public class PlayerCreator {
         return player;
     }
 
-    
 
     /**
      * Получает случайное среднее игрока от MIN до MAX, центр распределения
@@ -83,20 +79,21 @@ public class PlayerCreator {
         return midLeft;
     }
 
+    @Nonnull
     public static Player createPlayer(LocalPosition localPosition, MasteryLevel level) {
         if (level == null) {
             level = MasteryLevel.MID;
         }
-        int age = RANDOM.nextInt(BETWEEN_AGE) + MAX_YOUNG_AGE;
+        int age = Randomization.nextInt(BETWEEN_AGE) + MAX_YOUNG_AGE;
         int left = level.getMin();
         int right = level.getMax();
         int average = generateGaussian(left, right);
-        Player player = new Player(localPosition, average, age,
+        return new Player(localPosition, average, age,
                 NamesStore.getInstance().getRandomFirstName(),
                 NamesStore.getInstance().getRandomLastName());
-        return player;
     }
 
+    @Nonnull
     public static Player createPlayer(GlobalPosition position, MasteryLevel level) {
         EnumSet<LocalPosition> localPositions = position.getLocalPositions();
         List<LocalPosition> positions = new ArrayList<>(localPositions);
@@ -104,7 +101,7 @@ public class PlayerCreator {
         if (localPositions.size() == 1) {
             localPosition = positions.get(0);
         } else {
-            localPosition = positions.get(RANDOM.nextInt(positions.size()));
+            localPosition = positions.get(Randomization.nextInt(positions.size()));
         }
         return createPlayer(localPosition, level);
     }
@@ -126,21 +123,23 @@ public class PlayerCreator {
         if (localPositions.size() == 1) {
             localPosition = positions.get(0);
         } else {
-            localPosition = positions.get(RANDOM.nextInt(positions.size()));
+            localPosition = positions.get(Randomization.nextInt(positions.size()));
         }
-        int age = RANDOM.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
+        int age = Randomization.nextInt(BETWEEN_YOUNG_AGE) + MIN_AGE;
         TalentType talentType = TalentType.getByProbability();
-        int averageByMinAge = RANDOM.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON + sportschoolLevel;
-        int average = averageByMinAge;
+        int average = Randomization.nextInt(BETWEEN_YOUNG_COMMON) + MIN_COMMON + sportschoolLevel;
         if (age > MIN_AGE) {
             for (int i = 0; i < age - MIN_AGE; i++) {
                 average += ProgressParameters.CONSTANTS.get(talentType).get(i);
             }
         }
-        Player player = new Player(localPosition, average, age,
+        return new Player(localPosition, average, age,
                 NamesStore.getInstance().getRandomFirstName(),
                 NamesStore.getInstance().getRandomLastName());
-        return player;
+    }
+
+    private PlayerCreator() {
+
     }
 
 }

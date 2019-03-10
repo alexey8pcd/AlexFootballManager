@@ -1,14 +1,13 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
-import static ru.alexey_ovcharov.rusfootballmanager.common.Randomization.RANDOM;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 /**
  * @author Alexey
  */
-public class Place implements Comparable<Place> {
+public class Place {
 
-    private Team team;
+    private final Team team;
     private int gamesCount;
     private int winsCount;
     private int drawsCount;
@@ -16,6 +15,8 @@ public class Place implements Comparable<Place> {
     private int goalsScored;
     private int goalsConceded;
     private int pointsCount;
+    private int yellowCardsCount;
+    private int redCardsCount;
 
     public Place(Team team) {
         this.team = team;
@@ -27,19 +28,17 @@ public class Place implements Comparable<Place> {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(team.getName());
-        builder.append(" ").append("Игр: ").append(gamesCount);
-        builder.append(" ").append("В: ").append(winsCount);
-        builder.append(" ").append("Н: ").append(drawsCount);
-        builder.append(" ").append("П: ").append(losesCount);
-        builder.append(" ").append("ГЗ: ").append(goalsScored);
-        builder.append(" ").append("ГП: ").append(goalsConceded);
-        builder.append(" ").append("Очки: ").append(pointsCount);
-        return builder.toString();
+        return team.getName() +
+                " " + "Игр: " + gamesCount +
+                " " + "В: " + winsCount +
+                " " + "Н: " + drawsCount +
+                " " + "П: " + losesCount +
+                " " + "ГЗ: " + goalsScored +
+                " " + "ГП: " + goalsConceded +
+                " " + "Очки: " + pointsCount;
     }
 
-    public void addGame(int goalsScored, int goalsConceded) {
+    public void addGameResult(int goalsScored, int goalsConceded, int yellowCardsCount, int redCardsCount) {
         ++gamesCount;
         if (goalsConceded > goalsScored) {
             ++losesCount;
@@ -52,28 +51,30 @@ public class Place implements Comparable<Place> {
         }
         this.goalsScored += goalsScored;
         this.goalsConceded += goalsConceded;
+        this.yellowCardsCount += yellowCardsCount;
+        this.redCardsCount += redCardsCount;
     }
 
     public int getGoalsDifference() {
         return goalsScored - goalsConceded;
     }
 
-    @Override
-    public int compareTo(Place tournamentPlace) {
+    public int compareInTable(Place tournamentPlace) {
         if (pointsCount == tournamentPlace.pointsCount) {
             if (winsCount == tournamentPlace.winsCount) {
                 if (goalsScored == tournamentPlace.goalsScored) {
                     int goalsDifferenceOther = tournamentPlace.getGoalsDifference();
                     int goalsDifference = getGoalsDifference();
                     if (goalsDifference == goalsDifferenceOther) {
-                        do {
-                            int first = RANDOM.nextInt(100);
-                            int second = RANDOM.nextInt(100);
-                            if (first != second) {
-                                return Integer.compare(first, second);
+                        if (yellowCardsCount == tournamentPlace.yellowCardsCount) {
+                            if (redCardsCount == tournamentPlace.redCardsCount) {
+                                return Integer.compare(tournamentPlace.redCardsCount, redCardsCount);
+                            } else {
+                                return 0;
                             }
-                        } while (true);
-
+                        } else {
+                            return Integer.compare(tournamentPlace.yellowCardsCount, yellowCardsCount);
+                        }
                     } else {
                         return Integer.compare(goalsDifference, goalsDifferenceOther);
                     }

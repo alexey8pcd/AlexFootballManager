@@ -3,15 +3,16 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.match;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 /**
  * @author Alexey
  */
-public class Match {   
+public class Match {
 
-    private Team host;
-    private Team guest;
+    private final Team host;
+    private final Team guest;
     private final List<Event> hostEvents;
     private final List<Event> guestEvents;
     private int hostTeamGoalsCount;
@@ -47,7 +48,7 @@ public class Match {
     public int getGuestTeamGoalsCount() {
         return guestTeamGoalsCount;
     }
-    
+
     public void addMatchEvent(Event mathEvent) {
         if (mathEvent.getTeam().equals(host)) {
             hostEvents.add(mathEvent);
@@ -63,9 +64,30 @@ public class Match {
     }
 
     public void addMatchEvent(Collection<Event> mathEvent) {
-        mathEvent.stream().forEach((matchEvent) -> {
-            addMatchEvent(matchEvent);
-        });
+        mathEvent.forEach(this::addMatchEvent);
     }
 
+    public int getHostTeamYellowCardsCount() {
+        return (int) hostEvents.stream()
+                               .filter(event -> event.getEventType() == EventType.YELLOW_CARD)
+                               .count();
+    }
+
+    public int getGuestTeamYellowCardsCount() {
+        return (int) guestEvents.stream()
+                                .filter(event -> event.getEventType() == EventType.YELLOW_CARD)
+                                .count();
+    }
+
+    public int getHostTeamRedCardsCount() {
+        return (int) hostEvents.stream()
+                               .filter(event -> event.getEventType() == EventType.RED_CARD)
+                               .count();
+    }
+
+    public int getGuestTeamRedCardsCount() {
+        return (int) guestEvents.stream()
+                                .filter(event -> event.getEventType() == EventType.RED_CARD)
+                                .count();
+    }
 }

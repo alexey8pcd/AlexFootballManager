@@ -1,5 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.common;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class NamesStore {
         }
     }
 
+    @Nonnull
     private List<String> fillCollection(InputStream is) throws IOException {
         try (BufferedReader firstNamesReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             List<String> collection = new ArrayList<>();
@@ -39,21 +41,24 @@ public class NamesStore {
         }
     }
 
+    @Nonnull
     public static NamesStore getInstance() {
         return INSTANCE;
     }
 
+    @Nonnull
     public String getRandomFirstName() {
         if (firstNames.isEmpty()) {
             throw new NoSuchElementException();
         }
-        return firstNames.get(Randomization.RANDOM.nextInt(firstNames.size()));
+        return firstNames.get(Randomization.nextInt(firstNames.size()));
     }
 
+    @Nonnull
     public String getRandomLastName() {
         if (lastNames.isEmpty()) {
             throw new NoSuchElementException();
         }
-        return lastNames.get(Randomization.RANDOM.nextInt(lastNames.size()));
+        return lastNames.get(Randomization.nextInt(lastNames.size()));
     }
 }

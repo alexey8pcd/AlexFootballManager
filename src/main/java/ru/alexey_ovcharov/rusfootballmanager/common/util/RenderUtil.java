@@ -1,14 +1,13 @@
 package ru.alexey_ovcharov.rusfootballmanager.common.util;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 
 /**
  * @author Alexey
  */
 public class RenderUtil {
 
-    public static final Color LIGHT_LIGHT_GRAY = new Color(216, 216, 216);
+    private static final Color LIGHT_LIGHT_GRAY = new Color(216, 216, 216);
 
     public static Color getPlayerAverageColor(int val) {
         if (val >= 90) {
@@ -27,5 +26,9 @@ public class RenderUtil {
             return LIGHT_LIGHT_GRAY;
         }
         return Color.WHITE;
+    }
+
+    private RenderUtil() {
+
     }
 }

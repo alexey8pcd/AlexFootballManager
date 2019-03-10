@@ -1,11 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 
@@ -14,13 +10,13 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
  */
 public class Table {
 
-    private Map<Team, Place> links;
-    private List<Place> places;
+    private final Map<Team, Place> links;
+    private final List<Place> places;
 
     public Table(Collection<Team> teams) {
         links = new HashMap<>();
         places = new ArrayList<>();
-        teams.stream().forEach((team) -> {
+        teams.forEach(team -> {
             Place tournamentPlace = new Place(team);
             links.put(team, tournamentPlace);
         });
@@ -38,11 +34,17 @@ public class Table {
         if (placeHost != null && placeGuest != null) {
             int hostTeamGoalsCount = matchResult.getHostTeamGoalsCount();
             int guestTeamGoalsCount = matchResult.getGuestTeamGoalsCount();
-            placeHost.addGame(hostTeamGoalsCount, guestTeamGoalsCount);
-            placeGuest.addGame(guestTeamGoalsCount, hostTeamGoalsCount);
+            int hostTeamYellowCardsCount = matchResult.getHostTeamYellowCardsCount();
+            int guestTeamYellowCardsCount = matchResult.getGuestTeamYellowCardsCount();
+            int hostTeamRedCardsCount = matchResult.getHostTeamRedCardsCount();
+            int guestTeamRedCardsCount = matchResult.getGuestTeamRedCardsCount();
+            placeHost.addGameResult(hostTeamGoalsCount, guestTeamGoalsCount,
+                    hostTeamYellowCardsCount, hostTeamRedCardsCount);
+            placeGuest.addGameResult(guestTeamGoalsCount, hostTeamGoalsCount,
+                    guestTeamYellowCardsCount, guestTeamRedCardsCount);
             places.clear();
             places.addAll(links.values());
-            Collections.sort(places);
+            places.sort(Place::compareInTable);
         }
     }
 }

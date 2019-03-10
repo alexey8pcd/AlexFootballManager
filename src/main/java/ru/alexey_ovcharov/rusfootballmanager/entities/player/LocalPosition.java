@@ -1,6 +1,9 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
+import ru.alexey_ovcharov.rusfootballmanager.common.FatalError;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
+
+import javax.annotation.Nonnull;
 
 public enum LocalPosition {
 
@@ -19,7 +22,7 @@ public enum LocalPosition {
     public static LocalPosition getByAbreviation(String abreviation) {
         LocalPosition[] values = LocalPosition.values();
         for (LocalPosition value : values) {
-            if(value.abreviation.equalsIgnoreCase(abreviation)){
+            if (value.abreviation.equalsIgnoreCase(abreviation)) {
                 return value;
             }
         }
@@ -34,6 +37,7 @@ public enum LocalPosition {
         this.probability = probability;
     }
 
+    @Nonnull
     public GlobalPosition getPositionOnField() {
         switch (this) {
             case GOALKEEPER:
@@ -52,11 +56,11 @@ public enum LocalPosition {
             case RIGHT_WING_FORWARD:
                 return GlobalPosition.FORWARD;
         }
-        return null;
+        throw new IllegalArgumentException();
     }
 
     public static LocalPosition generatePosition() {
-        double chance = Randomization.RANDOM.nextDouble();
+        double chance = Randomization.nextDouble();
         double probability = 0;
         LocalPosition[] values = LocalPosition.values();
         for (LocalPosition value : values) {

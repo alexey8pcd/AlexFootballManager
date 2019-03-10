@@ -31,7 +31,7 @@ public enum TalentType {
     }
 
     public static TalentType getByProbability() {
-        int chance = Randomization.RANDOM.nextInt(1000);
+        int chance = Randomization.nextInt(1000);
         int probability = 0;
         for (TalentType type : values()) {
             probability += type.chance;

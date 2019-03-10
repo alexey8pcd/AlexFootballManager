@@ -9,12 +9,17 @@ public class CostCalculator {
 
     private static final int PAY_AVG_FACTOR = 50;
     private static final int PAY_AGE_FACTOR = 3;
+    private static final double B = 0.2;
+    private static final int A = 20;
+    private static final int COST_AVG_BASE_VALUE = 7;
+    private static final int COST_AVG_FACTOR = 120;
+    private static final double COST_AVG_POWER_COEFF = 2.15;
 
     public static int calculatePayForMatch(Player player) {
         return calculatePayForMatch(player.getAge(), player.getAverage());
     }
 
-    public static int calculatePayForMatch(int age, int avg) {
+    private static int calculatePayForMatch(int age, int avg) {
         int top = avg * avg * avg * PAY_AVG_FACTOR;
         int down = age * age / PAY_AGE_FACTOR;
         return top / down;
@@ -26,10 +31,9 @@ public class CostCalculator {
         double down = (double) age / A + B;
         return (int) Math.round(top / down);
     }
-    private static final double B = 0.2;
-    private static final int A = 20;
-    private static final int COST_AVG_BASE_VALUE = 7;
-    private static final int COST_AVG_FACTOR = 120;
-    private static final double COST_AVG_POWER_COEFF = 2.15;
+
+    private CostCalculator() {
+
+    }
 
 }

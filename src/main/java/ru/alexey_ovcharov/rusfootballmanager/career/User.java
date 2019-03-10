@@ -29,7 +29,7 @@ public class User {
     private Date currentDate;
     private Tournament tournament;
     private CareerSettings settings;
-    private List<Message> messages;
+    private final List<Message> messages;
     private int experience;
 
     public static User load(String login) {
@@ -136,8 +136,7 @@ public class User {
             document.appendChild(loginElement);
             Element teamElement = team.toXmlElement(document);
             loginElement.appendChild(teamElement);
-            Element settingsElement = settings.toXmlElement(document);
-            loginElement.appendChild(settingsElement);
+            //TODO добавить сохранение settings
             outputStream.putNextEntry(new ZipEntry("save.dat"));
             XMLFormatter.elemenToStream(teamElement, outputStream);
             outputStream.flush();

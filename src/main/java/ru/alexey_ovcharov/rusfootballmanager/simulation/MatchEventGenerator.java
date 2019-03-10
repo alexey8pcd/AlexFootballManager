@@ -3,15 +3,13 @@ package ru.alexey_ovcharov.rusfootballmanager.simulation;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Event;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.EventType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+
+import java.util.*;
 
 /**
  * @author Alexey
@@ -37,44 +35,33 @@ public class MatchEventGenerator {
     private static final double DEFAULT_EXPERIENCE_VALUE = 0.0111;
 
     private static final GlobalPosition[] GOALKEEPER_PRIORITY = new GlobalPosition[]{
-        GlobalPosition.GOALKEEPER,
-        GlobalPosition.DEFENDER,
-        GlobalPosition.MIDFIELDER
+            GlobalPosition.GOALKEEPER,
+            GlobalPosition.DEFENDER,
+            GlobalPosition.MIDFIELDER
     };
     private static final GlobalPosition[] DEFENDER_PRIORITY = new GlobalPosition[]{
-        GlobalPosition.DEFENDER,
-        GlobalPosition.MIDFIELDER,
-        GlobalPosition.FORWARD
+            GlobalPosition.DEFENDER,
+            GlobalPosition.MIDFIELDER,
+            GlobalPosition.FORWARD
     };
     private static final GlobalPosition[] MIDFIELDIER_PRORITY = new GlobalPosition[]{
-        GlobalPosition.MIDFIELDER,
-        GlobalPosition.FORWARD,
-        GlobalPosition.DEFENDER
+            GlobalPosition.MIDFIELDER,
+            GlobalPosition.FORWARD,
+            GlobalPosition.DEFENDER
     };
     private static final GlobalPosition[] FORWARD_PRIORITY = new GlobalPosition[]{
-        GlobalPosition.FORWARD,
-        GlobalPosition.MIDFIELDER,
-        GlobalPosition.DEFENDER
+            GlobalPosition.FORWARD,
+            GlobalPosition.MIDFIELDER,
+            GlobalPosition.DEFENDER
     };
 
-    private static class PlayerWithCard implements Comparable<PlayerWithCard> {
+    private static class PlayerWithCard {
 
         final Player player;
         int yellowCardsCount = 0;
 
         public PlayerWithCard(Player player) {
             this.player = player;
-        }
-
-        @Override
-        public int compareTo(PlayerWithCard another) {
-            if (this == another) {
-                return 0;
-            }
-            if (another == null) {
-                return 1;
-            }
-            return this.player.compareTo(another.player);
         }
 
     }
@@ -101,6 +88,7 @@ public class MatchEventGenerator {
         reservePlayers = new ArrayList<>();
         init(team);
     }
+
     private static final double EXPERIENCE_DIFFERENCE_MULTIPLIER = 0.02;
 
     private void init(Team teamForInit) {
@@ -112,7 +100,7 @@ public class MatchEventGenerator {
         }
         minutesForGoal = new int[scoredGoals];
         for (int i = 0; i < scoredGoals; i++) {
-            minutesForGoal[i] = Randomization.RANDOM.nextInt(MINUTES_PER_MATCH) + 1;
+            minutesForGoal[i] = Randomization.nextInt(MINUTES_PER_MATCH) + 1;
         }
         Arrays.sort(minutesForGoal);
     }
@@ -133,12 +121,12 @@ public class MatchEventGenerator {
     private List<Event> createEvents(int minute) {
         for (PlayerWithCard playerWithCard : startPlayers) {
             Player player = playerWithCard.player;
-            player.addFatifue(Randomization.RANDOM.nextDouble());
+            player.addFatifue(Randomization.nextDouble());
             player.addExperience(DEFAULT_EXPERIENCE_VALUE * experienceCoeff);
         }
-        int chance = Randomization.RANDOM.nextInt(THOUSAND);
+        int chance = Randomization.nextInt(THOUSAND);
         if (chance < YELLOW_CARD_CHANCE) {
-            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.nextInt(startPlayers.size());
             PlayerWithCard playerWithCard = startPlayers.get(playerIndex);
             Player player = playerWithCard.player;
             player.addYellowCard();
@@ -149,23 +137,23 @@ public class MatchEventGenerator {
                 ++playerWithCard.yellowCardsCount;
             }
         } else if (chance < RED_CARD_CHANCE) {
-            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.nextInt(startPlayers.size());
             removePlayer(minute, playerIndex);
         } else if (chance < INJURE_CHANCE) {
-            int playerIndex = Randomization.RANDOM.nextInt(startPlayers.size());
+            int playerIndex = Randomization.nextInt(startPlayers.size());
             PlayerWithCard injured = startPlayers.get(playerIndex);
             Player injuredPlayer = injured.player;
             events.add(new Event(EventType.INJURE, minute, injuredPlayer, team));
-            injuredPlayer.setInjured(InjureType.getInjure(Randomization.RANDOM.nextInt(HUNDRED)));
+            injuredPlayer.setInjured(InjureType.getInjure(Randomization.nextInt(HUNDRED)));
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
                 changePlayer(minute, injured);
             }
         }
-        if (minute > PREFERRED_TIME_TO_CHANGE_PLAYER) {
-            if (chance < SUBSTITUTE_CHANCE && substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
-                PlayerWithCard mostTired = findMostTired(startPlayers);
-                changePlayer(minute, mostTired);
-            }
+        if (minute > PREFERRED_TIME_TO_CHANGE_PLAYER
+                && chance < SUBSTITUTE_CHANCE
+                && substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
+            PlayerWithCard mostTired = findMostTired(startPlayers);
+            changePlayer(minute, mostTired);
         }
         if (hasGoals && minutesForGoal[minuteForGoalIndex] == minute) {
             scoreGoal(minute);
@@ -180,19 +168,19 @@ public class MatchEventGenerator {
             hasGoals = false;
         }
         List<Player> playersGroupToScore = getPlayerGroupScored();
-        int scoredPlayerIndex = Randomization.RANDOM.nextInt(playersGroupToScore.size());
+        int scoredPlayerIndex = Randomization.nextInt(playersGroupToScore.size());
         Player whoScored = playersGroupToScore.get(scoredPlayerIndex);
-        boolean fromPenalty = Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
+        boolean fromPenalty = Randomization.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
         if (fromPenalty) {
             events.add(new Event(EventType.PENALTY, minute, whoScored, team));
             events.add(new Event(EventType.GOAL, minute, whoScored, team));
         } else {
             events.add(new Event(EventType.GOAL, minute, whoScored, team));
             Player assistent;
-            if (Randomization.RANDOM.nextInt(HUNDRED) < CHANCE_TO_ASSIST) {
+            if (Randomization.nextInt(HUNDRED) < CHANCE_TO_ASSIST) {
                 do {
                     List<Player> playersGroupToAssist = getPlayerGroupAssist();
-                    int assistPlayerIndex = Randomization.RANDOM.nextInt(playersGroupToAssist.size());
+                    int assistPlayerIndex = Randomization.nextInt(playersGroupToAssist.size());
                     assistent = playersGroupToAssist.get(assistPlayerIndex);
                 } while (assistent == whoScored);
 
@@ -203,7 +191,7 @@ public class MatchEventGenerator {
 
     private List<Player> getPlayerGroupAssist() {
         List<Player> playersGroup;
-        int playersGroupChance = Randomization.RANDOM.nextInt(HUNDRED);
+        int playersGroupChance = Randomization.nextInt(HUNDRED);
         if (playersGroupChance < CHANCE_TO_ASSIST_BY_GOALKEEPER) {
             playersGroup = getPlayerGroup(startPlayers,
                     GlobalPosition.GOALKEEPER);
@@ -218,7 +206,7 @@ public class MatchEventGenerator {
     }
 
     private List<Player> getPlayerGroupScored() {
-        int playersGroupChance = Randomization.RANDOM.nextInt(HUNDRED);
+        int playersGroupChance = Randomization.nextInt(HUNDRED);
         List<Player> playersGroup;
         if (playersGroupChance < CHANCE_SCORE_GOAL_BY_FORWARD) {
             playersGroup = getPlayerGroup(startPlayers, GlobalPosition.FORWARD);
@@ -245,26 +233,25 @@ public class MatchEventGenerator {
         Player playerFromField = playerFrom.player;
         events.add(new Event(EventType.RED_CARD, minute, playerFromField, team));
         playerFromField.addRedCard();
-        if (playerFromField.getCurrentPosition().getPositionOnField() == GlobalPosition.GOALKEEPER) {
-            if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
-                PlayerWithCard reserveGoalkeeper = null;
-                for (PlayerWithCard reservePlayer : reservePlayers) {
-                    if (reservePlayer.player.getCurrentPositionOnField()
-                            == GlobalPosition.GOALKEEPER) {
-                        reserveGoalkeeper = reservePlayer;
-                        break;
-                    }
+        if (playerFromField.getCurrentPosition().getPositionOnField() == GlobalPosition.GOALKEEPER
+                && substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
+            PlayerWithCard reserveGoalkeeper = null;
+            for (PlayerWithCard reservePlayer : reservePlayers) {
+                if (reservePlayer.player.getCurrentPositionOnField()
+                        == GlobalPosition.GOALKEEPER) {
+                    reserveGoalkeeper = reservePlayer;
+                    break;
                 }
-                if (reserveGoalkeeper != null) {
-                    changePlayer(minute, playerFrom);
-                }
+            }
+            if (reserveGoalkeeper != null) {
+                changePlayer(minute, playerFrom);
             }
         }
         startPlayers.remove(playerIndex);
     }
 
     private List<Player> getPlayerGroup(List<PlayerWithCard> playerWithCards,
-            GlobalPosition positionOnField) {
+                                        GlobalPosition positionOnField) {
         List<Player> players = new ArrayList<>();
         for (PlayerWithCard playerWithCard : playerWithCards) {
             if (playerWithCard.player.getCurrentPosition().
@@ -290,7 +277,9 @@ public class MatchEventGenerator {
 
     private PlayerWithCard findSamePlayer(List<PlayerWithCard> reserve, Player player) {
         GlobalPosition[] priority = new GlobalPosition[0];
-        switch (player.getCurrentPosition().getPositionOnField()) {
+        LocalPosition currentPosition = player.getCurrentPosition();
+        GlobalPosition positionOnField = currentPosition.getPositionOnField();
+        switch (positionOnField) {
             case FORWARD:
                 priority = FORWARD_PRIORITY;
                 break;
@@ -304,7 +293,12 @@ public class MatchEventGenerator {
                 priority = GOALKEEPER_PRIORITY;
                 break;
         }
-        Set<PlayerWithCard> candidates = new TreeSet<>();
+        Set<PlayerWithCard> candidates = new TreeSet<>((o1, o2) -> {
+            if (o1 == o2) {
+                return 0;
+            }
+            return o1.player.compareByCharacteristics(o2.player);
+        });
         for (GlobalPosition position : priority) {
             for (PlayerWithCard playerWithCard : reserve) {
                 if (playerWithCard.player.getCurrentPosition().

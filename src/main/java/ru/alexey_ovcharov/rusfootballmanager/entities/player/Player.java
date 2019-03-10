@@ -6,18 +6,21 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+
 import javafx.util.Pair;
+
+import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
-import ru.alexey_ovcharov.rusfootballmanager.common.XMLParseable;
 
 /**
  * @author Alexey
  */
-public class Player implements Comparable<Player>, XMLParseable {
+public class Player {
 
     public static final int MIN_AGE = 16;
     public static final int MAX_YOUNG_AGE = 21;
@@ -52,7 +55,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     private Contract contract;
 
     public Player(LocalPosition preferredPosition, int average, int age,
-            String name, String lastName) {
+                  String name, String lastName) {
         this.age = age;
         mood = MOOD_DEFAULT;
         this.preferredPosition = preferredPosition;
@@ -200,9 +203,9 @@ public class Player implements Comparable<Player>, XMLParseable {
                 * ProgressParameters.EXPERIENCE_GAINED_BY_AGE[ageIndex];
         if (experiense > MAX_EXPERIENCE_VALUE) {
             experiense = 0;
-            int chanceIncreaseChar = Randomization.RANDOM.nextInt(HUNDRED);
+            int chanceIncreaseChar = Randomization.nextInt(HUNDRED);
             Object[] primaryChars = CharacteristicsBuilder.
-                    getPrimaryChars(preferredPosition).toArray();
+                                                                  getPrimaryChars(preferredPosition).toArray();
             if (chanceIncreaseChar < 25) {
                 increaseOneCharacteristic(primaryChars);
             } else if (chanceIncreaseChar < 50) {
@@ -248,7 +251,7 @@ public class Player implements Comparable<Player>, XMLParseable {
 
     public void addFatifue(double value) {
         this.fatigue += value * getPosition().
-                getPositionOnField().getFatigueCoefficient();
+                                                     getPositionOnField().getFatigueCoefficient();
     }
 
     public int getAverage() {
@@ -294,13 +297,9 @@ public class Player implements Comparable<Player>, XMLParseable {
                 + getAverage() + " [" + getStrengthReserve() + "]";
     }
 
-    @Override
-    public int compareTo(Player other) {
+    public int compareByCharacteristics(@Nonnull Player other) {
         if (this == other) {
             return 0;
-        }
-        if (other == null) {
-            return 1;
         }
         int sum = 0;
         for (Characteristic c : Characteristic.values()) {
@@ -309,7 +308,6 @@ public class Player implements Comparable<Player>, XMLParseable {
         return Integer.compare(sum, 0);
     }
 
-    @Override
     public Element toXmlElement(Document document) {
         Element player = document.createElement("player");
         player.setAttribute("first-name", name);
@@ -339,7 +337,6 @@ public class Player implements Comparable<Player>, XMLParseable {
         return player;
     }
 
-    @Override
     public String toXmlString(Document document) {
         Element toXmlElement = toXmlElement(document);
         String result = "";
@@ -368,7 +365,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     private void addChildElement(Element player, Document document,
-            String elementName, Object value) {
+                                 String elementName, Object value) {
         Element element = document.createElement(elementName);
         element.setTextContent(String.valueOf(value));
         player.appendChild(element);
@@ -389,7 +386,7 @@ public class Player implements Comparable<Player>, XMLParseable {
     }
 
     private void increaseOneCharacteristic(Object[] primaryChars) {
-        int randomValue = Randomization.RANDOM.nextInt(primaryChars.length);
+        int randomValue = Randomization.nextInt(primaryChars.length);
         Characteristic toIncrease = (Characteristic) primaryChars[randomValue];
         Integer oldValue = this.chars.get(toIncrease);
         if (oldValue < 99) {

@@ -1,6 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.common.util;
 
-import static ru.alexey_ovcharov.rusfootballmanager.common.Randomization.RANDOM;
+import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 
 /**
  * @author Alexey
@@ -9,13 +9,14 @@ public class MathUtils {
 
     /**
      * Вычисляет двоичный логарифм числа, затем округляет
+     *
      * @param value
-     * @return 
+     * @return
      */
     public static int log2(long value) {
         return (int) (Math.log(value) / Math.log(2));
     }
-    
+
     /**
      * Получает случайное целое число от left до right с нормальный
      * распределением.
@@ -25,7 +26,7 @@ public class MathUtils {
      * @return
      */
     public static int generateGaussian(int left, int right) {
-        double g = RANDOM.nextGaussian();
+        double g = Randomization.nextGaussian();
         double gamma = 3;//параметр, который определяет "разброс" значений: 
         //чем больше гамма, тем ближе к центру
         if (g > gamma) {
@@ -39,5 +40,9 @@ public class MathUtils {
         g *= gdisperse;
         g = g + left + center;
         return (int) Math.round(g);
+    }
+
+    private MathUtils() {
+
     }
 }
