@@ -5,6 +5,9 @@ import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
+import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
+import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
+import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
@@ -16,6 +19,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
 
+import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,29 +37,34 @@ public class Team {
     private static final int SUPPORT_LEVEL_DEFAULT = 40;
     private static final int BUDGET_LEVEL_OFFSET = 18;
     private static final int TEAMWORK_DEFAULT = 20;
-
-    private final List<Player> startPlayers;
-    private final List<Player> substitutes;
-    private final List<Player> reserve;
+    private List<Player> startPlayers;
+    private List<Player> substitutes;
+    private List<Player> reserve;
     private final Set<Player> playersOnTransfer;
     private final Set<Player> playersOnRent;
     private final Set<Player> juniors;
     private final Personal personal;
     private final NavigableMap<Integer, Player> playersNumbers;
-    private final Queue<GameResult> lastFiveResults;
-
+    private final String name;
 
     private Player goalkeeper;
+    private Player playerPenaltyScore;
+    private Player playerFreeKickScore;
+    private Player playerLeftCorner;
+    private Player playerRightCorner;
+
     private int teamwork;
     private int support;
-    private final String name;
     private long budget;
     private Sponsor sponsor;
     private Strategy gameStrategy;
+    private Tactics tactics;
+    private Set<Trick> tricks;
 
     public Team(String name, long budget) {
         this.name = name;
         this.budget = budget;
+        this.tricks = EnumSet.noneOf(Trick.class);
         int level = Math.max(BUDGET_LEVEL_OFFSET, MathUtils.log2(budget));
         int budgetLevel = Math.min(level - BUDGET_LEVEL_OFFSET, Personal.MAX_LEVEL);
         personal = new Personal(budgetLevel);
@@ -66,7 +75,7 @@ public class Team {
         this.substitutes = new ArrayList<>();
         this.reserve = new ArrayList<>();
         gameStrategy = Strategy.BALANCE;
-        lastFiveResults = new LinkedList<>();
+        tactics = Tactics.T_4_4_2;
         playersOnTransfer = new HashSet<>();
         playersOnRent = new HashSet<>();
         juniors = new HashSet<>();
@@ -187,13 +196,6 @@ public class Team {
         return budget;
     }
 
-    public void addGameResult(GameResult gameResult) {
-        if (lastFiveResults.size() == 5) {
-            lastFiveResults.remove();
-        }
-        lastFiveResults.add(gameResult);
-    }
-
     /**
      * Изменяет бюджет на заданную величину.
      *
@@ -206,6 +208,18 @@ public class Team {
         }
         this.budget += value;
         return true;
+    }
+
+    public void setStartPlayers(List<Player> startPlayers) {
+        this.startPlayers = startPlayers;
+    }
+
+    public void setSubstitutes(List<Player> substitutes) {
+        this.substitutes = substitutes;
+    }
+
+    public void setReserve(List<Player> reserve) {
+        this.reserve = reserve;
     }
 
     public boolean addPlayer(Player player) {
@@ -233,9 +247,10 @@ public class Team {
     }
 
     public void setGoalkeeper(Player player) {
-        if (startPlayers.contains(player)) {
-            this.goalkeeper = player;
+        if (player == null || !startPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player not in this team");
         }
+        this.goalkeeper = player;
     }
 
     public int getPlayersCount() {
@@ -361,6 +376,7 @@ public class Team {
     }
 
     public int calculateForm() {
+        List<GameResult> lastFiveResults = Collections.emptyList();
         int matchesPlayed = lastFiveResults.size();
         if (matchesPlayed == 0) {
             return 50;
@@ -490,4 +506,63 @@ public class Team {
         return false;
     }
 
+    public void setTactics(@Nonnull Tactics tactics) {
+        this.tactics = tactics;
+    }
+
+    public Player getPlayerPenaltyScore() {
+        return playerPenaltyScore;
+    }
+
+    public void setPlayerPenaltyScore(Player player) {
+        if (player == null || !startPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player not in this team");
+        }
+        this.playerPenaltyScore = player;
+    }
+
+    public Player getPlayerFreeKickScore() {
+        return playerFreeKickScore;
+    }
+
+    public void setPlayerFreeKickScore(Player player) {
+        if (player == null || !startPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player not in this team");
+        }
+        this.playerFreeKickScore = player;
+    }
+
+    public Player getPlayerLeftCorner() {
+        return playerLeftCorner;
+    }
+
+    public void setPlayerLeftCorner(Player player) {
+        if (player == null || !startPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player not in this team");
+        }
+        this.playerLeftCorner = player;
+    }
+
+    public Player getPlayerRightCorner() {
+        return playerRightCorner;
+    }
+
+    public void setPlayerRightCorner(Player player) {
+        if (player == null || !startPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player not in this team");
+        }
+        this.playerRightCorner = player;
+    }
+
+    public void setTricks(@Nonnull Set<Trick> tricks) {
+        this.tricks = tricks;
+    }
+
+    public Tactics getTactics() {
+        return tactics;
+    }
+
+    public Set<Trick> getTricks() {
+        return tricks;
+    }
 }

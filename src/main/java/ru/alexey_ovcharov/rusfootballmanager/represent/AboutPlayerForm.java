@@ -30,7 +30,7 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         int avg = player.getAverage();
         builder.append("Возраст: ").append(age).append("\n");
         builder.append("Общее: ").append(avg).append("\n");
-        builder.append("Позиция: ").append(player.getPreferredPosition().getAbreviation()).append("\n");
+        builder.append("Позиция: ").append(player.getPreferredPosition().getDescription()).append("\n");
         builder.append("Контракт: ").append(player.getContract()).append("\n");
         builder.append("---------- Основные навыки ---------\n");
         List<Pair<String, Integer>> primaryChars = player.getPrimaryChars();
@@ -61,6 +61,7 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         }
 
         taInfo.setText(builder.toString());
+        taInfo.setCaretPosition(0);
     }
 
     @SuppressWarnings("unchecked")

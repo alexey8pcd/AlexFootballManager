@@ -3,6 +3,8 @@ package ru.alexey_ovcharov.rusfootballmanager.data;
 import ru.alexey_ovcharov.rusfootballmanager.common.FatalError;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +79,14 @@ public enum Tactics {
         }
     }
 
+    @Nonnull
+    public static Tactics getByShortName(@Nullable String shortName) {
+        return Arrays.stream(values())
+                     .filter(tactics -> tactics.shortName.equals(shortName))
+                     .findFirst()
+                     .orElseThrow(IllegalArgumentException::new);
+    }
+
     public String getShortName() {
         return shortName;
     }
@@ -84,4 +94,5 @@ public enum Tactics {
     public List<LocalPosition> getPositions() {
         return positions;
     }
+
 }

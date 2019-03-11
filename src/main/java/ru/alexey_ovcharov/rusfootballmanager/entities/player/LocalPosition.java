@@ -6,17 +6,17 @@ import javax.annotation.Nonnull;
 
 public enum LocalPosition {
 
-    GOALKEEPER("ВР", 0.0909),
-    LEFT_DEFENDER("ЛЗ", 0.0909),
-    CENTRAL_DEFENDER("ЦЗ", 0.0909),
-    RIGHT_DEFENDER("ПЗ", 0.0909),
-    LEFT_MIDFIELDER("ЛП", 0.0909),
-    CENTRAL_MIDFIELDER("ЦП", 0.0909),
-    RIGHT_MIDFIELDER("ПП", 0.0909),
-    ATTACK_MIDFIELDER("АП", 0.0909),
-    RIGHT_WING_FORWARD("ПКФ", 0.0909),
-    CENTRAL_FORWARD("ЦФ", 0.0909),
-    LEFT_WING_FORWARD("ЛКФ", 0.0909);
+    GOALKEEPER("ВР", 0.0909, "Вратарь"),
+    LEFT_DEFENDER("ЛЗ", 0.0909, "Левый защитник"),
+    CENTRAL_DEFENDER("ЦЗ", 0.0909, "Центральный защитник"),
+    RIGHT_DEFENDER("ПЗ", 0.0909, "Правый защитник"),
+    LEFT_MIDFIELDER("ЛП", 0.0909, "Левый полузащитник"),
+    CENTRAL_MIDFIELDER("ЦП", 0.0909, "Центральный полузащитник"),
+    RIGHT_MIDFIELDER("ПП", 0.0909, "Правый полузащитник"),
+    ATTACK_MIDFIELDER("АП", 0.0909, "Атакующий полузащитик"),
+    RIGHT_WING_FORWARD("ПКФ", 0.0909, "Правык крайний нападающий"),
+    CENTRAL_FORWARD("ЦФ", 0.0909, "Центральный нападающий"),
+    LEFT_WING_FORWARD("ЛКФ", 0.0909, "Левый крайний нападающий");
 
     public static LocalPosition getByAbreviation(String abreviation) {
         LocalPosition[] values = LocalPosition.values();
@@ -29,11 +29,13 @@ public enum LocalPosition {
     }
 
     private final String abreviation;
+    private final String description;
     private final double probability;
 
-    private LocalPosition(String abreviation, double probability) {
+    private LocalPosition(String abreviation, double probability, String description) {
         this.abreviation = abreviation;
         this.probability = probability;
+        this.description = description;
     }
 
     @Nonnull
@@ -75,4 +77,7 @@ public enum LocalPosition {
         return abreviation;
     }
 
+    public String getDescription() {
+        return description;
+    }
 }
