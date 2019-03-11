@@ -4,6 +4,8 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
+import java.awt.event.ActionEvent;
+
 /**
  *
  * @author Алексей
@@ -55,7 +57,7 @@ public class ManageForm extends javax.swing.JDialog {
         paneNextMatch = new javax.swing.JPanel();
         bStartMatch = new javax.swing.JButton();
         bTraining = new javax.swing.JButton();
-        bTeamManagement = new javax.swing.JButton();
+        bTeamSettings = new javax.swing.JButton();
         lNextMatchInfo = new javax.swing.JLabel();
         lPlayedGames = new javax.swing.JLabel();
         lSeason = new javax.swing.JLabel();
@@ -65,7 +67,7 @@ public class ManageForm extends javax.swing.JDialog {
         jLabel10 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         lMessages = new javax.swing.JList<>();
-        jLabel11 = new javax.swing.JLabel();
+        lDetails = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         taDescriptions = new javax.swing.JTextArea();
         bDeleteMessage = new javax.swing.JButton();
@@ -92,15 +94,12 @@ public class ManageForm extends javax.swing.JDialog {
         paneNextMatch.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         bStartMatch.setText("Начать матч");
-        bStartMatch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bStartMatchActionPerformed(evt);
-            }
-        });
+        bStartMatch.addActionListener(this::bStartMatchActionPerformed);
 
         bTraining.setText("Тренировка");
 
-        bTeamManagement.setText("Руководство командой");
+        bTeamSettings.setText("Руководство командой");
+        bTeamSettings.addActionListener(this::bTeamSettingsActionPerformed);
 
         lNextMatchInfo.setText("Следующий матч с командой");
 
@@ -121,7 +120,7 @@ public class ManageForm extends javax.swing.JDialog {
                 .addGroup(paneNextMatchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(paneNextMatchLayout.createSequentialGroup()
                         .addGroup(paneNextMatchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(bTeamManagement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bTeamSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bTraining, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bStartMatch, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -151,7 +150,7 @@ public class ManageForm extends javax.swing.JDialog {
                     .addComponent(lYear)
                     .addComponent(lNextMatchInfo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(bTeamManagement)
+                .addComponent(bTeamSettings)
                 .addGap(18, 18, 18)
                 .addGroup(paneNextMatchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(bStartMatch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -170,7 +169,7 @@ public class ManageForm extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(lMessages);
 
-        jLabel11.setText("Подробнее");
+        lDetails.setText("Подробнее");
 
         taDescriptions.setEditable(false);
         taDescriptions.setColumns(20);
@@ -195,7 +194,7 @@ public class ManageForm extends javax.swing.JDialog {
                             .addGap(18, 18, 18)
                             .addComponent(bClearPost))
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING))
-                    .addComponent(jLabel11)
+                    .addComponent(lDetails)
                     .addComponent(jLabel10))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -210,7 +209,7 @@ public class ManageForm extends javax.swing.JDialog {
                     .addGroup(paneMailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(bDeleteMessage)
                         .addComponent(bClearPost))
-                    .addComponent(jLabel11))
+                    .addComponent(lDetails))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -269,39 +268,19 @@ public class ManageForm extends javax.swing.JDialog {
         jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         bCommandStructure.setText("Состав");
-        bCommandStructure.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bCommandStructureActionPerformed(evt);
-            }
-        });
+        bCommandStructure.addActionListener(this::bCommandStructureActionPerformed);
 
         bStaff.setText("Персонал");
-        bStaff.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bStaffActionPerformed(evt);
-            }
-        });
+        bStaff.addActionListener(this::bStaffActionPerformed);
 
         bSportSchool.setText("Спортивная школа");
-        bSportSchool.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bSportSchoolActionPerformed(evt);
-            }
-        });
+        bSportSchool.addActionListener(this::bSportSchoolActionPerformed);
 
         bPlayersMarket.setText("Трансферный рынок");
-        bPlayersMarket.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bPlayersMarketActionPerformed(evt);
-            }
-        });
+        bPlayersMarket.addActionListener(this::bPlayersMarketActionPerformed);
 
         bTournamentTable.setText("Турнирная таблица");
-        bTournamentTable.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bTournamentTableActionPerformed(evt);
-            }
-        });
+        bTournamentTable.addActionListener(this::bTournamentTableActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -367,11 +346,26 @@ public class ManageForm extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void bTeamSettingsActionPerformed(ActionEvent evt) {
+        showTeamSettingsForm();
+    }
+
+    private void showTeamSettingsForm() {
+        TeamSettingsForm teamSettingsForm = new TeamSettingsForm(null, true);
+        teamSettingsForm.setLocationRelativeTo(this);
+        teamSettingsForm.setTeam(user.getTeam());
+        teamSettingsForm.setVisible(true);
+    }
+
     private void bCommandStructureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCommandStructureActionPerformed
+        showPlayersForm();
+    }//GEN-LAST:event_bCommandStructureActionPerformed
+
+    private void showPlayersForm() {
         PlayersForm playersForm = new PlayersForm(null, true);
         playersForm.setPlayers(user.getTeam().getAllPlayers());
         playersForm.setVisible(true);
-    }//GEN-LAST:event_bCommandStructureActionPerformed
+    }
 
     private void bPlayersMarketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPlayersMarketActionPerformed
         TransferForm transferForm = new TransferForm(null, true);
@@ -408,12 +402,12 @@ public class ManageForm extends javax.swing.JDialog {
     private javax.swing.JButton bSportSchool;
     private javax.swing.JButton bStaff;
     private javax.swing.JButton bStartMatch;
-    private javax.swing.JButton bTeamManagement;
+    private javax.swing.JButton bTeamSettings;
     private javax.swing.JButton bTournamentTable;
     private javax.swing.JButton bTraining;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel lDetails;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

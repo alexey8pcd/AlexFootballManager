@@ -78,8 +78,7 @@ public class Team {
         if (added) {
             player.decreaseMood(7);
         }
-        List<Transfer> transfers
-                = Market.getInstance().getTransfers(this);
+        List<Transfer> transfers = Market.getInstance().getTransfers(this);
         transfers.stream()
                  .filter(transfer -> transfer.getPlayer() == player)
                  .forEach(transfer -> {
@@ -144,19 +143,6 @@ public class Team {
         this.sponsor = sponsor;
     }
 
-    /**
-     * * Симуляция желания покупки: 1) искать игрока, у которого среднее больше
-     * либо равно среднему по команде 2) стоимость игрока не превышает 2/3% от
-     * бюджета клуба 3) игрок в команде на данную позицию 1 либо 0 4) количество
-     * игроков в команде меньше 30 5) средний возраст игроков на данную позицию
-     * в команде больше 30 лет
-     * <p>
-     * Симуляция желания продажи: 1) игроков на данную позицию 3 и больше 2)
-     * игроку больше 30 лет, а в команде есть более молодой игрок с большим
-     * показателем на этой позиции 3) игроков в команде больше 27 4) среднее
-     * игрока меньше среднего по команде, а возраст игрока больше среднего по
-     * команде
-     */
     public void simulateTransfers() {
         if (getPlayersCount() < 30) {
             simulateSale();
@@ -166,10 +152,25 @@ public class Team {
         }
     }
 
+    /**
+     * Симуляция желания продажи: <br>
+     * 1) игроков на данную позицию 3 и больше<br>
+     * 2) игроку больше 30 лет, а в команде есть более молодой игрок с большим показателем на этой позиции<br>
+     * 3) игроков в команде больше 27<br>
+     * 4) среднее игрока меньше среднего по команде, а возраст игрока больше среднего по команде<br>
+     */
     private void simulateSale() {
         //TODO
     }
 
+    /**
+     * Симуляция желания покупки: <br>
+     * 1) искать игрока, у которого среднее больше либо равно среднему по команде<br>
+     * 2) стоимость игрока не превышает 2/3 от бюджета клуба <br>
+     * 3) игрок в команде на данную позицию 1 либо 0<br>
+     * 4) количество игроков в команде меньше 30<br>
+     * 5) средний возраст игроков на данную позицию в команде больше 30 лет<br>
+     */
     private void simulateBuy() {
         //TODO
     }
@@ -482,8 +483,7 @@ public class Team {
         if (juniors.contains(player) && getPlayersCount() < MAX_PLAYERS_COUNT) {
             addPlayer(player);
             juniors.remove(player);
-            player.setContract(
-                    new Contract(2, CostCalculator.calculatePayForMatch(player)));
+            player.setContract(new Contract(2, CostCalculator.calculatePayForMatch(player)));
             Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
             return true;
         }

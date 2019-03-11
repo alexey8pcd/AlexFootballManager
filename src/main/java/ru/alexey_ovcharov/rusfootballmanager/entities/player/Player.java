@@ -394,4 +394,7 @@ public class Player {
         }
     }
 
+    public String getNameAbbrAndLastName() {
+        return name.substring(0, 1) + ". " + lastName;
+    }
 }

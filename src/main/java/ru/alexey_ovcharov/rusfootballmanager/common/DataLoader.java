@@ -82,8 +82,7 @@ public class DataLoader {
                 String sponsorName = teamElement.getAttribute("sponsor");
                 String sponsorStatus = teamElement.getAttribute("sponsor-level");
                 Team team = new Team(teamName + " (" + city + ")", budget);
-                team.setSponsor(new Sponsor(sponsorName,
-                        Status.valueOf(sponsorStatus)));
+                team.setSponsor(new Sponsor(sponsorName, Status.valueOf(sponsorStatus)));
                 league.addTeam(team);
                 List<Player> players = createPlayers(masteryLevel);
                 players.stream()

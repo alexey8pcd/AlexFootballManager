@@ -5,3 +5,5 @@
 /gradle/wrapper/gradle-wrapper.properties
 /gradlew
 /gradlew.bat
+/.nb-gradle/
+/build/
