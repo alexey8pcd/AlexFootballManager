@@ -1,6 +1,9 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
+import javax.annotation.Nonnull;
 import java.util.EnumSet;
+import java.util.Set;
+
 import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Characteristic.*;
 
 /**
@@ -34,7 +37,7 @@ public class CharacteristicsBuilder {
     private static final EnumSet<Characteristic> WD_SECONDARY = EnumSet.complementOf(WD_PRIMARY);
     private static final EnumSet<Characteristic> GK_SECONDARY = EnumSet.complementOf(GK_PRIMARY);
 
-    public static EnumSet<Characteristic> getPrimaryChars(LocalPosition positionType) {
+    public static Set<Characteristic> getPrimaryChars(@Nonnull LocalPosition positionType) {
         switch (positionType) {
             case GOALKEEPER:
                 return GK_PRIMARY;
@@ -58,7 +61,7 @@ public class CharacteristicsBuilder {
         }
     }
 
-    public static EnumSet<Characteristic> getSecondaryChars(LocalPosition positionType) {
+    public static Set<Characteristic> getSecondaryChars(@Nonnull LocalPosition positionType) {
         switch (positionType) {
             case GOALKEEPER:
                 return GK_SECONDARY;

@@ -1,6 +1,5 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
-import ru.alexey_ovcharov.rusfootballmanager.common.FatalError;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 
 import javax.annotation.Nonnull;

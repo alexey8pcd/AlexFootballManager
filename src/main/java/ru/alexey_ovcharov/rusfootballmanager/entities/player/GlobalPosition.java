@@ -1,25 +1,29 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
+import java.awt.*;
 import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * @author Alexey Амплуа игрока: вратарь, защитник, полузащитник, нападающий
  */
 public enum GlobalPosition {
 
-    FORWARD(0.6, "НАП", 0),
-    MIDFIELDER(0.9, "ПЗЩ", 1),
-    DEFENDER(0.5, "ЗАЩ", 2),
-    GOALKEEPER(0.1, "ВР", 3);
+    FORWARD(0.6, "НАП", 0, Color.RED),
+    MIDFIELDER(0.9, "ПЗЩ", 1, Color.CYAN),
+    DEFENDER(0.5, "ЗАЩ", 2, Color.GREEN),
+    GOALKEEPER(0.1, "ВР", 3, Color.ORANGE);
 
     private final double fatigueCoefficient;
     private final String abreviation;
     private final int index;
+    private final Color color;
 
-    private GlobalPosition(double fatigueCoefficient, String abreviation, int index) {
+    GlobalPosition(double fatigueCoefficient, String abreviation, int index, Color color) {
         this.fatigueCoefficient = fatigueCoefficient;
         this.abreviation = abreviation;
         this.index = index;
+        this.color = color;
     }
 
     public double getFatigueCoefficient() {
@@ -40,7 +44,7 @@ public enum GlobalPosition {
         return DEFENDER;
     }
 
-    public EnumSet<LocalPosition> getLocalPositions() {
+    public Set<LocalPosition> getLocalPositions() {
         switch (this) {
             case DEFENDER:
                 return EnumSet.of(LocalPosition.CENTRAL_DEFENDER,
@@ -56,6 +60,10 @@ public enum GlobalPosition {
             default:
                 return EnumSet.of(LocalPosition.GOALKEEPER);
         }
+    }
+
+    public Color getColor() {
+        return color;
     }
 
 }

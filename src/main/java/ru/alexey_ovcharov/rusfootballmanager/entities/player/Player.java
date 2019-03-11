@@ -1,11 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.ToIntFunction;
 
 import javafx.util.Pair;
 
@@ -54,7 +50,7 @@ public class Player {
     private final EnumMap<Characteristic, Integer> chars;
     private Contract contract;
 
-    public Player(LocalPosition preferredPosition, int average, int age,
+    public Player(@Nonnull LocalPosition preferredPosition, int average, int age,
                   String name, String lastName) {
         this.age = age;
         mood = MOOD_DEFAULT;
@@ -64,8 +60,7 @@ public class Player {
             chars.put(ch, Randomization.getValueByBase(
                     MIN_CHAR_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
         }
-        EnumSet<Characteristic> primaryChars
-                = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
+        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
         int[] values = new int[primaryChars.size()];
         Arrays.fill(values, average);
         int length = values.length;
@@ -204,8 +199,7 @@ public class Player {
         if (experiense > MAX_EXPERIENCE_VALUE) {
             experiense = 0;
             int chanceIncreaseChar = Randomization.nextInt(HUNDRED);
-            Object[] primaryChars = CharacteristicsBuilder.
-                                                                  getPrimaryChars(preferredPosition).toArray();
+            Object[] primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition).toArray();
             if (chanceIncreaseChar < 25) {
                 increaseOneCharacteristic(primaryChars);
             } else if (chanceIncreaseChar < 50) {
@@ -217,8 +211,7 @@ public class Player {
     }
 
     public List<Pair<String, Integer>> getPrimaryChars() {
-        EnumSet<Characteristic> primaryChars
-                = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
+        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
         List<Pair<String, Integer>> pairs = new ArrayList<>(primaryChars.size());
         for (Characteristic ch : primaryChars) {
             pairs.add(new Pair<>(ch.getName(), chars.get(ch)));
@@ -227,8 +220,7 @@ public class Player {
     }
 
     public List<Pair<String, Integer>> getSecondaryChars() {
-        EnumSet<Characteristic> secondaryChars
-                = CharacteristicsBuilder.getSecondaryChars(preferredPosition);
+        Set<Characteristic> secondaryChars = CharacteristicsBuilder.getSecondaryChars(preferredPosition);
         List<Pair<String, Integer>> pairs = new ArrayList<>(secondaryChars.size());
         for (Characteristic ch : secondaryChars) {
             pairs.add(new Pair<>(ch.getName(), chars.get(ch)));
@@ -255,12 +247,11 @@ public class Player {
     }
 
     public int getAverage() {
-        float sum = 0;
-        EnumSet<Characteristic> primaryChars
-                = CharacteristicsBuilder.getPrimaryChars(getPosition());
-        for (Characteristic ch : primaryChars) {
-            sum += chars.get(ch);
-        }
+        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(getPosition());
+        float sum = primaryChars.stream()
+                                .map(chars::get)
+                                .mapToInt(Integer::intValue)
+                                .sum();
         sum /= primaryChars.size();
         return Math.round(sum);
     }
@@ -396,5 +387,15 @@ public class Player {
 
     public String getNameAbbrAndLastName() {
         return name.substring(0, 1) + ". " + lastName;
+    }
+
+    public int getAverageOnPosition(@Nonnull LocalPosition localPosition) {
+        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(localPosition);
+        float sum = primaryChars.stream()
+                                .map(chars::get)
+                                .mapToInt(Integer::intValue)
+                                .sum();
+        sum /= primaryChars.size();
+        return Math.round(sum);
     }
 }

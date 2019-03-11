@@ -6,10 +6,16 @@
 
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,10 +25,10 @@ public class TeamSettingsForm extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
-    private javax.swing.JButton bFromMainToSub;
-    private javax.swing.JButton bFromReserveToSub;
-    private javax.swing.JButton bFromSubToMain;
-    private javax.swing.JButton bFromSubToReserve;
+    private javax.swing.JButton bMoveUpPlayerFromStart;
+    private javax.swing.JButton bSwapReserveAndSub;
+    private javax.swing.JButton bSwapStartAndSub;
+    private javax.swing.JButton bMoveUpPlayerFromSub;
     private javax.swing.JButton bSaveAndExit;
     private javax.swing.JComboBox<String> cbFreeKick;
     private javax.swing.JComboBox<String> cbLeftCorner;
@@ -51,7 +57,10 @@ public class TeamSettingsForm extends javax.swing.JDialog {
     private javax.swing.JList<String> listReservePlayers;
     private javax.swing.JList<String> listSubstitutes;
 
-    private Team team;
+    private Tactics tactics;
+    private List<Player> startPlayers;
+    private List<Player> substitutes;
+    private List<Player> reservePlayers;
 
     /**
      * Creates new form TeamSettingsForm
@@ -62,15 +71,36 @@ public class TeamSettingsForm extends javax.swing.JDialog {
     }
 
     public void setTeam(Team team) {
-        this.team = team;
-        List<Player> startPlayers = team.getStartPlayers();
-        listStartPlayers.setModel(new PlayersListModel(startPlayers));
+        cbTactic.setModel(new DefaultComboBoxModel<>(Arrays.stream(Tactics.values())
+                                                           .map(Tactics::getShortName)
+                                                           .toArray(String[]::new)));
+        updateTactics();
 
-        List<Player> substitutes = team.getSubstitutes();
+        startPlayers = team.getStartPlayers();
+        listStartPlayers.setModel(new PlayersListModel(startPlayers) {
+            @Override
+            public String getElementAt(int index) {
+                LocalPosition localPosition = tactics.getPositions().get(index);
+                String localPositionAbreviation = localPosition.getAbreviation();
+                Player player = this.players.get(index);
+                LocalPosition preferredPosition = player.getPreferredPosition();
+                String preferredPositionAbreviation = preferredPosition.getAbreviation();
+                return player.getNameAbbrAndLastName() + " " + localPositionAbreviation
+                        + " [" + player.getAverageOnPosition(localPosition) + "]" +
+                        " / " + preferredPositionAbreviation
+                        + " [" + player.getAverage() + "]";
+            }
+        });
+        listStartPlayers.setCellRenderer(new PlayerPositionColorRenderer(startPlayers));
+
+        substitutes = team.getSubstitutes();
         listSubstitutes.setModel(new PlayersListModel(substitutes));
+        listSubstitutes.setCellRenderer(new PlayerPositionColorRenderer(substitutes));
 
-        List<Player> reserve = team.getReserve();
-        listSubstitutes.setModel(new PlayersListModel(reserve));
+
+        reservePlayers = team.getReserve();
+        listReservePlayers.setModel(new PlayersListModel(reservePlayers));
+        listReservePlayers.setCellRenderer(new PlayerPositionColorRenderer(reservePlayers));
 
         listStartPlayers.updateUI();
         listSubstitutes.updateUI();
@@ -114,10 +144,10 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         lLeftCorner = new javax.swing.JLabel();
         cbLeftCorner = new javax.swing.JComboBox<>();
         bSaveAndExit = new javax.swing.JButton();
-        bFromSubToMain = new javax.swing.JButton();
-        bFromSubToReserve = new javax.swing.JButton();
-        bFromMainToSub = new javax.swing.JButton();
-        bFromReserveToSub = new javax.swing.JButton();
+        bSwapStartAndSub = new javax.swing.JButton();
+        bMoveUpPlayerFromSub = new javax.swing.JButton();
+        bMoveUpPlayerFromStart = new javax.swing.JButton();
+        bSwapReserveAndSub = new javax.swing.JButton();
         bCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -137,13 +167,17 @@ public class TeamSettingsForm extends javax.swing.JDialog {
 
         lReservePlayers.setText("Резерв");
 
-        cbTactic.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"4-4-2", "4-2-2-2", "4-1-4-1", "4-1-2-1-2", "4-3-3", "4-5-1", "3-5-2", "3-4-3", "3-2-3-2", "5-4-1", "5-3-2", "5-1-3-1"}));
+        cbTactic.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
+                "4-4-2", "4-2-2-2", "4-1-4-1", "4-1-2-1-2", "4-3-3", "4-5-1", "3-5-2", "3-4-3", "3-2-3-2", "5-4-1",
+                "5-3-2", "5-1-3-1"}));
+        cbTactic.addActionListener(this::cbTacticActionPerformed);
 
         lTactic.setText("Тактика");
 
         lStyle.setText("Стиль");
 
-        cbStyle.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Плотная оборона", "Оборона", "Баланс", "Атака", "Рискованная атака"}));
+        cbStyle.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
+                "Плотная оборона", "Оборона", "Баланс", "Атака", "Рискованная атака"}));
 
         chMinorFault.setText("Мелкий фол");
         chMinorFault.setToolTipText("Мелкий фол может помочь против техничных команд");
@@ -152,13 +186,16 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         chSafety.setToolTipText("Подстраховка снижает шанс пропустить, но увеличивает расход сил");
 
         chPowerSaving.setText("Экономия сил");
-        chPowerSaving.setToolTipText("Экономит силы за счет меньшего подключения к атакам защитников, меньше шанс забить гол");
+        chPowerSaving.setToolTipText("Экономит силы за счет меньшего подключения к атакам защитников, " +
+                "меньше шанс забить гол");
 
         chEarlySubstitutions.setText("Ранние замены");
-        chEarlySubstitutions.setToolTipText("Позволяют балансировать силы, но могут снизить сыгранность и затрудняю маневры");
+        chEarlySubstitutions.setToolTipText("Позволяют балансировать силы, но могут снизить сыгранность и " +
+                "затрудняют маневры");
 
         chBreakthroughAndFeed.setText("Прорыв и подача");
-        chBreakthroughAndFeed.setToolTipText("Заставляет крайних защитников и полузащитников предпочитать навес попыткам прорыва");
+        chBreakthroughAndFeed.setToolTipText("Заставляет крайних защитников и полузащитников предпочитать навес " +
+                "попыткам прорыва");
 
         lPenalty.setText("Бьет пенальти");
 
@@ -169,46 +206,24 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         lLeftCorner.setText("Левый угловой");
 
         bSaveAndExit.setText("Сохранить и выйти");
-        bSaveAndExit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bSaveAndExitActionPerformed(evt);
-            }
-        });
+        bSaveAndExit.addActionListener(this::bSaveAndExitActionPerformed);
 
-        bFromSubToMain.setText("<");
-        bFromSubToMain.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bFromSubToMainActionPerformed(evt);
-            }
-        });
+        bMoveUpPlayerFromStart.setText("^");
+        bMoveUpPlayerFromStart.addActionListener(this::bMoveUpPlayerFromStartActionPerformed);
 
-        bFromSubToReserve.setText(">");
-        bFromSubToReserve.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bFromSubToReserveActionPerformed(evt);
-            }
-        });
+        bSwapStartAndSub.setText("<>");
+        bSwapStartAndSub.addActionListener(this::bSwapStartAndSubActionPerformed);
 
-        bFromMainToSub.setText(">");
-        bFromMainToSub.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bFromMainToSubActionPerformed(evt);
-            }
-        });
+        bMoveUpPlayerFromSub.setText("^");
+        bMoveUpPlayerFromSub.addActionListener(this::bMoveUpPlayerFromSubActionPerformed);
 
-        bFromReserveToSub.setText("<");
-        bFromReserveToSub.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bFromReserveToSubActionPerformed(evt);
-            }
-        });
+        bSwapReserveAndSub.setText("<>");
+        bSwapReserveAndSub.addActionListener(this::bSwapReserveAndSubActionPerformed);
+
+
 
         bCancel.setText("Отмена");
-        bCancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bCancelActionPerformed(evt);
-            }
-        });
+        bCancel.addActionListener(this::bCancelActionPerformed);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -229,8 +244,8 @@ public class TeamSettingsForm extends javax.swing.JDialog {
                                                                                         .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                                                                              .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                                                              .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                                                        .add(bFromMainToSub)
-                                                                                        .add(bFromSubToMain))))
+                                                                                        .add(bMoveUpPlayerFromStart)
+                                                                                        .add(bSwapStartAndSub))))
                                                        .add(18, 18, 18)
                                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                                                   .add(layout.createSequentialGroup()
@@ -244,8 +259,8 @@ public class TeamSettingsForm extends javax.swing.JDialog {
                                                                                         .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                                                              .add(10, 10, 10)
                                                                              .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                                                        .add(bFromSubToReserve)
-                                                                                        .add(bFromReserveToSub)))
+                                                                                        .add(bMoveUpPlayerFromSub)
+                                                                                        .add(bSwapReserveAndSub)))
                                                                   .add(lPenalty))
                                                        .add(18, 18, 18)
                                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -289,14 +304,14 @@ public class TeamSettingsForm extends javax.swing.JDialog {
                                                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                             .add(layout.createSequentialGroup()
                                                        .add(68, 68, 68)
-                                                       .add(bFromSubToReserve)
+                                                       .add(bMoveUpPlayerFromSub)
                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                       .add(bFromReserveToSub))
+                                                       .add(bSwapReserveAndSub))
                                             .add(layout.createSequentialGroup()
                                                        .add(66, 66, 66)
-                                                       .add(bFromMainToSub)
+                                                       .add(bMoveUpPlayerFromStart)
                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                                       .add(bFromSubToMain))
+                                                       .add(bSwapStartAndSub))
                                             .add(layout.createSequentialGroup()
                                                        .add(18, 18, 18)
                                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -337,21 +352,81 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bFromMainToSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromMainToSubActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bFromMainToSubActionPerformed
+    private void cbTacticActionPerformed(ActionEvent evt) {
+        updateTactics();
+    }
 
-    private void bFromSubToMainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromSubToMainActionPerformed
-        // TODO add your handling code here:
+    private void updateTactics() {
+        int selectedIndex = cbTactic.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < Tactics.values().length) {
+            this.tactics = Tactics.values()[selectedIndex];
+        }
+        listStartPlayers.updateUI();
+    }
+
+    private void bSwapStartAndSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromSubToMainActionPerformed
+        swapPlayerFromSubToStart();
     }//GEN-LAST:event_bFromSubToMainActionPerformed
 
-    private void bFromSubToReserveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromSubToReserveActionPerformed
-        // TODO add your handling code here:
+    private void bMoveUpPlayerFromStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromSubToReserveActionPerformed
+        moveUpPlayerFromStart();
     }//GEN-LAST:event_bFromSubToReserveActionPerformed
 
-    private void bFromReserveToSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromReserveToSubActionPerformed
-        // TODO add your handling code here:
+    private void moveUpPlayerFromStart() {
+        int startPlayerIndex = listStartPlayers.getSelectedIndex();
+        if (startPlayerIndex > 0 && startPlayerIndex < startPlayers.size()) {
+            Player player = startPlayers.remove(startPlayerIndex);
+            startPlayers.add(startPlayerIndex - 1, player);
+            listStartPlayers.updateUI();
+        }
+    }
+
+    private void swapPlayerFromSubToStart() {
+        int startPlayerIndex = listStartPlayers.getSelectedIndex();
+        if (startPlayerIndex >= 0 && startPlayerIndex < startPlayers.size()) {
+            int subPlayerIndex = listSubstitutes.getSelectedIndex();
+            if (subPlayerIndex >= 0 && subPlayerIndex < substitutes.size()) {
+                Player fromStart = startPlayers.remove(startPlayerIndex);
+                Player fromSub = substitutes.remove(subPlayerIndex);
+                startPlayers.add(startPlayerIndex, fromSub);
+                substitutes.add(subPlayerIndex, fromStart);
+                listStartPlayers.updateUI();
+                listSubstitutes.updateUI();
+            }
+        }
+    }
+
+    private void bMoveUpPlayerFromSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromMainToSubActionPerformed
+        moveUpPlayerFromSub();
+    }//GEN-LAST:event_bFromMainToSubActionPerformed
+
+    private void moveUpPlayerFromSub() {
+        int subPlayerIndex = listSubstitutes.getSelectedIndex();
+        if (subPlayerIndex > 0 && subPlayerIndex < substitutes.size()) {
+            Player player = substitutes.remove(subPlayerIndex);
+            substitutes.add(subPlayerIndex - 1, player);
+            listSubstitutes.updateUI();
+        }
+    }
+
+    private void bSwapReserveAndSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFromReserveToSubActionPerformed
+        swapPlayerFromSubToReserve();
     }//GEN-LAST:event_bFromReserveToSubActionPerformed
+
+    private void swapPlayerFromSubToReserve() {
+        int reservePlayerIndex = listReservePlayers.getSelectedIndex();
+        if (reservePlayerIndex >= 0 && reservePlayerIndex < reservePlayers.size()) {
+            int subPlayerIndex = listSubstitutes.getSelectedIndex();
+            if (subPlayerIndex >= 0 && subPlayerIndex < substitutes.size()) {
+                Player fromStart = reservePlayers.remove(reservePlayerIndex);
+                Player fromSub = substitutes.remove(subPlayerIndex);
+                reservePlayers.add(reservePlayerIndex, fromSub);
+                substitutes.add(subPlayerIndex, fromStart);
+                listReservePlayers.updateUI();
+                listSubstitutes.updateUI();
+            }
+        }
+    }
 
     private void bCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCancelActionPerformed
         // TODO add your handling code here:
@@ -363,7 +438,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
 
 
     private static class PlayersListModel extends AbstractListModel<String> {
-        private final List<Player> players;
+        final transient List<Player> players;
 
         PlayersListModel(List<Player> players) {
             this.players = players;
@@ -377,7 +452,35 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         @Override
         public String getElementAt(int index) {
             Player player = players.get(index);
-            return player.getNameAbbrAndLastName() + " " + player.getAverage();
+            String preferredPositionAbreviation = player.getPreferredPosition().getAbreviation();
+            return player.getNameAbbrAndLastName() + " " + preferredPositionAbreviation
+                    + " [" + player.getAverage() + "]";
+        }
+    }
+
+    private static class PlayerPositionColorRenderer extends DefaultListCellRenderer {
+        private final List<Player> players;
+
+        PlayerPositionColorRenderer(List<Player> players) {
+            this.players = players;
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component component = super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+            if (index >= 0 && index < players.size()) {
+                Player player = players.get(index);
+                LocalPosition preferredPosition = player.getPreferredPosition();
+                GlobalPosition positionOnField = preferredPosition.getPositionOnField();
+                Color color = positionOnField.getColor();
+                component.setBackground(color);
+            }
+            if (isSelected) {
+                component.setBackground(Color.BLUE);
+                component.setForeground(Color.WHITE);
+            }
+            return component;
         }
     }
 

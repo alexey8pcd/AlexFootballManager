@@ -22,6 +22,7 @@ import java.util.*;
  */
 public class TransferForm extends javax.swing.JDialog {
 
+    private static final String ANY = "Не важно";
     private Team team;
     private List<Transfer> transferPlayers = Collections.emptyList();
     private Filter filter = new Filter();
@@ -43,9 +44,9 @@ public class TransferForm extends javax.swing.JDialog {
     private String[] empty = {};
 
     {
-        EnumSet<LocalPosition> defenders = GlobalPosition.DEFENDER.getLocalPositions();
-        EnumSet<LocalPosition> midfielders = GlobalPosition.MIDFIELDER.getLocalPositions();
-        EnumSet<LocalPosition> forwards = GlobalPosition.FORWARD.getLocalPositions();
+        Set<LocalPosition> defenders = GlobalPosition.DEFENDER.getLocalPositions();
+        Set<LocalPosition> midfielders = GlobalPosition.MIDFIELDER.getLocalPositions();
+        Set<LocalPosition> forwards = GlobalPosition.FORWARD.getLocalPositions();
         localPositionData = new String[][]{
                 namesToArray(defenders),
                 namesToArray(midfielders),
@@ -54,10 +55,10 @@ public class TransferForm extends javax.swing.JDialog {
         localPositionCurrentData = empty;
     }
 
-    private String[] namesToArray(EnumSet<LocalPosition> positions) {
+    private String[] namesToArray(Set<LocalPosition> positions) {
         int index = 1;
         String[] result = new String[positions.size() + 1];
-        result[0] = "Не важно";
+        result[0] = ANY;
         for (LocalPosition position : positions) {
             result[index++] = position.getAbreviation();
         }
@@ -389,14 +390,14 @@ public class TransferForm extends javax.swing.JDialog {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Фильтр"));
 
-        comboGlobal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Не важно", "Вратарь", "Защитник", "Полузащитник", "Нападающий"}));
+        comboGlobal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{ANY, "Вратарь", "Защитник", "Полузащитник", "Нападающий"}));
         comboGlobal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboGlobalActionPerformed(evt);
             }
         });
 
-        comboLocal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Не важно"}));
+        comboLocal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{ANY}));
         comboLocal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboLocalActionPerformed(evt);
@@ -407,7 +408,7 @@ public class TransferForm extends javax.swing.JDialog {
 
         bgTransferStatus.add(rbAnyStatus);
         rbAnyStatus.setSelected(true);
-        rbAnyStatus.setText("Не важно");
+        rbAnyStatus.setText(ANY);
         rbAnyStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbAnyStatusActionPerformed(evt);

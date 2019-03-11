@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils.generateGaussian;
 import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Player.*;
@@ -95,7 +96,7 @@ public class PlayerCreator {
 
     @Nonnull
     public static Player createPlayer(GlobalPosition position, MasteryLevel level) {
-        EnumSet<LocalPosition> localPositions = position.getLocalPositions();
+        Set<LocalPosition> localPositions = position.getLocalPositions();
         List<LocalPosition> positions = new ArrayList<>(localPositions);
         LocalPosition localPosition;
         if (localPositions.size() == 1) {
@@ -117,7 +118,7 @@ public class PlayerCreator {
         if (sportschoolLevel < 0 || sportschoolLevel > 10) {
             throw new IllegalArgumentException("Уроверь спортивной школы может быть от 0 до 10");
         }
-        EnumSet<LocalPosition> localPositions = position.getLocalPositions();
+        Set<LocalPosition> localPositions = position.getLocalPositions();
         List<LocalPosition> positions = new ArrayList<>(localPositions);
         LocalPosition localPosition;
         if (localPositions.size() == 1) {
