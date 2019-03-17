@@ -3,7 +3,6 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 import java.util.List;
 import javafx.util.Pair;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.ProgressParameters;
 
 /**
@@ -27,7 +26,7 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         builder.append("Имя: ").append(player.getName()).append("\n");
         builder.append("Фамилия: ").append(player.getLastName()).append("\n");
         int age = player.getAge();
-        int avg = player.getAverage();
+        int avg = player.getAverage(player.getPreferredPosition());
         builder.append("Возраст: ").append(age).append("\n");
         builder.append("Общее: ").append(avg).append("\n");
         builder.append("Позиция: ").append(player.getPreferredPosition().getDescription()).append("\n");

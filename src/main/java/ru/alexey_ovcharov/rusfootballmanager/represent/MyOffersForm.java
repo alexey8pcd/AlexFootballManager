@@ -59,7 +59,7 @@ public class MyOffersForm extends javax.swing.JDialog {
                 case 2:
                     return player.getPreferredPosition().getAbreviation();
                 case 3:
-                    return player.getAverage();
+                    return player.getAverage(player.getPreferredPosition());
                 case 4:
                     return offer.getStatus().getDescription();
                 case 5:

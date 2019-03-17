@@ -8,6 +8,8 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
 
 import javax.annotation.Nonnull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,14 +54,14 @@ public class CareerSettings {
         return tournaments;
     }
 
-    public void createTournaments(Date date) {
+    public void createTournaments(LocalDate date) {
         tournaments = new ArrayList<>();
         if (leagues != null) {
             leagues.forEach(league -> tournaments.add(new Tournament(date, league)));
         }
     }
 
-    public void updateTournaments(Date date, Tournament exclude) {
+    public void updateTournaments(LocalDate date, Tournament exclude) {
         if (tournaments != null && !tournaments.isEmpty()) {
             for (Tournament tournament : tournaments) {
                 if (tournament != exclude) {

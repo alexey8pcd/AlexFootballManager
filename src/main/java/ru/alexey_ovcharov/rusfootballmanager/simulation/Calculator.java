@@ -1,9 +1,13 @@
 package ru.alexey_ovcharov.rusfootballmanager.simulation;
 
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
+import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Status;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -43,8 +47,8 @@ public class Calculator {
     private static final double DISPERSE_DEFENCE_COEFF = 1.5;
     private static final double GAUSSIAN_RANDOM_CENTER = 0.5;
 
-    public  static int calculateGoalsCount(Team teamAttack, Team teamDefence,
-            Status statusOfTeam) {
+    public static int calculateGoalsCount(Team teamAttack, Team teamDefence,
+                                          Status statusOfTeam) {
         double attackTeamResult = calculateAttackResultTeam(teamAttack);
         double defenceTeamResult = calculateDefendResultTeam(teamDefence);
 
@@ -82,36 +86,68 @@ public class Calculator {
     }
 
     private static double calculateAttackResultTeam(Team team) {
-        List<Player> forwards = team.getForwards();
-        List<Player> midfielders = team.getMidfielders();
-        List<Player> defenders = team.getDefenders();
-        double frwCountValue = FORWARND_COUNT * forwards.size();
-        double frwAvgValue = FORWARDS_AVG * getAverage(forwards);
-        double midfCountValue = MIDFIELDERS_COUNT_ATTACK_TEAM * midfielders.size();
-        double midfAvgValue = MIDFIELDERS_AVG_ATTACK_TEAM * getAverage(midfielders);
-        double defCountValue = DEFENDERS_COUNT_ATTACK_TEAM * defenders.size();
-        double defAvgValue = DEFENDERS_AVG_ATTACK_TEAM * getAverage(defenders);
-        return frwCountValue + frwAvgValue + midfCountValue + midfAvgValue
-                + defCountValue + defAvgValue;
+        List<Player> startPlayers = team.getStartPlayers();
+        Tactics tactics = team.getTactics();
+        List<LocalPosition> positions = tactics.getPositions();
+        double defAvgValue = 0;
+        double midfAvgValue = 0;
+        double frwAvgValue = 0;
+        int defendersCount = 0;
+        int midfieldersCount = 0;
+        int frwCountValue = 0;
+        for (int i = 0; i < positions.size(); i++) {
+            LocalPosition position = positions.get(i);
+            Player player = startPlayers.get(i);
+            if (position.getPositionOnField() == GlobalPosition.DEFENDER) {
+                ++defendersCount;
+                defAvgValue += DEFENDERS_AVG_ATTACK_TEAM * player.getAverage(position);
+            } else if (position.getPositionOnField() == GlobalPosition.MIDFIELDER) {
+                ++midfieldersCount;
+                midfAvgValue += MIDFIELDERS_AVG_ATTACK_TEAM * player.getAverage(position);
+            } else if (position.getPositionOnField() == GlobalPosition.FORWARD) {
+                ++frwCountValue;
+                frwAvgValue += FORWARDS_AVG * player.getAverage(position);
+            }
+        }
+        if (defendersCount != 0 && midfieldersCount != 0) {
+            return defAvgValue / defendersCount + defendersCount * DEFENDERS_COUNT_ATTACK_TEAM
+                    + midfAvgValue / midfieldersCount + midfieldersCount * MIDFIELDERS_COUNT_ATTACK_TEAM
+                    + (frwCountValue != 0 ? frwAvgValue / frwCountValue : 0) + frwCountValue * FORWARND_COUNT;
+        } else {
+            throw new IllegalStateException();
+        }
     }
+
 
     private static double calculateDefendResultTeam(Team team) {
-        List<Player> midfielders = team.getMidfielders();
-        List<Player> defenders = team.getDefenders();
-        double gkAvgValue = GOALKEEPER_AVG * team.getGoalkeeper().getAverage();
-        double defCountValue = DEFENDERS_COUNT_DEFENCE_TEAM * defenders.size();
-        double defAvgValue = DEFENDERS_AVG_DEFENCE_TEAM * getAverage(defenders);
-        double midfAvgValue = MIDFIELDER_AVG_DEFENCE_TEAM * getAverage(midfielders);
-        double midfCountValue = MIDFIELDERS_COUNT_DEFENCE_TEAM * midfielders.size();
-        return gkAvgValue + defCountValue + defAvgValue
-                + midfAvgValue + midfCountValue;
+        List<Player> startPlayers = team.getStartPlayers();
+        Tactics tactics = team.getTactics();
+        List<LocalPosition> positions = tactics.getPositions();
+        double gkAvgValue = 0;
+        int defendersCount = 0;
+        int midfieldersCount = 0;
+        double defAvgValue = 0;
+        double midfAvgValue = 0;
+        for (int i = 0; i < positions.size(); i++) {
+            LocalPosition position = positions.get(i);
+            Player player = startPlayers.get(i);
+            if (position.getPositionOnField() == GlobalPosition.GOALKEEPER) {
+                gkAvgValue = GOALKEEPER_AVG * player.getAverage(LocalPosition.GOALKEEPER);
+            } else if (position.getPositionOnField() == GlobalPosition.DEFENDER) {
+                ++defendersCount;
+                defAvgValue += DEFENDERS_AVG_DEFENCE_TEAM * player.getAverage(position);
+            } else if (position.getPositionOnField() == GlobalPosition.MIDFIELDER) {
+                ++midfieldersCount;
+                midfAvgValue += MIDFIELDER_AVG_DEFENCE_TEAM * player.getAverage(position);
+            }
+        }
+        if (defendersCount != 0 && midfieldersCount != 0) {
+            return gkAvgValue
+                    + defAvgValue / defendersCount + defendersCount * DEFENDERS_COUNT_DEFENCE_TEAM
+                    + midfAvgValue / midfieldersCount + midfieldersCount * MIDFIELDERS_COUNT_DEFENCE_TEAM;
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
-    private static int getAverage(Collection<Player> players) {
-        double result = 0;
-        for (Player player : players) {
-            result += player.getAverage();
-        }
-        return (int) result;
-    }
 }

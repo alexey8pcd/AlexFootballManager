@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JTable;
-import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -14,7 +13,6 @@ import javax.swing.table.TableRowSorter;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.RenderUtil;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import ru.alexey_ovcharov.rusfootballmanager.represent.AboutPlayerForm;
 
 /**
  *
@@ -70,7 +68,7 @@ public class PlayersForm extends javax.swing.JDialog {
                 case 3:
                     return player.getNumber();
                 case 4:
-                    return player.getAverage();
+                    return player.getAverage(player.getPreferredPosition());
                 case 5:
                     return player.getStatusOfPlayer().getDescription();
                 case 6:

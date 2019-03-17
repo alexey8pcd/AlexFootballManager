@@ -1,15 +1,15 @@
 package ru.alexey_ovcharov.rusfootballmanager.application;
 
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.career.CareerSettings;
-import java.util.Date;
-import java.util.List;
-import javax.swing.JOptionPane;
-import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
+import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
 import ru.alexey_ovcharov.rusfootballmanager.represent.LoginForm;
 import ru.alexey_ovcharov.rusfootballmanager.represent.ManageForm;
 import ru.alexey_ovcharov.rusfootballmanager.represent.StartCareerForm;
+
+import javax.swing.*;
+import java.util.List;
 
 public class Main {
 

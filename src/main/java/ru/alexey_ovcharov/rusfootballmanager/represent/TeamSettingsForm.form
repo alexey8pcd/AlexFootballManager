@@ -28,12 +28,12 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="lMainPlayers" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="lStartPlayers" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="lTactic" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="lStyle" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="cbStyle" alignment="0" pref="230" max="32767" attributes="0"/>
+                                  <Component id="cbStrategy" alignment="0" pref="230" max="32767" attributes="0"/>
                                   <Component id="cbTactic" alignment="0" max="32767" attributes="0"/>
                                   <Component id="jScrollPane1" alignment="0" pref="0" max="32767" attributes="0"/>
                               </Group>
@@ -103,7 +103,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="lMainPlayers" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lStartPlayers" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="lSubstitutes" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -157,7 +157,7 @@
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="cbStyle" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="cbStrategy" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="cbRightCorner" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="cbLeftCorner" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -184,7 +184,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JList" name="listMainPlayers">
+        <Component class="javax.swing.JList" name="listStartPlayers">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
               <StringArray count="0"/>
@@ -197,7 +197,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="lMainPlayers">
+    <Component class="javax.swing.JLabel" name="lStartPlayers">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x41e;&#x441;&#x43d;&#x43e;&#x432;&#x43d;&#x43e;&#x439; &#x441;&#x43e;&#x441;&#x442;&#x430;&#x432;"/>
       </Properties>
@@ -285,7 +285,7 @@
         <Property name="text" type="java.lang.String" value="&#x421;&#x442;&#x438;&#x43b;&#x44c;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="cbStyle">
+    <Component class="javax.swing.JComboBox" name="cbStrategy">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="5">

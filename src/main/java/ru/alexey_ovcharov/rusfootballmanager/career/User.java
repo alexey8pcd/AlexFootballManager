@@ -2,8 +2,12 @@ package ru.alexey_ovcharov.rusfootballmanager.career;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +18,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,11 +31,12 @@ public class User {
 
     private String login;
     private Team team;
-    private Date currentDate;
+    private LocalDate currentDate;
     private Tournament tournament;
     private CareerSettings settings;
     private final List<Message> messages;
     private int experience;
+    private String season;
 
     public static User load(String login) {
         //currentDate = loadDate();
@@ -46,16 +52,14 @@ public class User {
         settings = new CareerSettings();
         messages = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 14);
-        currentDate = calendar.getTime();
+        currentDate = LocalDate.of(calendar.get(Calendar.YEAR), Month.JANUARY, 14);
     }
 
-    public Date getCurrentDate() {
+    public LocalDate getCurrentDate() {
         return currentDate;
     }
 
-    public void setCurrentDate(Date currentDate) {
+    public void setCurrentDate(LocalDate currentDate) {
         this.currentDate = currentDate;
     }
 
@@ -145,4 +149,11 @@ public class User {
         }
     }
 
+    public String getSeason() {
+        return season;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
 }

@@ -1,31 +1,34 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.simulation.Simulator;
-import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+
+import javax.annotation.Nonnull;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author Alexey
  */
 public class Tournament {
 
-    private League league;
+    private static final Logger LOGGER = Logger.getLogger(Tournament.class.getName());
+    private final League league;
+    private final List<LocalDate> transferDates = new ArrayList<>();
     private Table tournamentTable;
     private Schedule schedule;
-    private List<Date> transferDates;
     private int transferIndex;
     private int matchIndex;
-    private Date currentDate;
+    private LocalDate currentDate;
+    private boolean init;
 
-    public Tournament(Date date, League league) {
+    public Tournament(LocalDate currentDate, League league) {
+        this.currentDate = currentDate;
         this.league = league;
-        transferDates = new LinkedList<>();
     }
 
     public boolean containsTeam(Team team) {
@@ -40,11 +43,11 @@ public class Tournament {
         return schedule;
     }
 
-    public List<Date> getTransferDates() {
+    public List<LocalDate> getTransferDates() {
         return transferDates;
     }
 
-    public Date getCurrentDate() {
+    public LocalDate getCurrentDate() {
         return currentDate;
     }
 
@@ -53,50 +56,52 @@ public class Tournament {
     }
 
     public boolean isEnd() {
-        return currentDate.after(schedule.getEndDate())
+        return currentDate.isAfter(schedule.getEndDate())
                 && matchIndex >= schedule.getToursCount();
     }
 
-    public void updateToDate(Date date) {
-        if (isGameDays()) {
-            while (currentDate.before(date)) {
+    public void updateToDate(LocalDate date) {
+        LOGGER.info(() -> "updateToDate " + date.format(DateTimeFormatter.ISO_DATE));
+        if (isGameDays(currentDate)) {
+            while (currentDate.isBefore(date)) {
                 if (matchIndex < schedule.getToursCount()) {
-                    Date tourDate = schedule.getTourDate(matchIndex);
-                    if (tourDate.after(date)) {
+                    LocalDate tourDate = schedule.getTourDate(matchIndex);
+                    if (tourDate.isAfter(date)) {
                         currentDate = date;
                         break;
                     } else {
-                        simulateTour();
+//                        simulateTour(tourDate);
                     }
                 } else {
                     currentDate = date;
                     break;
                 }
             }
+        } else {
+            this.currentDate = date;
         }
     }
 
-    public Team getTeamWithPlaysNext(Team team) {
+    @Nonnull
+    public Opponents getTeamWithPlaysNext(Team team) {
         List<Opponents> tourTeams = getTourTeams();
         for (Opponents tournamentPair : tourTeams) {
             Team host = tournamentPair.getHost();
             Team guest = tournamentPair.getGuest();
-            if (host.equals(team)) {
-                return guest;
-            } else if (guest.equals(team)) {
-                return host;
+            if (host.equals(team) || guest.equals(team)) {
+                return tournamentPair;
             }
         }
-        return null;
+        throw new IllegalStateException();
     }
 
-    public void simulateTour() {
+    public void simulateTour(LocalDate matchDate) {
         List<Opponents> pairs = getTourTeams();
         if (!pairs.isEmpty()) {
             for (Opponents pair : pairs) {
                 Team host = pair.getHost();
                 Team guest = pair.getGuest();
-                Match matchResult = Simulator.simulate(host, guest);
+                Match matchResult = Simulator.simulate(host, guest, matchDate);
                 tournamentTable.updateResults(matchResult);
             }
             ++matchIndex;
@@ -104,87 +109,90 @@ public class Tournament {
     }
 
     public void createSchedule() {
-        //начало турнира
-        Date startDate = getDate(Calendar.APRIL, 1);
-        Date holidaysStart = getDate(Calendar.AUGUST, 1);
-        Date holidaysEnd = getDate(Calendar.AUGUST, 22);
-        Date endDate = getDate(Calendar.NOVEMBER, 20);
-        int loopsCount = league.getTeams().size() >= 10 ? 2 : 4;
-        schedule = new Schedule(startDate, endDate, holidaysStart,
-                holidaysEnd, loopsCount, league.getTeams());
-        tournamentTable = new Table(league.getTeams());
-        transferIndex = 0;
-        matchIndex = 0;
-        createTransferDates();
+        LOGGER.info("createSchedule");
+        if (!init) {
+            //начало турнира
+            int currentYear = currentDate.getYear();
+            LocalDate startDate = LocalDate.of(currentYear, Month.APRIL, 1);
+            LocalDate holidaysStart = LocalDate.of(currentYear, Month.AUGUST, 1);
+            LocalDate holidaysEnd = LocalDate.of(currentYear, Month.AUGUST, 22);
+            LocalDate endDate = LocalDate.of(currentYear, Month.NOVEMBER, 20);
+            int loopsCount = league.getTeams().size() >= 10 ? 2 : 4;
+            schedule = new Schedule(startDate, endDate, holidaysStart,
+                    holidaysEnd, loopsCount, league.getTeams());
+            tournamentTable = new Table(league.getTeams());
+            transferIndex = 0;
+            matchIndex = 1;
+            createTransferDates(currentYear);
+            init = true;
+        }
+
     }
 
-    private void createTransferDates() {
+    private void createTransferDates(int currentYear) {
         transferDates.clear();
-        transferDates.add(getDate(Calendar.FEBRUARY, 1));
-        transferDates.add(getDate(Calendar.FEBRUARY, 5));
-        transferDates.add(getDate(Calendar.FEBRUARY, 9));
-        transferDates.add(getDate(Calendar.FEBRUARY, 14));
-        transferDates.add(getDate(Calendar.FEBRUARY, 19));
-        transferDates.add(getDate(Calendar.FEBRUARY, 24));
-        transferDates.add(getDate(Calendar.FEBRUARY, 28));
-        transferDates.add(getDate(Calendar.MARCH, 3));
-        transferDates.add(getDate(Calendar.MARCH, 7));
-        transferDates.add(getDate(Calendar.MARCH, 11));
-        transferDates.add(getDate(Calendar.MARCH, 15));
-        transferDates.add(getDate(Calendar.MARCH, 19));
-        transferDates.add(getDate(Calendar.MARCH, 23));
-        transferDates.add(getDate(Calendar.MARCH, 27));
-        transferDates.add(getDate(Calendar.AUGUST, 1));
-        transferDates.add(getDate(Calendar.AUGUST, 4));
-        transferDates.add(getDate(Calendar.AUGUST, 7));
-        transferDates.add(getDate(Calendar.AUGUST, 10));
-        transferDates.add(getDate(Calendar.AUGUST, 13));
-        transferDates.add(getDate(Calendar.AUGUST, 16));
-        transferDates.add(getDate(Calendar.AUGUST, 19));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 1));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 5));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 9));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 14));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 19));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 24));
+        transferDates.add(LocalDate.of(currentYear, Month.FEBRUARY, 28));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 3));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 7));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 11));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 15));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 19));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 23));
+        transferDates.add(LocalDate.of(currentYear, Month.MARCH, 27));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 1));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 4));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 7));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 10));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 13));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 16));
+        transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 19));
     }
 
     public boolean isHolidays() {
-        return !isGameDays();
+        return !isGameDays(currentDate);
     }
 
-    public boolean isGameDays() {
-        if (schedule == null) {
-            return false;
+    public boolean isGameDays(LocalDate currentDate) {
+        if (schedule != null) {
+            LocalDate startDate = schedule.getStartDate();
+            LocalDate holidaysStartDate = schedule.getHolidaysStartDate();
+            LocalDate holidaysEndDate = schedule.getHolidaysEndDate();
+            LocalDate endDate = schedule.getEndDate();
+            boolean afterStart = currentDate.isAfter(startDate) || currentDate.isEqual(startDate);
+            boolean beforeHolidays = currentDate.isBefore(holidaysStartDate);
+            boolean afterHolidays = currentDate.isAfter(holidaysEndDate) || currentDate.isEqual(holidaysEndDate);
+            boolean beforeEnd = currentDate.isBefore(endDate);
+            return (afterStart && beforeHolidays) || (afterHolidays && beforeEnd);
         }
-        return (currentDate.after(schedule.getStartDate())
-                && currentDate.before(schedule.getHolidaysStartDate()))
-                || (currentDate.after(schedule.getHolidaysEndDate())
-                && currentDate.before(schedule.getEndDate()));
+        return false;
     }
 
+    @Nonnull
     public List<Opponents> getTourTeams() {
         if (matchIndex < schedule.getToursCount()) {
-            Date tourDate = schedule.getTourDate(matchIndex);
-            currentDate = tourDate;
-            List<Opponents> teamsByTour = schedule.getTeamsByTour(matchIndex);
-            return teamsByTour;
+            currentDate = schedule.getTourDate(matchIndex);
+            return schedule.getTeamsByTour(matchIndex);
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
-    public Date getNextTransferDate() {
+    @Nonnull
+    public Optional<LocalDate> getNextTransferDate() {
         if (transferIndex < transferDates.size()) {
-            return transferDates.get(transferIndex++);
+            return Optional.ofNullable(transferDates.get(transferIndex++));
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
-    private Date getDate(int month, int day) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, day);
-        return calendar.getTime();
-    }
-
-    public void simulateTransfers(Date date) {
+    public void simulateTransfers(LocalDate date) {
         currentDate = date;
     }
 

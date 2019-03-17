@@ -1,12 +1,14 @@
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.*;
+
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import ru.alexey_ovcharov.rusfootballmanager.common.DataLoader;
+import ru.alexey_ovcharov.rusfootballmanager.common.util.RoundRobinScheduleGenerator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
@@ -17,7 +19,6 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Schedule;
 
 /**
- *
  * @author Алексей
  */
 public class Tests {
@@ -27,28 +28,25 @@ public class Tests {
 
     @Before
     public void setUp() {
-    }   
+    }
 
-//    @Test
+    //    @Test
     public void testScheduleWithHolidays() throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         League league = createLeague();
-        Date start = dateFormat.parse("01.08.2016");
-        Date end = dateFormat.parse("31.06.2017");
-        Date holidaysStart = dateFormat.parse("15.11.2016");
-        Date holidaysEnd = dateFormat.parse("01.03.2017");
+        LocalDate start = LocalDate.of(2016, Month.AUGUST, 1);
+        LocalDate end = LocalDate.of(2017, Month.JUNE, 31);
+        LocalDate holidaysStart = LocalDate.of(2016, Month.NOVEMBER, 15);
+        LocalDate holidaysEnd = LocalDate.of(2017, Month.MARCH, 1);
         Schedule tournamentSchedule = new Schedule(start, end,
                 holidaysStart, holidaysEnd, 2, league.getTeams());
-        Map<Date, List<Opponents>> schedule = tournamentSchedule.getSchedule();
-        schedule.entrySet().stream().forEach((entry) -> {
-            Date date = entry.getKey();
-            List<Opponents> pairs = entry.getValue();
+        Map<LocalDate, List<Opponents>> schedule = tournamentSchedule.getSchedule();
+        schedule.forEach((date, pairs) -> {
             System.out.println("Date: " + date);
             System.out.println("Matches: " + Arrays.toString(pairs.toArray()));
         });
     }
 
-//    @Test
+    //    @Test
     public void testAvg() {
         for (int j = 0; j < 10; j++) {
             System.out.println("---" + j);
@@ -58,7 +56,7 @@ public class Tests {
         }
     }
 
-//    @Test
+    //    @Test
     public void testPlayer() {
         for (MasteryLevel level : MasteryLevel.values()) {
             System.out.println(level);
@@ -69,12 +67,11 @@ public class Tests {
         }
     }
 
-//    @Test
+    //    @Test
     public void testCreateLeagues() throws Exception {
         System.out.println(DataLoader.loadLeagues("config.xml"));
     }
 
-    
 
     private League createLeague() {
         int teamsCount = 16;
@@ -88,5 +85,23 @@ public class Tests {
         }
         return league;
     }
+
+    @Test
+    public void testRRScheduling() {
+        int teamsCount = 16;
+        int loopsCount = 2;
+        List<List<Map.Entry<Integer, Integer>>> list = RoundRobinScheduleGenerator.roundRobinScheduling(
+                teamsCount, loopsCount);
+        Set<Map.Entry<Integer, Integer>> controlSet = new HashSet<>();
+        for (List<Map.Entry<Integer, Integer>> entries : list) {
+            for (Map.Entry<Integer, Integer> entry : entries) {
+                boolean res = controlSet.add(entry);
+                if (!res) {
+                    Assert.fail();
+                }
+            }
+        }
+    }
+
 
 }

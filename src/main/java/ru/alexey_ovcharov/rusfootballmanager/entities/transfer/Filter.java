@@ -114,7 +114,7 @@ public class Filter {
         }
         Player player = transferPlayer.getPlayer();
         boolean matchByGlobal = globalPosition == null
-                ? true : globalPosition == player.getCurrentPositionOnField();
+                ? true : globalPosition == player.getPreferredPosition().getPositionOnField();
         boolean matchByLocalPosition = localPosition == null
                 ? true : localPosition == player.getPreferredPosition();
         boolean matchByName = name == null
@@ -124,9 +124,9 @@ public class Filter {
         boolean matchByAgeTo = ageTo == DEFAULT_VALUE
                 ? true : player.getAge() <= ageTo;
         boolean matchByAvgFrom = avgFrom == DEFAULT_VALUE
-                ? true : player.getAverage() >= avgFrom;
+                ? true : player.getAverage(localPosition) >= avgFrom;
         boolean matchByAvgTo = avgTo == DEFAULT_VALUE
-                ? true : player.getAverage() <= avgTo;
+                ? true : player.getAverage(localPosition) <= avgTo;
         return matchByAgeFrom && matchByAgeTo && matchByAvgFrom && matchByAvgTo
                 && matchByGlobal && matchByLocalPosition && matchByName && matchByStatus;
     }

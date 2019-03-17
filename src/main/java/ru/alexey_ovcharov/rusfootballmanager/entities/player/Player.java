@@ -1,7 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
 import java.util.*;
-import java.util.function.ToIntFunction;
 
 import javafx.util.Pair;
 
@@ -46,7 +45,6 @@ public class Player {
 
     private Status statusOfPlayer;
     private InjureType injure;
-    private LocalPosition currentPosition;
     private final EnumMap<Characteristic, Integer> chars;
     private Contract contract;
 
@@ -99,20 +97,12 @@ public class Player {
         ++age;
     }
 
-    public LocalPosition getCurrentPosition() {
-        return currentPosition;
-    }
-
     public int getNumber() {
         return number;
     }
 
     public void setNumber(int number) {
         this.number = number;
-    }
-
-    public void setCurrentPosition(LocalPosition currentPosition) {
-        this.currentPosition = currentPosition;
     }
 
     public int getAge() {
@@ -191,9 +181,9 @@ public class Player {
     public void addExperience(double baseValue) {
         int ageIndex = age - MIN_AGE;
         double multiplier = 1;
-        if (currentPosition != preferredPosition) {
-            multiplier = 0.66;
-        }
+//        if (currentPosition != preferredPosition) {
+//            multiplier = 0.66;
+//        }
         experiense += baseValue * multiplier
                 * ProgressParameters.EXPERIENCE_GAINED_BY_AGE[ageIndex];
         if (experiense > MAX_EXPERIENCE_VALUE) {
@@ -242,12 +232,11 @@ public class Player {
     }
 
     public void addFatifue(double value) {
-        this.fatigue += value * getPosition().
-                                                     getPositionOnField().getFatigueCoefficient();
+        this.fatigue += value * getPreferredPosition().getPositionOnField().getFatigueCoefficient();
     }
 
-    public int getAverage() {
-        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(getPosition());
+    public int getAverage(LocalPosition localPosition) {
+        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(localPosition);
         float sum = primaryChars.stream()
                                 .map(chars::get)
                                 .mapToInt(Integer::intValue)
@@ -269,23 +258,19 @@ public class Player {
     }
 
     public String nameWithPosition() {
-        String position = getPosition().getPositionOnField().getAbreviation();
-        return name.substring(0, 1) + ". " + lastName + SEPARATOR_SPACE
-                + position;
+        String position = getPreferredPosition().getAbreviation();
+        return name.substring(0, 1) + ". " + lastName + SEPARATOR_SPACE + position;
     }
 
     public String nameWithPositionAndAverage() {
-        return nameWithPosition() + " " + getAverage();
+        return nameWithPosition() + " " + getAverage(preferredPosition);
     }
 
-    public GlobalPosition getCurrentPositionOnField() {
-        return getPosition().getPositionOnField();
-    }
 
     @Override
     public String toString() {
         return name + SEPARATOR_SPACE + lastName + SEPARATOR_SPACE
-                + getAverage() + " [" + getStrengthReserve() + "]";
+                + getAverage(preferredPosition) + " [" + getStrengthReserve() + "]";
     }
 
     public int compareByCharacteristics(@Nonnull Player other) {
@@ -307,7 +292,6 @@ public class Player {
         player.setAttribute("talent-type", talentType.name());
 
         addChildElement(player, document, "age", age);
-        addChildElement(player, document, "current-position", currentPosition);
         addChildElement(player, document, "experiense", experiense);
         addChildElement(player, document, "fatigue", fatigue);
         addChildElement(player, document, "injure", injure);
@@ -360,12 +344,6 @@ public class Player {
         Element element = document.createElement(elementName);
         element.setTextContent(String.valueOf(value));
         player.appendChild(element);
-    }
-
-    private LocalPosition getPosition() {
-        return currentPosition == null
-                ? preferredPosition : currentPosition;
-
     }
 
     private void updateChars() {

@@ -233,11 +233,11 @@ public class MatchEventGenerator {
         Player playerFromField = playerFrom.player;
         events.add(new Event(EventType.RED_CARD, minute, playerFromField, team));
         playerFromField.addRedCard();
-        if (playerFromField.getCurrentPosition().getPositionOnField() == GlobalPosition.GOALKEEPER
+        if (playerFromField.getPreferredPosition().getPositionOnField() == GlobalPosition.GOALKEEPER
                 && substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
             PlayerWithCard reserveGoalkeeper = null;
             for (PlayerWithCard reservePlayer : reservePlayers) {
-                if (reservePlayer.player.getCurrentPositionOnField()
+                if (reservePlayer.player.getPreferredPosition().getPositionOnField()
                         == GlobalPosition.GOALKEEPER) {
                     reserveGoalkeeper = reservePlayer;
                     break;
@@ -254,7 +254,7 @@ public class MatchEventGenerator {
                                         GlobalPosition positionOnField) {
         List<Player> players = new ArrayList<>();
         for (PlayerWithCard playerWithCard : playerWithCards) {
-            if (playerWithCard.player.getCurrentPosition().
+            if (playerWithCard.player.getPreferredPosition().
                     getPositionOnField() == positionOnField) {
                 players.add(playerWithCard.player);
             }
@@ -277,7 +277,7 @@ public class MatchEventGenerator {
 
     private PlayerWithCard findSamePlayer(List<PlayerWithCard> reserve, Player player) {
         GlobalPosition[] priority = new GlobalPosition[0];
-        LocalPosition currentPosition = player.getCurrentPosition();
+        LocalPosition currentPosition = player.getPreferredPosition();
         GlobalPosition positionOnField = currentPosition.getPositionOnField();
         switch (positionOnField) {
             case FORWARD:
@@ -301,7 +301,7 @@ public class MatchEventGenerator {
         });
         for (GlobalPosition position : priority) {
             for (PlayerWithCard playerWithCard : reserve) {
-                if (playerWithCard.player.getCurrentPosition().
+                if (playerWithCard.player.getPreferredPosition().
                         getPositionOnField() == position) {
                     candidates.add(playerWithCard);
                 }

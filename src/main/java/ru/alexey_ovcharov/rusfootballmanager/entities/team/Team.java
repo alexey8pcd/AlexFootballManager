@@ -356,7 +356,7 @@ public class Team {
         float sum = 0;
         List<Player> allPlayers = getAllPlayers();
         for (Player player : allPlayers) {
-            sum += player.getAverage();
+            sum += player.getAverage(player.getPreferredPosition());
         }
         return Math.round(sum / allPlayers.size());
     }
@@ -458,17 +458,6 @@ public class Team {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder("\t<<<<<<<<<");
-        stringBuilder.append(name).append(">>>>>>>>>>\n\t");
-        for (Player player : getAllPlayers()) {
-            stringBuilder.append(player.toString());
-            stringBuilder.append("\t");
-        }
-        return stringBuilder.toString();
-    }
-
     private int getFirstFreeNumber() {
         if (playersNumbers.isEmpty()) {
             return 1;
@@ -491,7 +480,7 @@ public class Team {
 
     private List<Player> getPlayers(GlobalPosition position) {
         return startPlayers.stream()
-                           .filter(player -> (player.getCurrentPosition().getPositionOnField() == position))
+                           .filter(player -> (player.getPreferredPosition().getPositionOnField() == position))
                            .collect(Collectors.toList());
     }
 
@@ -564,5 +553,12 @@ public class Team {
 
     public Set<Trick> getTricks() {
         return tricks;
+    }
+
+    @Nonnull
+    public Player getBestStartPlayer() {
+        return startPlayers.stream()
+                           .min(Player::compareByCharacteristics)
+                           .orElseThrow(NoSuchElementException::new);
     }
 }

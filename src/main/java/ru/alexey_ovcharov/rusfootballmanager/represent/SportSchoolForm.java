@@ -63,7 +63,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
                 case 2:
                     return player.getPreferredPosition().getAbreviation();
                 case 3:
-                    return player.getAverage();
+                    return player.getAverage(player.getPreferredPosition());
                 default:
                     int index = column - 4;
                     if (progressValues != null
@@ -87,10 +87,10 @@ public class SportSchoolForm extends javax.swing.JDialog {
         this.team = team;
         juniors = team.getJuniors();
         final int limit = 10;
-        juniors.stream().forEach(p -> {
+        juniors.forEach(p -> {
             List<Integer> values = new ArrayList<>(7);
             int age = p.getAge();
-            int avg = p.getAverage();
+            int avg = p.getAverage(p.getPreferredPosition());
             for (int i = age + 1, j = age - Player.MIN_AGE, k = 0;
                     i <= age + limit; ++i, ++j, ++k) {
                 avg += ProgressParameters.CONSTANTS.get(p.getTalentType()).get(j);
@@ -164,7 +164,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(bContract)
                 .addContainerGap())

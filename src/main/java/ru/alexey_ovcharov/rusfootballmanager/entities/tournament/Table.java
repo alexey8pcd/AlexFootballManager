@@ -1,50 +1,71 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
-import java.util.*;
-
-import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+
+import javax.annotation.Nonnull;
+import java.time.LocalDate;
+import java.util.*;
 
 /**
  * @author Alexey
  */
 public class Table {
 
-    private final Map<Team, Place> links;
-    private final List<Place> places;
+    private final Map<Team, PlaceInfo> links = new HashMap<>();
+    private final Map<LocalDate, List<Match>> matchResults = new TreeMap<>();
+    private final List<PlaceInfo> placeInfoList = new ArrayList<>();
 
     public Table(Collection<Team> teams) {
-        links = new HashMap<>();
-        places = new ArrayList<>();
         teams.forEach(team -> {
-            Place tournamentPlace = new Place(team);
-            links.put(team, tournamentPlace);
+            PlaceInfo tournamentPlaceInfo = new PlaceInfo(team);
+            links.put(team, tournamentPlaceInfo);
         });
     }
 
-    public int getPlaceOfTeam(Team team) {
-        return places.indexOf(links.get(team)) + 1;
+    public int getPlaceNumberOfTeam(@Nonnull Team team) {
+        return placeInfoList.indexOf(links.get(team)) + 1;
+    }
+
+    public PlaceInfo getPlaceInfoOfTeam(@Nonnull Team team) {
+        return links.get(team);
     }
 
     public void updateResults(Match matchResult) {
+        List<Match> matches = matchResults.computeIfAbsent(matchResult.getMatchDate(), k -> new ArrayList<>());
+        matches.add(matchResult);
+
         Team host = matchResult.getHost();
         Team guest = matchResult.getGuest();
-        Place placeHost = links.get(host);
-        Place placeGuest = links.get(guest);
-        if (placeHost != null && placeGuest != null) {
+        PlaceInfo placeInfoHost = links.get(host);
+        PlaceInfo placeInfoGuest = links.get(guest);
+        if (placeInfoHost != null && placeInfoGuest != null) {
             int hostTeamGoalsCount = matchResult.getHostTeamGoalsCount();
             int guestTeamGoalsCount = matchResult.getGuestTeamGoalsCount();
             int hostTeamYellowCardsCount = matchResult.getHostTeamYellowCardsCount();
             int guestTeamYellowCardsCount = matchResult.getGuestTeamYellowCardsCount();
             int hostTeamRedCardsCount = matchResult.getHostTeamRedCardsCount();
             int guestTeamRedCardsCount = matchResult.getGuestTeamRedCardsCount();
-            placeHost.addGameResult(hostTeamGoalsCount, guestTeamGoalsCount,
+            placeInfoHost.addGameResult(hostTeamGoalsCount, guestTeamGoalsCount,
                     hostTeamYellowCardsCount, hostTeamRedCardsCount);
-            placeGuest.addGameResult(guestTeamGoalsCount, hostTeamGoalsCount,
+            placeInfoGuest.addGameResult(guestTeamGoalsCount, hostTeamGoalsCount,
                     guestTeamYellowCardsCount, guestTeamRedCardsCount);
-            places.clear();
-            places.addAll(links.values());
-            places.sort(Place::compareInTable);
+            placeInfoList.clear();
+            placeInfoList.addAll(links.values());
+            placeInfoList.sort(PlaceInfo::compareInTable);
         }
+    }
+
+    @Nonnull
+    public List<GameResult> getLastResults(Team team, int count) {
+        List<GameResult> gameResults = new ArrayList<>();
+        matchResults.values()
+                    .stream()
+                    .limit(count)
+                    .flatMap(List::stream)
+                    .filter(match -> match.withTeam(team))
+                    .map(match -> match.getResultOf(team))
+                    .forEach(gameResults::add);
+        return gameResults;
     }
 }

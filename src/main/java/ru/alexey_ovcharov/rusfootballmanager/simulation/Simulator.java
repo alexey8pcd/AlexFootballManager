@@ -4,6 +4,8 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.match.Event;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Status;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -11,7 +13,11 @@ import java.util.List;
  */
 public class Simulator {
 
-    public static Match simulate(Team teamHome, Team teamGuest) {
+    private Simulator() {
+
+    }
+
+    public static Match simulate(Team teamHome, Team teamGuest, LocalDate matchDate) {
         int resultHomeTeam = Calculator.calculateGoalsCount(teamHome, teamGuest,
                 Status.HOST);
         if (resultHomeTeam < 0) {
@@ -24,7 +30,7 @@ public class Simulator {
         }
         int teamHomeAvg = teamHome.getAverage();
         int teamGuestAvg = teamGuest.getAverage();
-        Match mathResult = new Match(teamHome, teamGuest);
+        Match mathResult = new Match(teamHome, teamGuest, matchDate);
         List<Event> homeTeamMatchEvents = new MatchEventGenerator(
                 teamHome, resultHomeTeam, teamHomeAvg - teamGuestAvg).createMatchEvents();
         mathResult.addMatchEvent(homeTeamMatchEvents);

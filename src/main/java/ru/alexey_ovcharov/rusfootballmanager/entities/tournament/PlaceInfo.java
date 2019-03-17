@@ -5,7 +5,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 /**
  * @author Alexey
  */
-public class Place {
+public class PlaceInfo {
 
     private final Team team;
     private int gamesCount;
@@ -18,12 +18,16 @@ public class Place {
     private int yellowCardsCount;
     private int redCardsCount;
 
-    public Place(Team team) {
+    public PlaceInfo(Team team) {
         this.team = team;
     }
 
     public boolean containsTeam(Team team) {
         return this.team.equals(team);
+    }
+
+    public int getPointsCount() {
+        return pointsCount;
     }
 
     @Override
@@ -59,33 +63,33 @@ public class Place {
         return goalsScored - goalsConceded;
     }
 
-    public int compareInTable(Place tournamentPlace) {
-        if (pointsCount == tournamentPlace.pointsCount) {
-            if (winsCount == tournamentPlace.winsCount) {
-                if (goalsScored == tournamentPlace.goalsScored) {
-                    int goalsDifferenceOther = tournamentPlace.getGoalsDifference();
+    public int compareInTable(PlaceInfo tournamentPlaceInfo) {
+        if (pointsCount == tournamentPlaceInfo.pointsCount) {
+            if (winsCount == tournamentPlaceInfo.winsCount) {
+                if (goalsScored == tournamentPlaceInfo.goalsScored) {
+                    int goalsDifferenceOther = tournamentPlaceInfo.getGoalsDifference();
                     int goalsDifference = getGoalsDifference();
                     if (goalsDifference == goalsDifferenceOther) {
-                        if (yellowCardsCount == tournamentPlace.yellowCardsCount) {
-                            if (redCardsCount == tournamentPlace.redCardsCount) {
-                                return Integer.compare(tournamentPlace.redCardsCount, redCardsCount);
+                        if (yellowCardsCount == tournamentPlaceInfo.yellowCardsCount) {
+                            if (redCardsCount == tournamentPlaceInfo.redCardsCount) {
+                                return Integer.compare(tournamentPlaceInfo.redCardsCount, redCardsCount);
                             } else {
                                 return 0;
                             }
                         } else {
-                            return Integer.compare(tournamentPlace.yellowCardsCount, yellowCardsCount);
+                            return Integer.compare(tournamentPlaceInfo.yellowCardsCount, yellowCardsCount);
                         }
                     } else {
                         return Integer.compare(goalsDifference, goalsDifferenceOther);
                     }
                 } else {
-                    return Integer.compare(goalsScored, tournamentPlace.goalsScored);
+                    return Integer.compare(goalsScored, tournamentPlaceInfo.goalsScored);
                 }
             } else {
-                return Integer.compare(winsCount, tournamentPlace.winsCount);
+                return Integer.compare(winsCount, tournamentPlaceInfo.winsCount);
             }
         } else {
-            return Integer.compare(pointsCount, tournamentPlace.pointsCount);
+            return Integer.compare(pointsCount, tournamentPlaceInfo.pointsCount);
         }
     }
 

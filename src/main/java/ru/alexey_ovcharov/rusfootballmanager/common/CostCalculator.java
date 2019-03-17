@@ -16,7 +16,7 @@ public class CostCalculator {
     private static final double COST_AVG_POWER_COEFF = 2.15;
 
     public static int calculatePayForMatch(Player player) {
-        return calculatePayForMatch(player.getAge(), player.getAverage());
+        return calculatePayForMatch(player.getAge(), player.getAverage(player.getPreferredPosition()));
     }
 
     private static int calculatePayForMatch(int age, int avg) {

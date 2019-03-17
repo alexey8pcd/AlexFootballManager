@@ -106,7 +106,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
                 return player.getNameAbbrAndLastName() + " " + localPositionAbreviation
                         + " [" + player.getAverageOnPosition(localPosition) + "]" +
                         " / " + preferredPositionAbreviation
-                        + " [" + player.getAverage() + "]"
+                        + " [" + player.getAverage(localPosition) + "]"
                         + "  " + getStrength(player.getStrengthReserve());
             }
         });
@@ -600,7 +600,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
             Player player = players.get(index);
             String preferredPositionAbreviation = player.getPreferredPosition().getAbreviation();
             return player.getNameAbbrAndLastName() + " " + preferredPositionAbreviation
-                    + " [" + player.getAverage() + "]  " + getStrength(player.getStrengthReserve());
+                    + " [" + player.getAverage(player.getPreferredPosition()) + "]  " + getStrength(player.getStrengthReserve());
         }
     }
 

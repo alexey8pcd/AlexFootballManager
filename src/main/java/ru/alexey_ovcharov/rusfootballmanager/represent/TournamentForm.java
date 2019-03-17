@@ -1,10 +1,14 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
+
 /**
  *
  * @author Алексей
  */
 public class TournamentForm extends javax.swing.JDialog {
+    private Tournament tournament;
+
     public TournamentForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -51,6 +55,10 @@ public class TournamentForm extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
     // End of variables declaration//GEN-END:variables
 
 }

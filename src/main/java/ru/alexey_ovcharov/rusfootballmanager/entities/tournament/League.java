@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 /**
+ * Список команд с названиями, без привязки к турниру
+ *
  * @author Alexey
  */
-
 public class League {
 
     @XmlAttribute

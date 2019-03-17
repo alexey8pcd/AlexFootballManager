@@ -14,7 +14,7 @@
             <team name="Амурские тигры" city="Уссурийск" budget="450000" sponsor="Кантель" sponsor-level="LOW"/>
             <team name="Моряк" city="Владивосток" budget="800000" sponsor="Рыбзавод" sponsor-level="LOW"/>
             <team name="Динамо" city="Томск" budget="1000000" sponsor="Метал-профиль" sponsor-level="LOW"/>
-            <team name="Локомотов" city="Краснодар" budget="400000" sponsor="Окна плюс" sponsor-level="LOW"/>
+            <team name="Локомотив" city="Краснодар" budget="400000" sponsor="Окна плюс" sponsor-level="LOW"/>
         </league>
        
         <league name="Национальная лига" level="LOW_MID" experience="20">
