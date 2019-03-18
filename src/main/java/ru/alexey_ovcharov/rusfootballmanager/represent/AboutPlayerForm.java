@@ -26,7 +26,7 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         builder.append("Имя: ").append(player.getName()).append("\n");
         builder.append("Фамилия: ").append(player.getLastName()).append("\n");
         int age = player.getAge();
-        int avg = player.getAverage(player.getPreferredPosition());
+        int avg = player.getAverage();
         builder.append("Возраст: ").append(age).append("\n");
         builder.append("Общее: ").append(avg).append("\n");
         builder.append("Позиция: ").append(player.getPreferredPosition().getDescription()).append("\n");

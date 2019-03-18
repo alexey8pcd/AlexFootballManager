@@ -99,14 +99,14 @@ public class TeamSettingsForm extends javax.swing.JDialog {
             @Override
             public String getElementAt(int index) {
                 LocalPosition localPosition = tactics.getPositions().get(index);
-                String localPositionAbreviation = localPosition.getAbreviation();
+                String localPositionAbbreviation = localPosition.getAbreviation();
                 Player player = this.players.get(index);
                 LocalPosition preferredPosition = player.getPreferredPosition();
                 String preferredPositionAbreviation = preferredPosition.getAbreviation();
-                return player.getNameAbbrAndLastName() + " " + localPositionAbreviation
+                return player.getNameAbbrAndLastName() + " " + localPositionAbbreviation
                         + " [" + player.getAverageOnPosition(localPosition) + "]" +
                         " / " + preferredPositionAbreviation
-                        + " [" + player.getAverage(localPosition) + "]"
+                        + " [" + player.getAverage() + "]"
                         + "  " + getStrength(player.getStrengthReserve());
             }
         });
@@ -600,7 +600,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
             Player player = players.get(index);
             String preferredPositionAbreviation = player.getPreferredPosition().getAbreviation();
             return player.getNameAbbrAndLastName() + " " + preferredPositionAbreviation
-                    + " [" + player.getAverage(player.getPreferredPosition()) + "]  " + getStrength(player.getStrengthReserve());
+                    + " [" + player.getAverage() + "]  " + getStrength(player.getStrengthReserve());
         }
     }
 

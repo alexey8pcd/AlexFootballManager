@@ -119,9 +119,10 @@ public class MatchEventGenerator {
     }
 
     private List<Event> createEvents(int minute) {
+        List<Event> events = new ArrayList<>();
         for (PlayerWithCard playerWithCard : startPlayers) {
             Player player = playerWithCard.player;
-            player.addFatifue(Randomization.nextDouble());
+            player.addFatigue(Randomization.nextDouble());
             player.addExperience(DEFAULT_EXPERIENCE_VALUE * experienceCoeff);
         }
         int chance = Randomization.nextInt(THOUSAND);
@@ -254,7 +255,7 @@ public class MatchEventGenerator {
                                         GlobalPosition positionOnField) {
         List<Player> players = new ArrayList<>();
         for (PlayerWithCard playerWithCard : playerWithCards) {
-            if (playerWithCard.player.getPreferredPosition().
+            if (playerWithCard.player(). //TODO добавить выбор игрока на текущей позиции в команда по выбранной тактике
                     getPositionOnField() == positionOnField) {
                 players.add(playerWithCard.player);
             }

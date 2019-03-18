@@ -63,7 +63,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
                 case 2:
                     return player.getPreferredPosition().getAbreviation();
                 case 3:
-                    return player.getAverage(player.getPreferredPosition());
+                    return player.getAverage();
                 default:
                     int index = column - 4;
                     if (progressValues != null
@@ -87,13 +87,13 @@ public class SportSchoolForm extends javax.swing.JDialog {
         this.team = team;
         juniors = team.getJuniors();
         final int limit = 10;
-        juniors.forEach(p -> {
+        juniors.forEach(player -> {
             List<Integer> values = new ArrayList<>(7);
-            int age = p.getAge();
-            int avg = p.getAverage(p.getPreferredPosition());
+            int age = player.getAge();
+            int avg = player.getAverage();
             for (int i = age + 1, j = age - Player.MIN_AGE, k = 0;
                     i <= age + limit; ++i, ++j, ++k) {
-                avg += ProgressParameters.CONSTANTS.get(p.getTalentType()).get(j);
+                avg += ProgressParameters.CONSTANTS.get(player.getTalentType()).get(j);
                 if (avg > 99) {
                     avg = 99;
                 }
@@ -101,7 +101,7 @@ public class SportSchoolForm extends javax.swing.JDialog {
                     values.add(avg);
                 }
             }
-            playerProgressValues.put(p, values);
+            playerProgressValues.put(player, values);
         });
         tableYoungPlayers.setModel(model);
         tableYoungPlayers.getColumnModel().getColumn(0).setPreferredWidth(150);

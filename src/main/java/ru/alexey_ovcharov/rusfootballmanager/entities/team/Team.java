@@ -356,7 +356,7 @@ public class Team {
         float sum = 0;
         List<Player> allPlayers = getAllPlayers();
         for (Player player : allPlayers) {
-            sum += player.getAverage(player.getPreferredPosition());
+            sum += player.getAverage();
         }
         return Math.round(sum / allPlayers.size());
     }

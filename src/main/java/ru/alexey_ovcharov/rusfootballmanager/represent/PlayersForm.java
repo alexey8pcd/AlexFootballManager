@@ -68,7 +68,7 @@ public class PlayersForm extends javax.swing.JDialog {
                 case 3:
                     return player.getNumber();
                 case 4:
-                    return player.getAverage(player.getPreferredPosition());
+                    return player.getAverage();
                 case 5:
                     return player.getStatusOfPlayer().getDescription();
                 case 6:

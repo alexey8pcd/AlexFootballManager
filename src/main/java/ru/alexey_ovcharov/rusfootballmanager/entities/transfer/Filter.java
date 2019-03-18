@@ -113,20 +113,14 @@ public class Filter {
                 matchByStatus = true;
         }
         Player player = transferPlayer.getPlayer();
-        boolean matchByGlobal = globalPosition == null
-                ? true : globalPosition == player.getPreferredPosition().getPositionOnField();
-        boolean matchByLocalPosition = localPosition == null
-                ? true : localPosition == player.getPreferredPosition();
-        boolean matchByName = name == null
-                ? true : player.getFullName().toLowerCase().contains(name.toLowerCase());
-        boolean matchByAgeFrom = ageFrom == DEFAULT_VALUE
-                ? true : player.getAge() >= ageFrom;
-        boolean matchByAgeTo = ageTo == DEFAULT_VALUE
-                ? true : player.getAge() <= ageTo;
-        boolean matchByAvgFrom = avgFrom == DEFAULT_VALUE
-                ? true : player.getAverage(localPosition) >= avgFrom;
-        boolean matchByAvgTo = avgTo == DEFAULT_VALUE
-                ? true : player.getAverage(localPosition) <= avgTo;
+        LocalPosition preferredPosition = player.getPreferredPosition();
+        boolean matchByGlobal = globalPosition == null || globalPosition == preferredPosition.getPositionOnField();
+        boolean matchByLocalPosition = localPosition == null || localPosition == preferredPosition;
+        boolean matchByName = name == null || player.getFullName().toLowerCase().contains(name.toLowerCase());
+        boolean matchByAgeFrom = ageFrom == DEFAULT_VALUE || player.getAge() >= ageFrom;
+        boolean matchByAgeTo = ageTo == DEFAULT_VALUE || player.getAge() <= ageTo;
+        boolean matchByAvgFrom = avgFrom == DEFAULT_VALUE || player.getAverage() >= avgFrom;
+        boolean matchByAvgTo = avgTo == DEFAULT_VALUE || player.getAverage() <= avgTo;
         return matchByAgeFrom && matchByAgeTo && matchByAvgFrom && matchByAvgTo
                 && matchByGlobal && matchByLocalPosition && matchByName && matchByStatus;
     }

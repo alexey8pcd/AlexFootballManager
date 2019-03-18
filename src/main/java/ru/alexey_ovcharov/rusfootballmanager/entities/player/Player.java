@@ -231,11 +231,15 @@ public class Player {
         return MAX_CHAR_VALUE - (int) fatigue;
     }
 
-    public void addFatifue(double value) {
+    public void addFatigue(double value) {
         this.fatigue += value * getPreferredPosition().getPositionOnField().getFatigueCoefficient();
     }
 
-    public int getAverage(LocalPosition localPosition) {
+    public int getAverage() {
+        return getAverageOnPosition(preferredPosition);
+    }
+
+    public int getAverageOnPosition(@Nonnull LocalPosition localPosition) {
         Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(localPosition);
         float sum = primaryChars.stream()
                                 .map(chars::get)
@@ -263,14 +267,14 @@ public class Player {
     }
 
     public String nameWithPositionAndAverage() {
-        return nameWithPosition() + " " + getAverage(preferredPosition);
+        return nameWithPosition() + " " + getAverage();
     }
 
 
     @Override
     public String toString() {
         return name + SEPARATOR_SPACE + lastName + SEPARATOR_SPACE
-                + getAverage(preferredPosition) + " [" + getStrengthReserve() + "]";
+                + getAverage() + " [" + getStrengthReserve() + "]";
     }
 
     public int compareByCharacteristics(@Nonnull Player other) {
@@ -365,15 +369,5 @@ public class Player {
 
     public String getNameAbbrAndLastName() {
         return name.substring(0, 1) + ". " + lastName;
-    }
-
-    public int getAverageOnPosition(@Nonnull LocalPosition localPosition) {
-        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(localPosition);
-        float sum = primaryChars.stream()
-                                .map(chars::get)
-                                .mapToInt(Integer::intValue)
-                                .sum();
-        sum /= primaryChars.size();
-        return Math.round(sum);
     }
 }

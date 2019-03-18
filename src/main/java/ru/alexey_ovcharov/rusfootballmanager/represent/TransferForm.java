@@ -107,7 +107,7 @@ public class TransferForm extends javax.swing.JDialog {
                         case 3:
                             return player.getPreferredPosition().getAbreviation();
                         case 4:
-                            return player.getAverage(player.getPreferredPosition());
+                            return player.getAverage();
                         case 5:
                             return transfer.getStatus().getDescription();
                         case 6:

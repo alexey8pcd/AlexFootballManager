@@ -1,10 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.match;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
@@ -32,8 +29,12 @@ public class Match {
         this.guestEvents = new ArrayList<>();
     }
 
+    @Nonnull
     public List<Event> getEvents() {
-        return hostEvents;
+        List<Event> events = new ArrayList<>(hostEvents);
+        events.addAll(guestEvents);
+        events.sort(Comparator.comparing(Event::getMinute));
+        return events;
     }
 
     public String getResult() {

@@ -16,9 +16,9 @@ public class Transfer {
     public static final Comparator<Transfer> AVG_AGE_COST
             = (Transfer tp1, Transfer tp2) -> {
         Player player1 = tp1.getPlayer();
-        int average = player1.getAverage(player1.getPreferredPosition());
+        int average = player1.getAverage();
         Player player2 = tp2.getPlayer();
-        int avgOther = player2.getAverage(player2.getPreferredPosition());
+        int avgOther = player2.getAverage();
         if (average == avgOther) {
             int age = player1.getAge();
             int ageOther = player2.getAge();
@@ -41,8 +41,7 @@ public class Transfer {
         this.player = player;
         this.team = team;
         this.status = status;
-        this.sum = CostCalculator.calculateTransferCost(player.getAge(),
-                player.getAverage(player.getPreferredPosition()));
+        this.sum = CostCalculator.calculateTransferCost(player.getAge(), player.getAverage());
     }
 
     public Player getPlayer() {

@@ -7,6 +7,7 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Event;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.*;
 import ru.alexey_ovcharov.rusfootballmanager.simulation.Simulator;
@@ -72,8 +73,12 @@ public class StartMatchForm extends javax.swing.JDialog {
 
         labelHostTeamName.setText(host.getName());
         labelGuestTeamName.setText(guest.getName());
-        labelHostTeamBestPlayer.setText("Лучший игрок: " + host.getBestStartPlayer());
-        labelGuestTeamBestPlayer.setText("Лучший игрок: " + guest.getBestStartPlayer());
+        Player hostBestStartPlayer = host.getBestStartPlayer();
+        labelHostTeamBestPlayer.setText("Лучший игрок: " + hostBestStartPlayer.getNameAbbrAndLastName()
+                + "[" + hostBestStartPlayer.getAverage() + "]");
+        Player guestBestStartPlayer = guest.getBestStartPlayer();
+        labelGuestTeamBestPlayer.setText("Лучший игрок: " + guestBestStartPlayer.getNameAbbrAndLastName()
+                + "[" + guestBestStartPlayer.getAverage() + "]");
 
         progressBarHostTeamLevel.setValue(host.getAverage());
         progressBarHostTeamLevel.setString(String.valueOf(host.getAverage()));
@@ -299,6 +304,11 @@ public class StartMatchForm extends javax.swing.JDialog {
     }//GEN-LAST:event_buttonSimulateActionPerformed
 
     private void buttonCalculateResultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCalculateResultActionPerformed
+        calculateResult();
+
+    }//GEN-LAST:event_buttonCalculateResultActionPerformed
+
+    private void calculateResult() {
         Team host = opponents.getHost();
         Team guest = opponents.getGuest();
         match = Simulator.simulate(host, guest, matchDay);
@@ -316,9 +326,11 @@ public class StartMatchForm extends javax.swing.JDialog {
                 return events.get(index).toString();
             }
         });
+        jScrollPane1.setVisible(true);
+        listMatchEvents.setVisible(true);
         listMatchEvents.updateUI();
-
-    }//GEN-LAST:event_buttonCalculateResultActionPerformed
+        buttonCalculateResult.setEnabled(false);
+    }
 
     public Match getMatchResult() {
         return match;

@@ -100,13 +100,13 @@ public class Calculator {
             Player player = startPlayers.get(i);
             if (position.getPositionOnField() == GlobalPosition.DEFENDER) {
                 ++defendersCount;
-                defAvgValue += DEFENDERS_AVG_ATTACK_TEAM * player.getAverage(position);
+                defAvgValue += DEFENDERS_AVG_ATTACK_TEAM * player.getAverageOnPosition(position);
             } else if (position.getPositionOnField() == GlobalPosition.MIDFIELDER) {
                 ++midfieldersCount;
-                midfAvgValue += MIDFIELDERS_AVG_ATTACK_TEAM * player.getAverage(position);
+                midfAvgValue += MIDFIELDERS_AVG_ATTACK_TEAM * player.getAverageOnPosition(position);
             } else if (position.getPositionOnField() == GlobalPosition.FORWARD) {
                 ++frwCountValue;
-                frwAvgValue += FORWARDS_AVG * player.getAverage(position);
+                frwAvgValue += FORWARDS_AVG * player.getAverageOnPosition(position);
             }
         }
         if (defendersCount != 0 && midfieldersCount != 0) {
@@ -124,21 +124,21 @@ public class Calculator {
         Tactics tactics = team.getTactics();
         List<LocalPosition> positions = tactics.getPositions();
         double gkAvgValue = 0;
-        int defendersCount = 0;
-        int midfieldersCount = 0;
         double defAvgValue = 0;
         double midfAvgValue = 0;
+        int defendersCount = 0;
+        int midfieldersCount = 0;
         for (int i = 0; i < positions.size(); i++) {
             LocalPosition position = positions.get(i);
             Player player = startPlayers.get(i);
             if (position.getPositionOnField() == GlobalPosition.GOALKEEPER) {
-                gkAvgValue = GOALKEEPER_AVG * player.getAverage(LocalPosition.GOALKEEPER);
+                gkAvgValue = GOALKEEPER_AVG * player.getAverageOnPosition(LocalPosition.GOALKEEPER);
             } else if (position.getPositionOnField() == GlobalPosition.DEFENDER) {
                 ++defendersCount;
-                defAvgValue += DEFENDERS_AVG_DEFENCE_TEAM * player.getAverage(position);
+                defAvgValue += DEFENDERS_AVG_DEFENCE_TEAM * player.getAverageOnPosition(position);
             } else if (position.getPositionOnField() == GlobalPosition.MIDFIELDER) {
                 ++midfieldersCount;
-                midfAvgValue += MIDFIELDER_AVG_DEFENCE_TEAM * player.getAverage(position);
+                midfAvgValue += MIDFIELDER_AVG_DEFENCE_TEAM * player.getAverageOnPosition(position);
             }
         }
         if (defendersCount != 0 && midfieldersCount != 0) {
