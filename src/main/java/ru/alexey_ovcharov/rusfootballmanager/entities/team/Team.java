@@ -8,10 +8,7 @@ import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
 import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
@@ -34,6 +31,7 @@ public class Team {
 
     private static final int START_PLAYERS_COUNT = 11;
     private static final int SUBSTITUTES_COUNT = 7;
+    private static final int BASE_PLAYERS_COUNT = START_PLAYERS_COUNT + SUBSTITUTES_COUNT;
     private static final int SUPPORT_LEVEL_DEFAULT = 40;
     private static final int BUDGET_LEVEL_OFFSET = 18;
     private static final int TEAMWORK_DEFAULT = 20;
@@ -60,6 +58,7 @@ public class Team {
     private Strategy gameStrategy;
     private Tactics tactics;
     private Set<Trick> tricks;
+    private boolean prepared;
 
     public Team(String name, long budget) {
         this.name = name;
@@ -81,6 +80,10 @@ public class Team {
         juniors = new HashSet<>();
     }
 
+    private static boolean isGoalkeeper(Player player) {
+        return player.getPreferredPosition() == LocalPosition.GOALKEEPER;
+    }
+
 
     public void onTransfer(Player player) {
         boolean added = playersOnTransfer.add(player);
@@ -100,11 +103,10 @@ public class Team {
         if (playersOnRent.add(player)) {
             player.decreaseMood(4);
         }
-        List<Transfer> transfers
-                = Market.getInstance().getTransfers(this);
+        List<Transfer> transfers = Market.getInstance().getTransfers(this);
         transfers.stream()
                  .filter(transfer -> transfer.getPlayer() == player)
-                 .forEach((transfer) -> {
+                 .forEach(transfer -> {
                      playersOnTransfer.remove(player);
                      transfer.setStatus(Status.TO_RENT);
                  });
@@ -186,9 +188,7 @@ public class Team {
 
     public List<Player> getPlayersOnPosition(LocalPosition position) {
         List<Player> players = getAllPlayers();
-        players.removeIf((Player p) -> {
-            return p.getPreferredPosition() != position;
-        });
+        players.removeIf(player -> player.getPreferredPosition() != position);
         return players;
     }
 
@@ -224,7 +224,7 @@ public class Team {
 
     public boolean addPlayer(Player player) {
         if (getPlayersCount() < MAX_PLAYERS_COUNT) {
-            if (player.getPreferredPosition() == LocalPosition.GOALKEEPER && goalkeeper == null) {
+            if (isGoalkeeper(player) && goalkeeper == null) {
                 goalkeeper = player;
             }
             if (startPlayers.size() < START_PLAYERS_COUNT) {
@@ -279,7 +279,7 @@ public class Team {
             goalkeeper = null;
             List<Player> allPlayers = getAllPlayers();
             for (Player p : allPlayers) {
-                if (p.getPreferredPosition() == LocalPosition.GOALKEEPER) {
+                if (isGoalkeeper(p)) {
                     goalkeeper = p;
                     return;
                 }
@@ -288,10 +288,118 @@ public class Team {
     }
 
     public List<Player> getStartPlayers() {
+        if (!prepared) {
+            prepare();
+        }
         return startPlayers;
     }
 
+    private void prepare() {
+        if (tactics != null && getPlayersCount() > START_PLAYERS_COUNT) {
+            List<Player> players = primaryReorderPlayers();
+            secondaryReorderPlayers(players);
+            initRestartPositionsPerformers();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    private List<Player> primaryReorderPlayers() {
+        List<LocalPosition> positions = tactics.getPositions();
+        List<Player> players = getAllPlayers();
+        for (int i = 0; i < positions.size(); i++) {
+            LocalPosition localPosition = positions.get(i);
+            Player player = players.get(i);
+            LocalPosition preferredPosition = player.getPreferredPosition();
+            if (preferredPosition != localPosition) {
+                boolean isSwap = swapLikePosition(players, i, localPosition);
+                if (!isSwap) {
+                    swapLikeRole(players, i, localPosition);
+                }
+            }
+        }
+        return players;
+    }
+
+    private void secondaryReorderPlayers(List<Player> players) {
+        int playersSize = players.size();
+        startPlayers = new ArrayList<>(players.subList(0, START_PLAYERS_COUNT));
+        if (playersSize >= BASE_PLAYERS_COUNT) {
+            substitutes = new ArrayList<>(players.subList(START_PLAYERS_COUNT, BASE_PLAYERS_COUNT));
+            if (playersSize == BASE_PLAYERS_COUNT) {
+                reserve = Collections.emptyList();
+            } else {
+                reserve = new ArrayList<>(players.subList(BASE_PLAYERS_COUNT, playersSize));
+                if (substitutes.stream()
+                               .noneMatch(Team::isGoalkeeper)
+                        && reserve.stream()
+                                  .anyMatch(Team::isGoalkeeper)) {
+                    swapGoalkeeperToSubstitutes();
+                }
+            }
+        } else {
+            substitutes = new ArrayList<>(players.subList(START_PLAYERS_COUNT, playersSize));
+            reserve = Collections.emptyList();
+        }
+    }
+
+    private void initRestartPositionsPerformers() {
+        if (playerPenaltyScore == null) {
+            playerPenaltyScore = startPlayers.stream()
+                                             .max(Comparator.comparingInt(
+                                                     p -> p.getCharacteristic(Characteristic.SHOT_ACCURACY)))
+                                             .orElseThrow(IllegalStateException::new);
+        }
+        if (playerFreeKickScore == null) {
+            playerFreeKickScore = playerPenaltyScore;
+        }
+        if (playerLeftCorner == null) {
+            playerLeftCorner = playerPenaltyScore;
+        }
+        if (playerRightCorner == null) {
+            playerRightCorner = playerPenaltyScore;
+        }
+    }
+
+    private void swapGoalkeeperToSubstitutes() {
+        Player reserveGk = reserve.stream()
+                                  .filter(Team::isGoalkeeper)
+                                  .min(Player::compareByCharacteristics)
+                                  .orElseThrow(IllegalStateException::new);
+        reserve.remove(reserveGk);
+        Player player = substitutes.set(0, reserveGk);
+        reserve.add(player);
+    }
+
+    private void swapLikeRole(List<Player> players, int i, LocalPosition localPosition) {
+        //находим первого подходящего игрока по амплуа
+        for (int j = i; j < players.size(); j++) {
+            Player player2 = players.get(j);
+            if (player2.getPositionOnField() == localPosition.getPositionOnField()) {
+                Collections.swap(players, i, j);
+                break;
+            }
+        }
+    }
+
+    private boolean swapLikePosition(List<Player> players, int startIndex, LocalPosition localPosition) {
+        boolean isSwap = false;
+        //находим первого подходящего игрока на эту позицию
+        for (int j = startIndex + 1; j < players.size(); j++) {
+            Player player2 = players.get(j);
+            if (player2.getPreferredPosition() == localPosition) {
+                Collections.swap(players, startIndex, j);
+                isSwap = true;
+                break;
+            }
+        }
+        return isSwap;
+    }
+
     public List<Player> getSubstitutes() {
+        if (!prepared) {
+            prepare();
+        }
         return substitutes;
     }
 
@@ -345,7 +453,7 @@ public class Team {
     }
 
     public List<Player> getAllPlayers() {
-        ArrayList<Player> players = new ArrayList<>(getPlayersCount());
+        List<Player> players = new ArrayList<>(getPlayersCount());
         players.addAll(startPlayers);
         players.addAll(substitutes);
         players.addAll(reserve);

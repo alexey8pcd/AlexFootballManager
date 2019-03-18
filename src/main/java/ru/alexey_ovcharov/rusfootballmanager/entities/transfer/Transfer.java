@@ -32,9 +32,9 @@ public class Transfer {
         }
     };
 
-    private Player player;
-    private Team team;
-    private int sum;
+    private final Player player;
+    private final Team team;
+    private final int sum;
     private Status status;
 
     public Transfer(Player player, Team team, Status status) {

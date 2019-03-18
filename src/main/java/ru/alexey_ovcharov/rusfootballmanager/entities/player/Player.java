@@ -133,6 +133,10 @@ public class Player {
         return preferredPosition;
     }
 
+    public GlobalPosition getPositionOnField() {
+        return preferredPosition.getPositionOnField();
+    }
+
     public int getYellowCardsCount() {
         return yellowCardsCount;
     }
@@ -273,7 +277,7 @@ public class Player {
 
     @Override
     public String toString() {
-        return name + SEPARATOR_SPACE + lastName + SEPARATOR_SPACE
+        return name + SEPARATOR_SPACE + lastName + SEPARATOR_SPACE + preferredPosition + SEPARATOR_SPACE
                 + getAverage() + " [" + getStrengthReserve() + "]";
     }
 
