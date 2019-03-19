@@ -9,9 +9,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,7 +63,7 @@ public class CareerSettings {
         if (tournaments != null && !tournaments.isEmpty()) {
             for (Tournament tournament : tournaments) {
                 if (tournament != exclude) {
-                    tournament.updateToDate(date);
+                    tournament.skipToDate(date);
                 }
             }
         }

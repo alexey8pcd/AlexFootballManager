@@ -22,12 +22,40 @@ public class PlaceInfo {
         this.team = team;
     }
 
+    public int getGamesCount() {
+        return gamesCount;
+    }
+
+    public int getWinsCount() {
+        return winsCount;
+    }
+
+    public int getDrawsCount() {
+        return drawsCount;
+    }
+
+    public int getLosesCount() {
+        return losesCount;
+    }
+
+    public int getGoalsScored() {
+        return goalsScored;
+    }
+
+    public int getGoalsConceded() {
+        return goalsConceded;
+    }
+
     public boolean containsTeam(Team team) {
         return this.team.equals(team);
     }
 
     public int getPointsCount() {
         return pointsCount;
+    }
+
+    public String getTeam() {
+        return team.getName();
     }
 
     @Override
@@ -64,6 +92,10 @@ public class PlaceInfo {
     }
 
     public int compareInTable(PlaceInfo tournamentPlaceInfo) {
+        return sort(tournamentPlaceInfo) * -1;
+    }
+
+    private int sort(PlaceInfo tournamentPlaceInfo) {
         if (pointsCount == tournamentPlaceInfo.pointsCount) {
             if (winsCount == tournamentPlaceInfo.winsCount) {
                 if (goalsScored == tournamentPlaceInfo.goalsScored) {

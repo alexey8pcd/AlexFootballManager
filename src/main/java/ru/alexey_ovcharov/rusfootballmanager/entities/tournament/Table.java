@@ -68,4 +68,9 @@ public class Table {
                     .forEach(gameResults::add);
         return gameResults;
     }
+
+    @Nonnull
+    public List<PlaceInfo> getPlaceInfoList() {
+        return placeInfoList;
+    }
 }

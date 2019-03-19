@@ -1,5 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.career.User;
@@ -75,12 +76,14 @@ public class ManageForm extends javax.swing.JDialog {
             startMatchForm.setData(opponents, currentDate, tournament);
             startMatchForm.setLocationRelativeTo(this);
             startMatchForm.setVisible(true);
+            Match matchResult = startMatchForm.getMatchResult();
+            tournament.simulateTour(currentDate, matchResult);
         } else {
             LOGGER.info("holidays");
             user.getSettings().simulateTransfers();
         }
 
-        tournament.updateToDate(user.getCurrentDate().plusDays(4));
+        tournament.skipToDate(user.getCurrentDate().plusDays(4));
         user.setCurrentDate(tournament.getCurrentDate());
         updateLabels(tournament.getCurrentDate(), team);
     }
@@ -432,6 +435,8 @@ public class ManageForm extends javax.swing.JDialog {
 
     private void bTournamentTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTournamentTableActionPerformed
         TournamentForm tournamentForm = new TournamentForm(null, true);
+        tournamentForm.setPreferredSize(this.getPreferredSize());
+        tournamentForm.setSize(this.getSize());
         Tournament tournament = user.getTournament();
         tournamentForm.setTournament(tournament);
         tournamentForm.setLocationRelativeTo(this);

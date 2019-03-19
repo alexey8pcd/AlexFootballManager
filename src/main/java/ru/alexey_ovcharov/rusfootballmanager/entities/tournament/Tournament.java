@@ -60,8 +60,8 @@ public class Tournament {
                 && matchIndex >= schedule.getToursCount();
     }
 
-    public void updateToDate(LocalDate date) {
-        LOGGER.info(() -> "updateToDate " + date.format(DateTimeFormatter.ISO_DATE));
+    public void skipToDate(LocalDate date) {
+        LOGGER.info(() -> "skipToDate " + date.format(DateTimeFormatter.ISO_DATE));
         if (isGameDays(currentDate)) {
             while (currentDate.isBefore(date)) {
                 if (matchIndex < schedule.getToursCount()) {
@@ -69,8 +69,6 @@ public class Tournament {
                     if (tourDate.isAfter(date)) {
                         currentDate = date;
                         break;
-                    } else {
-//                        simulateTour(tourDate);
                     }
                 } else {
                     currentDate = date;
@@ -95,14 +93,17 @@ public class Tournament {
         throw new IllegalStateException();
     }
 
-    public void simulateTour(LocalDate matchDate) {
+    public void simulateTour(LocalDate matchDate, Match matchResultExclude) {
         List<Opponents> pairs = getTourTeams();
+        tournamentTable.updateResults(matchResultExclude);
         if (!pairs.isEmpty()) {
             for (Opponents pair : pairs) {
                 Team host = pair.getHost();
                 Team guest = pair.getGuest();
-                Match matchResult = Simulator.simulate(host, guest, matchDate);
-                tournamentTable.updateResults(matchResult);
+                if (!matchResultExclude.withTeam(host) && !matchResultExclude.withTeam(guest)) {
+                    Match matchResult = Simulator.simulate(host, guest, matchDate);
+                    tournamentTable.updateResults(matchResult);
+                }
             }
             ++matchIndex;
         }
@@ -174,7 +175,7 @@ public class Tournament {
     }
 
     @Nonnull
-    public List<Opponents> getTourTeams() {
+    private List<Opponents> getTourTeams() {
         if (matchIndex < schedule.getToursCount()) {
             currentDate = schedule.getTourDate(matchIndex);
             return schedule.getTeamsByTour(matchIndex);
