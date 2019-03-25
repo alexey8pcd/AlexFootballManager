@@ -36,7 +36,17 @@ public class Randomization {
         return RANDOM.nextInt(bound);
     }
 
+    /**
+     * @return from 0.0 to 1.0
+     */
     public static double nextDouble() {
         return RANDOM.nextDouble();
+    }
+
+    /**
+     * @return from 0.0 to scale
+     */
+    public static double nextDoubleScaled(double scale) {
+        return RANDOM.nextDouble() * scale;
     }
 }

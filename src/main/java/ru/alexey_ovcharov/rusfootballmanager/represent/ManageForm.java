@@ -407,7 +407,8 @@ public class ManageForm extends javax.swing.JDialog {
 
     private void showPlayersForm() {
         PlayersForm playersForm = new PlayersForm(null, true);
-        playersForm.setPlayers(user.getTeam().getAllPlayers());
+        Team team = user.getTeam();
+        playersForm.setTeam(team);
         playersForm.setVisible(true);
     }
 

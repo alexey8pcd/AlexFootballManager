@@ -1,5 +1,8 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
+/**
+ * Статус игрока
+ */
 public enum Status {
 
     READY("Готов"),

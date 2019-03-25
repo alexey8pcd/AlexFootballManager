@@ -236,7 +236,6 @@ public class Team {
             }
             int number = getFirstFreeNumber();
             playersNumbers.put(number, player);
-            player.setNumber(number);
             return true;
         }
         return false;
@@ -274,7 +273,12 @@ public class Team {
         } else {
             reserve.remove(player);
         }
-        playersNumbers.remove(player.getNumber(), player);
+        for (Map.Entry<Integer, Player> entry : playersNumbers.entrySet()) {
+            if (entry.getValue() == player) {
+                playersNumbers.remove(entry.getKey());
+                break;
+            }
+        }
         if (player == goalkeeper) {
             goalkeeper = null;
             List<Player> allPlayers = getAllPlayers();
@@ -419,8 +423,6 @@ public class Team {
         Player player1 = playersNumbers.get(number1);
         Player player2 = playersNumbers.get(number2);
         if (player1 != null && player2 != null) {
-            player1.setNumber(number2);
-            player2.setNumber(number1);
             playersNumbers.replace(number1, player2);
             playersNumbers.replace(number2, player1);
         }
@@ -473,14 +475,19 @@ public class Team {
         return teamwork;
     }
 
-    public Player getByNumber(int number) {
-        List<Player> allPlayers = getAllPlayers();
-        for (Player player : allPlayers) {
-            if (player.getNumber() == number) {
-                return player;
-            }
-        }
-        return null;
+    @Nonnull
+    public Optional<Player> getByNumber(int number) {
+        return Optional.ofNullable(playersNumbers.get(number));
+    }
+
+    @Nonnull
+    public OptionalInt getNumberOfPlayer(Player player) {
+        return playersNumbers.entrySet()
+                             .stream()
+                             .filter(entry -> entry.getValue() == player)
+                             .map(Map.Entry::getKey)
+                             .mapToInt(Integer::intValue)
+                             .findFirst();
     }
 
     public int calculateForm() {
@@ -521,9 +528,8 @@ public class Team {
         teamElement.setAttribute("teamwork", String.valueOf(teamwork));
 
         Element goalkeeperElement = document.createElement("goalkeeper-number");
-        if (goalkeeper != null) {
-            goalkeeperElement.setTextContent(String.valueOf(goalkeeper.getNumber()));
-        }
+        OptionalInt numberOfGk = getNumberOfPlayer(goalkeeper);
+        numberOfGk.ifPresent(value -> goalkeeperElement.setTextContent(String.valueOf(value)));
 
         Element startPlayersElement = document.createElement("start-players");
         for (Player player : startPlayers) {
@@ -668,5 +674,11 @@ public class Team {
         return startPlayers.stream()
                            .min(Player::compareByCharacteristics)
                            .orElseThrow(NoSuchElementException::new);
+    }
+
+    public void relaxOneDay() {
+        startPlayers.forEach(Player::relaxOneDay);
+        substitutes.forEach(Player::relaxOneDay);
+        reserve.forEach(Player::relaxOneDay);
     }
 }

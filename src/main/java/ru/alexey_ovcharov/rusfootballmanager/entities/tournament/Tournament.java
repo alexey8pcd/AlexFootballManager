@@ -1,13 +1,17 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.simulation.Simulator;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -62,6 +66,7 @@ public class Tournament {
 
     public void skipToDate(LocalDate date) {
         LOGGER.info(() -> "skipToDate " + date.format(DateTimeFormatter.ISO_DATE));
+        LocalDate prevDate = currentDate;
         if (isGameDays(currentDate)) {
             while (currentDate.isBefore(date)) {
                 if (matchIndex < schedule.getToursCount()) {
@@ -77,6 +82,12 @@ public class Tournament {
             }
         } else {
             this.currentDate = date;
+        }
+        Period between = Period.between(prevDate, currentDate);
+        long daysCount = between.get(ChronoUnit.DAYS);
+        for (int i = 0; i < daysCount; i++) {
+            List<Team> teams = league.getTeams();
+            teams.forEach(Team::relaxOneDay);
         }
     }
 

@@ -159,7 +159,7 @@ public class MatchEventGenerator {
         startPlayers.stream()
                     .map(PlayerWithCard::getPlayer)
                     .forEach(player -> {
-                        player.addFatigue(Randomization.nextDouble());
+                        player.addFatigue(Randomization.nextDoubleScaled(2));
                         player.addExperience(DEFAULT_EXPERIENCE_VALUE * experienceCoeff);
                     });
         int chance = Randomization.nextInt(THOUSAND);
@@ -167,7 +167,6 @@ public class MatchEventGenerator {
             int playerIndex = Randomization.nextInt(startPlayers.size());
             PlayerWithCard playerWithCard = startPlayers.get(playerIndex);
             Player player = playerWithCard.getPlayer();
-            player.addYellowCard();
             eventsOnMinute.add(new Event(EventType.YELLOW_CARD, minute, player, team));
             if (playerWithCard.getYellowCardsCount() == 1) {
                 removePlayer(minute, playerIndex);
@@ -268,7 +267,6 @@ public class MatchEventGenerator {
         PlayerWithCard playerFrom = startPlayers.get(playerIndex);
         Player playerFromField = playerFrom.getPlayer();
         events.add(new Event(EventType.RED_CARD, minute, playerFromField, team));
-        playerFromField.addRedCard();
         if (isGoalkeeper(playerFrom) && substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
             Optional<PlayerWithCard> reserveGKOpt = reservePlayers.stream()
                                                                   .filter(MatchEventGenerator::isGoalkeeper)

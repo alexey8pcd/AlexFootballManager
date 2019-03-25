@@ -5,12 +5,14 @@ import java.util.*;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
+import ru.alexey_ovcharov.rusfootballmanager.simulation.Calculator;
 
 /**
  * @author Alexey
@@ -20,12 +22,8 @@ public class Player {
     public static final int MIN_AGE = 16;
     public static final int MAX_YOUNG_AGE = 21;
     public static final int MAX_AGE = 36;
-    private static final int MIN_CHAR_VALUE = 20;
-    private static final int SECONDARY_DEFAULT_DISPERSE_VALUE = 10;
-    private static final int PRIMARY_DEFAULT_DISPERSE_VALUE = 15;
     private static final String SEPARATOR_SPACE = " ";
     private static final int MOOD_DEFAULT = 50;
-    private static final int MAX_CHAR_VALUE = 99;
     private static final int HUNDRED = 100;
     private static final int MAX_EXPERIENCE_VALUE = 100;
 
@@ -34,53 +32,34 @@ public class Player {
     private final String fullName;
     private final LocalPosition preferredPosition;
     private final TalentType talentType;
+    private final Map<Characteristic, Integer> chars;
 
+    /**
+     * усталось
+     */
     private float fatigue;
-    private float experiense;
+    private float experience;
     private int age;
+    /**
+     * настрой
+     */
     private int mood;
-    private int yellowCardsCount;
-    private int redCardsCount;
-    private int number;
-
-    private Status statusOfPlayer;
+    /**
+     * Тип травмы
+     */
+    @Nullable
     private InjureType injure;
-    private final EnumMap<Characteristic, Integer> chars;
+    @Nullable
     private Contract contract;
 
-    public Player(@Nonnull LocalPosition preferredPosition, int average, int age,
-                  String name, String lastName) {
+    public Player(@Nonnull LocalPosition preferredPosition, int average, int age, String name, String lastName) {
         this.age = age;
-        mood = MOOD_DEFAULT;
+        this.mood = MOOD_DEFAULT;
         this.preferredPosition = preferredPosition;
-        chars = new EnumMap<>(Characteristic.class);
-        for (Characteristic ch : CharacteristicsBuilder.getSecondaryChars(preferredPosition)) {
-            chars.put(ch, Randomization.getValueByBase(
-                    MIN_CHAR_VALUE, SECONDARY_DEFAULT_DISPERSE_VALUE));
-        }
-        Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
-        int[] values = new int[primaryChars.size()];
-        Arrays.fill(values, average);
-        int length = values.length;
-        for (int i = 0; i < length; i++) {
-            int randValue = Randomization.getValueByBase(0, PRIMARY_DEFAULT_DISPERSE_VALUE);
-            values[i] += randValue;
-            values[length - 1 - i] -= randValue;
-            if (values[i] > MAX_CHAR_VALUE) {
-                int diff = values[i] - MAX_CHAR_VALUE;
-                values[i] -= diff;
-                values[length - 1 - i] += diff;
-            }
-
-        }
-        int index = 0;
-        for (Characteristic ch : primaryChars) {
-            chars.put(ch, values[index++]);
-        }
+        this.chars = Characteristic.buildPlayerChars(preferredPosition, average);
         this.name = name;
         this.lastName = lastName;
-        fullName = name + SEPARATOR_SPACE + lastName;
-        this.statusOfPlayer = Status.READY;
+        this.fullName = name + SEPARATOR_SPACE + lastName;
         this.talentType = TalentType.getByProbability();
     }
 
@@ -88,21 +67,13 @@ public class Player {
         return talentType;
     }
 
-    public int getExperiense() {
-        return Math.round(experiense);
+    public int getExperience() {
+        return Math.round(experience);
     }
 
     public void addAge() {
         updateChars();
         ++age;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
     }
 
     public int getAge() {
@@ -117,12 +88,9 @@ public class Player {
         return lastName;
     }
 
-    public Status getStatusOfPlayer() {
-        return statusOfPlayer;
-    }
-
-    public InjureType getInjure() {
-        return injure;
+    @Nonnull
+    public Optional<InjureType> getInjure() {
+        return Optional.ofNullable(injure);
     }
 
     public int getMood() {
@@ -137,20 +105,6 @@ public class Player {
         return preferredPosition.getPositionOnField();
     }
 
-    public int getYellowCardsCount() {
-        return yellowCardsCount;
-    }
-
-    public int getRedCardsCount() {
-        return redCardsCount;
-    }
-
-    public void addYellowCard() {
-        if (yellowCardsCount++ % 4 == 3) {
-            statusOfPlayer = Status.DISQUALIFIED;
-        }
-    }
-
     public void decreaseMood(int value) {
         mood -= value;
         if (mood < 0) {
@@ -160,38 +114,21 @@ public class Player {
 
     public void increaseMood(int value) {
         mood += value;
-        if (mood > MAX_CHAR_VALUE) {
-            mood = MAX_CHAR_VALUE;
+        if (mood > Characteristic.MAX_CHAR_VALUE) {
+            mood = Characteristic.MAX_CHAR_VALUE;
         }
     }
 
     public void setInjured(InjureType injure) {
         this.injure = injure;
-        this.statusOfPlayer = Status.INJURED;
-    }
-
-    public boolean isDisqualified() {
-        return statusOfPlayer == Status.DISQUALIFIED;
-    }
-
-    public boolean isReady() {
-        return statusOfPlayer == Status.READY;
-    }
-
-    public boolean isInjured() {
-        return statusOfPlayer == Status.INJURED;
     }
 
     public void addExperience(double baseValue) {
         int ageIndex = age - MIN_AGE;
         double multiplier = 1;
-//        if (currentPosition != preferredPosition) {
-//            multiplier = 0.66;
-//        }
-        experiense += baseValue * multiplier
-                * ProgressParameters.EXPERIENCE_GAINED_BY_AGE[ageIndex];
-        if (experiense > MAX_EXPERIENCE_VALUE) {
-            experiense = 0;
+        experience += baseValue * multiplier * ProgressParameters.EXPERIENCE_GAINED_BY_AGE[ageIndex];
+        if (experience > MAX_EXPERIENCE_VALUE) {
+            experience = 0;
             int chanceIncreaseChar = Randomization.nextInt(HUNDRED);
             Object[] primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition).toArray();
             if (chanceIncreaseChar < 25) {
@@ -222,21 +159,20 @@ public class Player {
         return pairs;
     }
 
-    public void addRedCard() {
-        statusOfPlayer = Status.DISQUALIFIED;
-        ++redCardsCount;
-    }
-
     public double getFatigue() {
         return fatigue;
     }
 
     public int getStrengthReserve() {
-        return MAX_CHAR_VALUE - (int) fatigue;
+        return Characteristic.MAX_CHAR_VALUE - (int) fatigue;
     }
 
     public void addFatigue(double value) {
         this.fatigue += value * getPreferredPosition().getPositionOnField().getFatigueCoefficient();
+    }
+
+    public void relaxOneDay() {
+        this.fatigue = Math.max(0, fatigue - Calculator.calculateRelaxPerDay(age));
     }
 
     public int getAverage() {
@@ -300,14 +236,10 @@ public class Player {
         player.setAttribute("talent-type", talentType.name());
 
         addChildElement(player, document, "age", age);
-        addChildElement(player, document, "experiense", experiense);
+        addChildElement(player, document, "experience", experience);
         addChildElement(player, document, "fatigue", fatigue);
         addChildElement(player, document, "injure", injure);
-        addChildElement(player, document, "yellow-cards-count", yellowCardsCount);
-        addChildElement(player, document, "red-cards-count", redCardsCount);
         addChildElement(player, document, "mood", mood);
-        addChildElement(player, document, "status", statusOfPlayer);
-        addChildElement(player, document, "number", number);
         Element charsElement = document.createElement("characteristics");
         player.appendChild(charsElement);
         for (Map.Entry<Characteristic, Integer> entry : chars.entrySet()) {
@@ -339,8 +271,9 @@ public class Player {
         return contract == null ? 0 : contract.getFare();
     }
 
-    public Contract getContract() {
-        return contract;
+    @Nonnull
+    public Optional<Contract> getContract() {
+        return Optional.ofNullable(contract);
     }
 
     public void setContract(Contract contract) {

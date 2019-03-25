@@ -150,4 +150,7 @@ public class Calculator {
         }
     }
 
+    public static float calculateRelaxPerDay(int age) {
+        return -0.4f * age + 26;
+    }
 }

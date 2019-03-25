@@ -1,26 +1,23 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.RenderUtil;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
- *
  * @author Алексей
  */
 public class PlayersForm extends javax.swing.JDialog {
 
-    private List<Player> players = Collections.EMPTY_LIST;
     private static final String[] PLAYERS_TABLE_HEADERS = {
             "Имя/Фамилия",
             "Возраст",
@@ -31,14 +28,17 @@ public class PlayersForm extends javax.swing.JDialog {
             "Зарплата",
             "Контракт",
             "Настрой"
-        };
+    };
+
+    private transient Team team;
+    private transient List<Player> players;
 
     private void initLocation() {
         setLocationRelativeTo(null);
     }
 
     private class PlayersTableModel extends DefaultTableModel {
-        
+
 
         @Override
         public int getRowCount() {
@@ -66,20 +66,21 @@ public class PlayersForm extends javax.swing.JDialog {
                 case 2:
                     return player.getPreferredPosition().getAbreviation();
                 case 3:
-                    return player.getNumber();
+                    return team.getNumberOfPlayer(player).orElseThrow(
+                            () -> new IllegalStateException("Игрок " + player.getFullName() + " в команде "
+                                    + team.getName() + " не имеет номера"));
                 case 4:
                     return player.getAverage();
                 case 5:
-                    return player.getStatusOfPlayer().getDescription();
+                    return player.getInjure()
+                                 .map(InjureType::getDescription)
+                                 .orElse("Здоров");
                 case 6:
                     return player.getCurrentFare();
                 case 7:
-                    Contract contract = player.getContract();
-                    if (contract == null) {
-                        return "0";
-                    } else {
-                        return contract.getDuration();
-                    }
+                    return player.getContract()
+                                 .map(Contract::getDuration)
+                                 .orElse(0);
                 case 8:
                     return player.getMood();
             }
@@ -112,7 +113,7 @@ public class PlayersForm extends javax.swing.JDialog {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(CENTER);
             if (column == 4) {
@@ -156,29 +157,29 @@ public class PlayersForm extends javax.swing.JDialog {
         setSize(new java.awt.Dimension(800, 500));
 
         tablePlayers.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "Фамилия, имя", "Возраст", "Позиция", "Номер", "Общее", "Состояние", "Зарплата", "Контракт", "Настроение"
-            }
+                new Object[][]{
+                        {null, null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null, null}
+                },
+                new String[]{
+                        "Фамилия, имя", "Возраст", "Позиция", "Номер", "Общее", "Состояние", "Зарплата", "Контракт", "Настроение"
+                }
         ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
             };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+            boolean[] canEdit = new boolean[]{
+                    false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+                return canEdit[columnIndex];
             }
         });
         jScrollPane1.setViewportView(tablePlayers);
@@ -202,37 +203,38 @@ public class PlayersForm extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(bProlongContract)
-                        .addGap(18, 18, 18)
-                        .addComponent(bPlayerDescription)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bClose)))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addComponent(bProlongContract)
+                                                                      .addGap(18, 18, 18)
+                                                                      .addComponent(bPlayerDescription)
+                                                                      .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                      .addComponent(bClose)))
+                                      .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(bProlongContract)
-                    .addComponent(bPlayerDescription)
-                    .addComponent(bClose))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                                      .addGap(18, 18, 18)
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                      .addComponent(bProlongContract)
+                                                      .addComponent(bPlayerDescription)
+                                                      .addComponent(bClose))
+                                      .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+    public void setTeam(Team team) {
+        this.team = team;
+        this.players = team.getAllPlayers();
         tablePlayers.updateUI();
     }
 
