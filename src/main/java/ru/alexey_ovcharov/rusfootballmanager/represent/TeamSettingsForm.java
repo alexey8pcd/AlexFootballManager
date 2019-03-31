@@ -4,6 +4,7 @@ import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -104,10 +105,10 @@ public class TeamSettingsForm extends javax.swing.JDialog {
                 LocalPosition preferredPosition = player.getPreferredPosition();
                 String preferredPositionAbreviation = preferredPosition.getAbreviation();
                 return player.getNameAbbrAndLastName() + " " + localPositionAbbreviation
-                        + " [" + player.getAverageOnPosition(localPosition) + "]" +
+                        + " " + player.getAverageOnPosition(localPosition) +
                         " / " + preferredPositionAbreviation
-                        + " [" + player.getAverage() + "]"
-                        + "  " + getStrength(player.getStrengthReserve());
+                        + " " + player.getAverage()
+                        + " " + getStrength(player);
             }
         });
         listStartPlayers.setCellRenderer(new PlayerPositionColorRenderer(startPlayers));
@@ -570,17 +571,22 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         team.setTricks(tricks);
     }
 
-    private static String getStrength(int strengthReserve) {
-        int value = strengthReserve / 20 + 1;
-        StringBuilder stringBuilder = new StringBuilder();
-        int index = 0;
-        while (index++ < value) {
-            stringBuilder.append('+');
-        }
-        while (index++ < 6) {
-            stringBuilder.append('-');
-        }
-        return stringBuilder.toString();
+    private static String getStrength(Player player) {
+        return player.getInjure()
+                     .map(injureType -> "Травм.")
+                     .orElseGet(() -> {
+                         int strengthReserve = player.getStrengthReserve();
+                         int value = strengthReserve / 20 + 1;
+                         StringBuilder stringBuilder = new StringBuilder("[");
+                         int index = 0;
+                         while (index++ < value) {
+                             stringBuilder.append('|');
+                         }
+                         while (index++ < 6) {
+                             stringBuilder.append(' ');
+                         }
+                         return stringBuilder.append("]").toString();
+                     });
     }
 
     private static class PlayersListModel extends AbstractListModel<String> {
@@ -598,14 +604,14 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         @Override
         public String getElementAt(int index) {
             Player player = players.get(index);
-            String preferredPositionAbreviation = player.getPreferredPosition().getAbreviation();
-            return player.getNameAbbrAndLastName() + " " + preferredPositionAbreviation
-                    + " [" + player.getAverage() + "]  " + getStrength(player.getStrengthReserve());
+            String preferredPositionAbbreviation = player.getPreferredPosition().getAbreviation();
+            return player.getNameAbbrAndLastName() + " " + preferredPositionAbbreviation
+                    + " " + player.getAverage() + "  " + getStrength(player);
         }
     }
 
     private static class PlayerPositionColorRenderer extends DefaultListCellRenderer {
-        private final List<Player> players;
+        private transient final List<Player> players;
 
         PlayerPositionColorRenderer(List<Player> players) {
             this.players = players;

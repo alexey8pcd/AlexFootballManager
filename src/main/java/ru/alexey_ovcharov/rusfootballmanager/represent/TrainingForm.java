@@ -5,11 +5,37 @@
  */
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.training.Exercise;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
- *
  * @author Admin
  */
 public class TrainingForm extends javax.swing.JDialog {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonApply;
+    private javax.swing.JButton buttonDiscardExercises;
+    private javax.swing.JButton buttonSelectExercises;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel labelAvailableExercises;
+    private javax.swing.JLabel labelAvailableHours;
+    private javax.swing.JButton labelExit;
+    private javax.swing.JLabel labelSelectedExercises;
+    private javax.swing.JLabel labelWarning;
+    private javax.swing.JList<String> listAvailableExercises;
+    private javax.swing.JList<String> listSelectedExercises;
+    // End of variables declaration//GEN-END:variables
+    private Team team;
+    private final List<Exercise> availableExercises = new ArrayList<>(Arrays.asList(Exercise.values()));
+    private final List<Exercise> selectedExercises = new ArrayList<>();
+    private int availableHours;
 
     /**
      * Creates new form TrainingForm
@@ -17,6 +43,36 @@ public class TrainingForm extends javax.swing.JDialog {
     public TrainingForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+    }
+
+    public void init(Team team, int availableHours) {
+        this.availableHours = availableHours;
+        this.team = team;
+        listAvailableExercises.setModel(new AbstractListModel<String>() {
+            @Override
+            public int getSize() {
+                return availableExercises.size();
+            }
+
+            @Override
+            public String getElementAt(int index) {
+                Exercise exercise = availableExercises.get(index);
+                return exercise.view();
+            }
+        });
+        listSelectedExercises.setModel(new AbstractListModel<String>() {
+            @Override
+            public int getSize() {
+                return selectedExercises.size();
+            }
+
+            @Override
+            public String getElementAt(int index) {
+                Exercise exercise = selectedExercises.get(index);
+                return exercise.view();
+            }
+        });
+        updateUserInterface();
     }
 
     /**
@@ -49,18 +105,10 @@ public class TrainingForm extends javax.swing.JDialog {
         jScrollPane1.setViewportView(listAvailableExercises);
 
         buttonSelectExercises.setText(">");
-        buttonSelectExercises.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSelectExercisesActionPerformed(evt);
-            }
-        });
+        buttonSelectExercises.addActionListener(this::buttonSelectExercisesActionPerformed);
 
         buttonDiscardExercises.setText("<");
-        buttonDiscardExercises.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonDiscardExercisesActionPerformed(evt);
-            }
-        });
+        buttonDiscardExercises.addActionListener(this::buttonDiscardExercisesActionPerformed);
 
         jScrollPane2.setViewportView(listSelectedExercises);
 
@@ -87,97 +135,126 @@ public class TrainingForm extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(buttonSelectExercises)
-                                    .addComponent(buttonDiscardExercises)))
-                            .addComponent(labelAvailableExercises))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(labelSelectedExercises)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(labelWarning)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(buttonApply)
-                        .addGap(18, 18, 18)
-                        .addComponent(labelExit))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(labelAvailableHours)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                      .addGroup(layout.createSequentialGroup()
+                                                                                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                      .addGap(18, 18, 18)
+                                                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                                                      .addComponent(buttonSelectExercises)
+                                                                                                                      .addComponent(buttonDiscardExercises)))
+                                                                                      .addComponent(labelAvailableExercises))
+                                                                      .addGap(18, 18, 18)
+                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                      .addGroup(layout.createSequentialGroup()
+                                                                                                      .addComponent(labelSelectedExercises)
+                                                                                                      .addGap(0, 0, Short.MAX_VALUE))
+                                                                                      .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)))
+                                                      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                                                                                  .addComponent(labelWarning)
+                                                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                                  .addComponent(buttonApply)
+                                                                                                                  .addGap(18, 18, 18)
+                                                                                                                  .addComponent(labelExit))
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addComponent(labelAvailableHours)
+                                                                      .addGap(0, 0, Short.MAX_VALUE)))
+                                      .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(labelAvailableExercises)
-                    .addComponent(labelSelectedExercises))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(111, 111, 111)
-                        .addComponent(buttonSelectExercises)
-                        .addGap(20, 20, 20)
-                        .addComponent(buttonDiscardExercises)
-                        .addGap(0, 214, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2)))
-                .addGap(18, 18, 18)
-                .addComponent(labelAvailableHours)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonApply)
-                    .addComponent(labelExit)
-                    .addComponent(labelWarning))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                      .addComponent(labelAvailableExercises)
+                                                      .addComponent(labelSelectedExercises))
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addGap(111, 111, 111)
+                                                                      .addComponent(buttonSelectExercises)
+                                                                      .addGap(20, 20, 20)
+                                                                      .addComponent(buttonDiscardExercises)
+                                                                      .addGap(0, 214, Short.MAX_VALUE))
+                                                      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                                  .addComponent(jScrollPane1))
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addGap(18, 18, 18)
+                                                                      .addComponent(jScrollPane2)))
+                                      .addGap(18, 18, 18)
+                                      .addComponent(labelAvailableHours)
+                                      .addGap(18, 18, 18)
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                      .addComponent(buttonApply)
+                                                      .addComponent(labelExit)
+                                                      .addComponent(labelWarning))
+                                      .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonSelectExercisesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSelectExercisesActionPerformed
-        // TODO add your handling code here:
+        selectExercise();
     }//GEN-LAST:event_buttonSelectExercisesActionPerformed
 
+    private void selectExercise() {
+        int selectedIndex = listAvailableExercises.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < availableExercises.size()) {
+            Exercise exercise = availableExercises.get(selectedIndex);
+            if (availableHours - exercise.getHours() >= 0) {
+                availableExercises.remove(exercise);
+                selectedExercises.add(exercise);
+                availableHours -= exercise.getHours();
+                updateUserInterface();
+            }
+        }
+    }
+
+    private void updateUserInterface() {
+        listAvailableExercises.updateUI();
+        listSelectedExercises.updateUI();
+        labelAvailableHours.setText("Доступно часов: " + availableHours);
+    }
+
     private void buttonDiscardExercisesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDiscardExercisesActionPerformed
-        // TODO add your handling code here:
+        discardExercise();
     }//GEN-LAST:event_buttonDiscardExercisesActionPerformed
 
+    private void discardExercise() {
+        int selectedIndex = listSelectedExercises.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < selectedExercises.size()) {
+            Exercise exercise = selectedExercises.get(selectedIndex);
+            selectedExercises.remove(exercise);
+            availableExercises.add(exercise);
+            availableHours += exercise.getHours();
+            updateUserInterface();
+        }
+    }
+
     private void buttonApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonApplyActionPerformed
-        // TODO add your handling code here:
+        apply();
     }//GEN-LAST:event_buttonApplyActionPerformed
 
+    private void apply() {
+        if (!selectedExercises.isEmpty()) {
+            String result = team.performTraining(selectedExercises);
+            selectedExercises.clear();
+            updateUserInterface();
+            JOptionPane.showMessageDialog(this, "Тренировка выполнена" +
+                    (result.isEmpty() ? "" : ", результат:\n" + result));
+        }
+    }
+
     private void labelExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelExitActionPerformed
-        // TODO add your handling code here:
+        dispose();
     }//GEN-LAST:event_labelExitActionPerformed
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonApply;
-    private javax.swing.JButton buttonDiscardExercises;
-    private javax.swing.JButton buttonSelectExercises;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JLabel labelAvailableExercises;
-    private javax.swing.JLabel labelAvailableHours;
-    private javax.swing.JButton labelExit;
-    private javax.swing.JLabel labelSelectedExercises;
-    private javax.swing.JLabel labelWarning;
-    private javax.swing.JList<String> listAvailableExercises;
-    private javax.swing.JList<String> listSelectedExercises;
-    // End of variables declaration//GEN-END:variables
+    public int getAvailableHours() {
+        return availableHours;
+    }
 }

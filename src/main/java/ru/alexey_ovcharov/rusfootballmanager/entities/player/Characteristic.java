@@ -12,6 +12,9 @@ public enum Characteristic {
     POSITION_CHOISE("Выбор позиции"),
     REACTION("Реакция"),
     REFLECTION("Рефлексы"),
+    /**
+     * Самообладание
+     */
     COMPOSURE("Самообладание"),
     TACKLE("Отбор мяча"),
     BALANCE("Баланс при отборе"),

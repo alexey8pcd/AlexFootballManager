@@ -130,12 +130,13 @@ public class Player {
         if (experience > MAX_EXPERIENCE_VALUE) {
             experience = 0;
             int chanceIncreaseChar = Randomization.nextInt(HUNDRED);
-            Object[] primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition).toArray();
+            Characteristic[] primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition)
+                                                                  .toArray(new Characteristic[0]);
             if (chanceIncreaseChar < 25) {
-                increaseOneCharacteristic(primaryChars);
+                increaseOneRandomCharacteristic(primaryChars);
             } else if (chanceIncreaseChar < 50) {
                 for (int i = 0; i < 2; i++) {
-                    increaseOneCharacteristic(primaryChars);
+                    increaseOneRandomCharacteristic(primaryChars);
                 }
             }
         }
@@ -295,13 +296,26 @@ public class Player {
         }
     }
 
-    private void increaseOneCharacteristic(Object[] primaryChars) {
+    private Characteristic increaseOneRandomCharacteristic(Characteristic... primaryChars) {
         int randomValue = Randomization.nextInt(primaryChars.length);
-        Characteristic toIncrease = (Characteristic) primaryChars[randomValue];
+        Characteristic toIncrease = primaryChars[randomValue];
         Integer oldValue = this.chars.get(toIncrease);
         if (oldValue < 99) {
             chars.replace(toIncrease, oldValue + 1);
+            return toIncrease;
+        } else {
+            return null;
         }
+    }
+
+    public int increaseOneCharacteristic(Characteristic toIncrease) {
+        Integer oldValue = this.chars.get(toIncrease);
+        if (oldValue < 99) {
+            int nextValue = oldValue + 1;
+            chars.replace(toIncrease, nextValue);
+            return nextValue;
+        }
+        return oldValue;
     }
 
     public String getNameAbbrAndLastName() {

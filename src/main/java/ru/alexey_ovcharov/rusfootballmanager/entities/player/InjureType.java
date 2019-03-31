@@ -19,7 +19,7 @@ public enum InjureType {
     private final String description;
     private final int chance;
 
-    private InjureType(int daysRestoration, String description, int chance) {
+    InjureType(int daysRestoration, String description, int chance) {
         this.daysRestoration = daysRestoration;
         this.description = description;
         this.chance = chance;

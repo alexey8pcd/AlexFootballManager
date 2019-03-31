@@ -1,8 +1,10 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
+import javafx.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
+import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
 import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
@@ -12,6 +14,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
+import ru.alexey_ovcharov.rusfootballmanager.entities.training.Exercise;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
@@ -690,5 +693,64 @@ public class Team {
 
     public void decreaseSupport() {
         this.support = Math.max(support - 1, MIN_VALUE);
+    }
+
+    @Nonnull
+    public String performTraining(List<Exercise> exercises) {
+        StringBuilder resultBuilder = new StringBuilder();
+        exercises.stream()
+                 .map(Exercise::getCharacteristics)
+                 .forEach(characteristics -> performExercise(resultBuilder, characteristics));
+        return resultBuilder.toString();
+    }
+
+    private void performExercise(StringBuilder resultBuilder, Characteristic[] characteristics) {
+        getAllPlayers().stream()
+                       .filter(player -> !player.getInjure().isPresent())
+                       .forEach(player -> {
+                           GlobalPosition positionOnField = player.getPositionOnField();
+                           for (Characteristic characteristic : characteristics) {
+                               boolean up = checkUp(positionOnField, characteristic, player);
+                               if (up) {
+                                   int value = player.increaseOneCharacteristic(characteristic);
+                                   resultBuilder.append("У игрока ")
+                                                .append(player.getNameAbbrAndLastName())
+                                                .append(" (")
+                                                .append(player.getPreferredPosition().getDescription())
+                                                .append(") улучшился навык: ")
+                                                .append(characteristic.getName())
+                                                .append(" до ")
+                                                .append(value)
+                                                .append("\n");
+                               }
+                           }
+                           //усталось после тренировки
+                           player.addFatigue(20);
+                       });
+    }
+
+    private boolean checkUp(GlobalPosition positionOnField,
+                            Characteristic characteristic,
+                            Player player) {
+        int forwardThreshold = personal.getForwardsTrainer() * 3 + 1;
+        int midThreshold = personal.getMidfieldersTrainer() * 3 + 1;
+        int defThreshold = personal.getDefendersTrainer() * 3 + 1;
+        int gkThreshold = personal.getGoalkeepersTrainer() * 3 + 1;
+        int value = Randomization.nextInt(1000);
+        if (!CharacteristicsBuilder.getPrimaryChars(player.getPreferredPosition()).contains(characteristic)) {
+            //шанс для неосновных характеристик ниже
+            value *= 2;
+        }
+        switch (positionOnField) {
+            case FORWARD:
+                return value < forwardThreshold;
+            case MIDFIELDER:
+                return value < midThreshold;
+            case DEFENDER:
+                return value < defThreshold;
+            case GOALKEEPER:
+                return value < gkThreshold;
+        }
+        return false;
     }
 }

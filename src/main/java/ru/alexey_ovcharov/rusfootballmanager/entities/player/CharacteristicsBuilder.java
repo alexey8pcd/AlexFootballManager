@@ -9,7 +9,11 @@ import static ru.alexey_ovcharov.rusfootballmanager.entities.player.Characterist
 /**
  * @author Alexey
  */
-public class CharacteristicsBuilder {
+public final class CharacteristicsBuilder {
+
+    private CharacteristicsBuilder() {
+
+    }
 
     private static final EnumSet<Characteristic> OF_PRIMARY = EnumSet.of(
             SHOT_ACCURACY, SHOT_POWER, SPEED, ACCELERATION, DRIBBLING, BALL_CONTROL, INTELLIGENCE, REACTION);

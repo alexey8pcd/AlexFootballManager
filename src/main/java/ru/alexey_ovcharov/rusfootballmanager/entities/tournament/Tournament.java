@@ -130,23 +130,21 @@ public class Tournament {
 
     public void simulateTour(LocalDate matchDate, Match matchResultExclude) {
         LOGGER.info(() -> "Start simulateTour, matchIndex = " + matchIndex);
-        List<Opponents> pairs = getTourTeams();
         tournamentTable.updateResults(matchResultExclude);
         updateSupport(matchResultExclude);
-        if (!pairs.isEmpty()) {
-            for (Opponents pair : pairs) {
-                Team host = pair.getHost();
-                Team guest = pair.getGuest();
-                if (!matchResultExclude.withTeam(host) && !matchResultExclude.withTeam(guest)) {
-                    Match matchResult = Simulator.simulate(host, guest, matchDate);
-                    tournamentTable.updateResults(matchResult);
-                    if (!matchResult.isDraw()) {
-                        updateSupport(matchResult);
-                    }
+        List<Opponents> pairs = getTourTeams();
+        for (Opponents pair : pairs) {
+            Team host = pair.getHost();
+            Team guest = pair.getGuest();
+            if (!matchResultExclude.withTeam(host) && !matchResultExclude.withTeam(guest)) {
+                Match matchResult = Simulator.simulate(host, guest, matchDate);
+                tournamentTable.updateResults(matchResult);
+                if (!matchResult.isDraw()) {
+                    updateSupport(matchResult);
                 }
             }
-            ++matchIndex;
         }
+        ++matchIndex;
         LOGGER.info(() -> "Finish simulateTour, next matchIndex = " + matchIndex);
     }
 

@@ -20,7 +20,9 @@ import java.util.logging.Logger;
 public class ManageForm extends javax.swing.JDialog {
 
     private static final Logger LOGGER = Logger.getLogger(ManageForm.class.getName());
+    private static final int ONE_EVENT_TRAINING_HOURS = 10;
     private transient User user;
+    private int availableHours = ONE_EVENT_TRAINING_HOURS;
 
     public ManageForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -96,6 +98,7 @@ public class ManageForm extends javax.swing.JDialog {
             LOGGER.info("game days");
             Optional<Match> matchResult = getMatchResult(tournament, currentDate, team);
             if (matchResult.isPresent()) {
+                availableHours = ONE_EVENT_TRAINING_HOURS;
                 tournament.simulateTour(currentDate, matchResult.get());
             } else {
                 return;
@@ -103,6 +106,7 @@ public class ManageForm extends javax.swing.JDialog {
         } else {
             LOGGER.info("holidays");
             user.getSettings().simulateTransfers();
+            availableHours = ONE_EVENT_TRAINING_HOURS;
         }
         Optional<Tournament.Event> eventOpt = tournament.nextEvent();
         eventOpt.ifPresent(event -> user.setCurrentDate(event.getLocalDate()));
@@ -363,6 +367,8 @@ public class ManageForm extends javax.swing.JDialog {
         bTournamentTable.setText("Турнирная таблица");
         bTournamentTable.addActionListener(this::bTournamentTableActionPerformed);
 
+        bTraining.addActionListener(this::bTrainingActionPerformed);
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -426,6 +432,18 @@ public class ManageForm extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bTrainingActionPerformed(ActionEvent evt) {
+        showTrainingForm();
+    }
+
+    private void showTrainingForm() {
+        TrainingForm trainingForm = new TrainingForm(null, true);
+        trainingForm.setLocationRelativeTo(this);
+        trainingForm.init(user.getTeam(), availableHours);
+        trainingForm.setVisible(true);
+        availableHours = trainingForm.getAvailableHours();
+    }
 
     private void bTeamSettingsActionPerformed(ActionEvent evt) {
         showTeamSettingsForm();
