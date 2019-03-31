@@ -63,7 +63,7 @@ public class CareerSettings {
         if (tournaments != null && !tournaments.isEmpty()) {
             for (Tournament tournament : tournaments) {
                 if (tournament != exclude) {
-                    tournament.skipToDate(date);
+                    tournament.nextEvent();
                 }
             }
         }

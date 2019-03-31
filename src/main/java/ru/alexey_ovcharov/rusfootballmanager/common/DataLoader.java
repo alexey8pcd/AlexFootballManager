@@ -31,6 +31,9 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
  */
 public class DataLoader {
 
+    private static final int DEFAULT_SUPPORT = 40;
+    private static final int DEFAULT_TEAMWORK = 35;
+
     private DataLoader() {
 
     }
@@ -83,6 +86,8 @@ public class DataLoader {
                 String sponsorStatus = teamElement.getAttribute("sponsor-level");
                 Team team = new Team(teamName + " (" + city + ")", budget);
                 team.setSponsor(new Sponsor(sponsorName, Status.valueOf(sponsorStatus)));
+                team.setSupport(DEFAULT_SUPPORT);
+                team.setTeamwork(DEFAULT_TEAMWORK);
                 league.addTeam(team);
                 List<Player> players = createPlayers(masteryLevel);
                 players.stream()

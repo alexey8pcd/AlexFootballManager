@@ -24,7 +24,13 @@ public class Table {
     }
 
     public int getPlaceNumberOfTeam(@Nonnull Team team) {
-        return placeInfoList.indexOf(links.get(team)) + 1;
+        PlaceInfo placeInfo = links.get(team);
+        int indexOf = placeInfoList.indexOf(placeInfo);
+        if (indexOf == -1) {
+            return 0;
+        } else {
+            return indexOf + 1;
+        }
     }
 
     public PlaceInfo getPlaceInfoOfTeam(@Nonnull Team team) {
@@ -72,5 +78,9 @@ public class Table {
     @Nonnull
     public List<PlaceInfo> getPlaceInfoList() {
         return placeInfoList;
+    }
+
+    public int getTeamsCount() {
+        return links.size();
     }
 }

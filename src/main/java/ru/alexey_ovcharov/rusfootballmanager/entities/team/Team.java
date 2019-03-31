@@ -35,6 +35,8 @@ public class Team {
     private static final int SUPPORT_LEVEL_DEFAULT = 40;
     private static final int BUDGET_LEVEL_OFFSET = 18;
     private static final int TEAMWORK_DEFAULT = 20;
+    private static final int MAX_VALUE = 99;
+    private static final int MIN_VALUE = 1;
     private List<Player> startPlayers;
     private List<Player> substitutes;
     private List<Player> reserve;
@@ -680,5 +682,13 @@ public class Team {
         startPlayers.forEach(Player::relaxOneDay);
         substitutes.forEach(Player::relaxOneDay);
         reserve.forEach(Player::relaxOneDay);
+    }
+
+    public void increaseSupport() {
+        this.support = Math.min(support + 1, MAX_VALUE);
+    }
+
+    public void decreaseSupport() {
+        this.support = Math.max(support - 1, MIN_VALUE);
     }
 }

@@ -2,13 +2,16 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Table;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -30,25 +33,42 @@ public class ManageForm extends javax.swing.JDialog {
         lSeason.setText(user.getSeason());
         lYear.setText(user.getCurrentDate().format(DateTimeFormatter.ISO_DATE));
         Team team = user.getTeam();
-        pbSupportLevel.setStringPainted(true);
-        pbSupportLevel.setValue(team.getSupport());
-        pbSupportLevel.setString(String.valueOf(team.getSupport()));
+        progressBarSupportLevel.setStringPainted(true);
+        progressBarSupportLevel.setValue(team.getSupport());
+        progressBarSupportLevel.setString(String.valueOf(team.getSupport()));
 
-        pbTeamwork.setStringPainted(true);
-        pbTeamwork.setValue(team.getTeamwork());
-        pbTeamwork.setString(String.valueOf(team.getTeamwork()));
-
-        updateLabels(user.getCurrentDate(), user.getTeam());
+        progressBarTeamwork.setStringPainted(true);
+        progressBarTeamwork.setValue(team.getTeamwork());
+        progressBarTeamwork.setString(String.valueOf(team.getTeamwork()));
+        Tournament tournament = user.getTournament();
+        tournament.createSchedule();
+        updateUserInterface(user.getCurrentDate(), user.getTeam());
     }
 
-    private void updateLabels(LocalDate nextDate, Team team) {
+    private void updateUserInterface(LocalDate nextDate, Team team) {
         Tournament tournament = user.getTournament();
 
         lBudget.setText("Бюджет: " + team.getBudget());
         lTrainerLevel.setText("Опыт тренера: " + user.getExperience());
+        lPlayedGames.setText("Сыграно: " + (tournament.getMatchIndex() - 1) + "/" + tournament.getToursCount());
+        Table tournamentTable = tournament.getTournamentTable();
+        if (tournamentTable != null) {
+            int placeNumberOfTeam = tournamentTable.getPlaceNumberOfTeam(team);
+            if (placeNumberOfTeam != 0) {
+                lTournamentPlace.setText("Место: " + placeNumberOfTeam + "/" + tournamentTable.getTeamsCount());
+            } else {
+                lTournamentPlace.setText("Место: ?/" + tournamentTable.getTeamsCount());
+            }
+        } else {
+            lTournamentPlace.setText("");
+        }
         lSeason.setText(user.getSeason());
         LocalDate currentDate = user.getCurrentDate();
         lYear.setText(currentDate.format(DateTimeFormatter.ISO_DATE));
+        progressBarSupportLevel.setValue(team.getSupport());
+        progressBarSupportLevel.setString(String.valueOf(team.getSupport()));
+        progressBarTeamwork.setValue(team.getTeamwork());
+        progressBarTeamwork.setString(String.valueOf(team.getTeamwork()));
 
         if (tournament.isGameDays(nextDate)) {
             bStartMatch.setText("Начать матч");
@@ -56,36 +76,53 @@ public class ManageForm extends javax.swing.JDialog {
             Team opponent = opponents.getOpponentOf(team);
             lNextMatchInfo.setText("Следующий матч с командой: " + opponent.getName());
         } else {
-            lNextMatchInfo.setText("Период трансферов");
             bStartMatch.setText("Далее");
+            if (tournament.isEnd()) {
+                bStartMatch.setEnabled(false);
+                lNextMatchInfo.setText("Турнир завершен");
+            } else {
+                lNextMatchInfo.setText("Период трансферов");
+            }
         }
     }
 
     private void nextEvent() {
         LOGGER.info("nextEvent");
         Tournament tournament = user.getTournament();
-        tournament.createSchedule();
-
-        LocalDate currentDate = tournament.getCurrentDate();
+        LocalDate currentDate = user.getCurrentDate();
         Team team = user.getTeam();
 
         if (tournament.isGameDays(currentDate)) {
             LOGGER.info("game days");
-            StartMatchForm startMatchForm = new StartMatchForm(null, true);
-            Opponents opponents = tournament.getTeamWithPlaysNext(team);
-            startMatchForm.setData(opponents, currentDate, tournament);
-            startMatchForm.setLocationRelativeTo(this);
-            startMatchForm.setVisible(true);
-            Match matchResult = startMatchForm.getMatchResult();
-            tournament.simulateTour(currentDate, matchResult);
+            Optional<Match> matchResult = getMatchResult(tournament, currentDate, team);
+            if (matchResult.isPresent()) {
+                tournament.simulateTour(currentDate, matchResult.get());
+            } else {
+                return;
+            }
         } else {
             LOGGER.info("holidays");
             user.getSettings().simulateTransfers();
         }
+        Optional<Tournament.Event> eventOpt = tournament.nextEvent();
+        eventOpt.ifPresent(event -> user.setCurrentDate(event.getLocalDate()));
+        if (tournament.isEnd()) {
+            Table tournamentTable = tournament.getTournamentTable();
+            if (tournamentTable != null) {
+                JOptionPane.showMessageDialog(this, "Турнир завершен, ваша команда заняла место: "
+                        + tournamentTable.getPlaceNumberOfTeam(team));
+            }
+        }
+        updateUserInterface(user.getCurrentDate(), team);
+    }
 
-        tournament.skipToDate(user.getCurrentDate().plusDays(4));
-        user.setCurrentDate(tournament.getCurrentDate());
-        updateLabels(tournament.getCurrentDate(), team);
+    private Optional<Match> getMatchResult(Tournament tournament, LocalDate currentDate, Team team) {
+        StartMatchForm startMatchForm = new StartMatchForm(null, true);
+        Opponents opponents = tournament.getTeamWithPlaysNext(team);
+        startMatchForm.setData(opponents, currentDate, tournament);
+        startMatchForm.setLocationRelativeTo(this);
+        startMatchForm.setVisible(true);
+        return startMatchForm.getMatchResult();
     }
 
     @SuppressWarnings("unchecked")
@@ -112,9 +149,9 @@ public class ManageForm extends javax.swing.JDialog {
         bClearPost = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        pbSupportLevel = new javax.swing.JProgressBar();
+        progressBarSupportLevel = new javax.swing.JProgressBar();
         jLabel2 = new javax.swing.JLabel();
-        pbTeamwork = new javax.swing.JProgressBar();
+        progressBarTeamwork = new javax.swing.JProgressBar();
         lBudget = new javax.swing.JLabel();
         lTrainerLevel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
@@ -263,11 +300,11 @@ public class ManageForm extends javax.swing.JDialog {
 
         jLabel1.setText("Поддержка болельшиков");
 
-        pbSupportLevel.setValue(50);
+        progressBarSupportLevel.setValue(50);
 
         jLabel2.setText("Сыгранность команды");
 
-        pbTeamwork.setValue(50);
+        progressBarTeamwork.setValue(50);
 
         lBudget.setText("Бюджет");
 
@@ -280,7 +317,7 @@ public class ManageForm extends javax.swing.JDialog {
                              .addGroup(jPanel3Layout.createSequentialGroup()
                                                     .addContainerGap()
                                                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(pbSupportLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                                                                           .addComponent(progressBarSupportLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
                                                                            .addGroup(jPanel3Layout.createSequentialGroup()
                                                                                                   .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                                                                          .addComponent(jLabel1)
@@ -288,7 +325,7 @@ public class ManageForm extends javax.swing.JDialog {
                                                                                                                          .addComponent(lBudget)
                                                                                                                          .addComponent(lTrainerLevel))
                                                                                                   .addGap(0, 0, Short.MAX_VALUE))
-                                                                           .addComponent(pbTeamwork, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                                           .addComponent(progressBarTeamwork, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                                     .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -297,11 +334,11 @@ public class ManageForm extends javax.swing.JDialog {
                                                     .addContainerGap()
                                                     .addComponent(jLabel1)
                                                     .addGap(18, 18, 18)
-                                                    .addComponent(pbSupportLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(progressBarSupportLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                     .addGap(18, 18, 18)
                                                     .addComponent(jLabel2)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                    .addComponent(pbTeamwork, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(progressBarTeamwork, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                     .addComponent(lBudget)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
@@ -474,8 +511,8 @@ public class ManageForm extends javax.swing.JDialog {
     private javax.swing.JLabel lYear;
     private javax.swing.JPanel paneMail;
     private javax.swing.JPanel paneNextMatch;
-    private javax.swing.JProgressBar pbSupportLevel;
-    private javax.swing.JProgressBar pbTeamwork;
+    private javax.swing.JProgressBar progressBarSupportLevel;
+    private javax.swing.JProgressBar progressBarTeamwork;
     private javax.swing.JTextArea taDescriptions;
     // End of variables declaration//GEN-END:variables
 

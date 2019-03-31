@@ -217,12 +217,21 @@ public class MatchEventGenerator {
                 List<Player> assistanceCandidates = getPlayerGroupAssist().stream()
                                                                           .filter(player -> player != whoScored)
                                                                           .collect(Collectors.toList());
-                Player assistant = assistanceCandidates.get(Randomization.nextInt(assistanceCandidates.size()));
+                if (!assistanceCandidates.isEmpty()) {
+                    assistanceCandidates = startPlayers.stream()
+                                                       .map(PlayerWithCard::getPlayer)
+                                                       .filter(player -> player != whoScored)
+                                                       .collect(Collectors.toList());
+                }
+                int size = assistanceCandidates.size();
+                int index = Randomization.nextInt(size);
+                Player assistant = assistanceCandidates.get(index);
                 events.add(new Event(EventType.ASSIST, minute, assistant, team));
             }
         }
     }
 
+    @Nonnull
     private List<Player> getPlayerGroupAssist() {
         List<Player> playersGroup;
         int playersGroupChance = Randomization.nextInt(HUNDRED);
@@ -238,6 +247,7 @@ public class MatchEventGenerator {
         return playersGroup;
     }
 
+    @Nonnull
     private List<Player> getPlayerGroupScored() {
         int playersGroupChance = Randomization.nextInt(HUNDRED);
         List<Player> playersGroup;
@@ -277,15 +287,15 @@ public class MatchEventGenerator {
     }
 
     @Nonnull
-    private List<Player> getPlayerGroup(@Nonnull List<PlayerWithCard> playersWithCard,
-                                        @Nonnull GlobalPosition positionOnField) {
+    private static List<Player> getPlayerGroup(@Nonnull List<PlayerWithCard> playersWithCard,
+                                               @Nonnull GlobalPosition positionOnField) {
         return playersWithCard.stream()
                               .filter(playerWithCard -> playerWithCard.getPositionOnField() == positionOnField)
                               .map(PlayerWithCard::getPlayer)
                               .collect(Collectors.toList());
     }
 
-    private PlayerWithCard findMostTired(List<PlayerWithCard> homeTeamPlayers) {
+    private static PlayerWithCard findMostTired(List<PlayerWithCard> homeTeamPlayers) {
         PlayerWithCard player = homeTeamPlayers.get(0);
         double maxFatigue = player.getPlayer().getFatigue();
         for (PlayerWithCard homeTeamPlayer : homeTeamPlayers) {
@@ -299,7 +309,7 @@ public class MatchEventGenerator {
     }
 
     @Nonnull
-    private PlayerWithCard findSamePlayer(List<PlayerWithCard> reserve, Player player) {
+    private static PlayerWithCard findSamePlayer(List<PlayerWithCard> reserve, Player player) {
         GlobalPosition[] priority;
         LocalPosition currentPosition = player.getPreferredPosition();
         GlobalPosition positionOnField = currentPosition.getPositionOnField();

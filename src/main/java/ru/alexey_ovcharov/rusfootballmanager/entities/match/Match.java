@@ -135,4 +135,30 @@ public class Match {
                 + hostTeamGoalsCount +
                 " : " + guestTeamGoalsCount;
     }
+
+    public boolean isDraw() {
+        return hostTeamGoalsCount == guestTeamGoalsCount;
+    }
+
+    @Nonnull
+    public Optional<Team> getWinner() {
+        if (hostTeamGoalsCount > guestTeamGoalsCount) {
+            return Optional.ofNullable(host);
+        } else if (guestTeamGoalsCount > hostTeamGoalsCount) {
+            return Optional.ofNullable(guest);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Nonnull
+    public Optional<Team> getLooser() {
+        if (hostTeamGoalsCount < guestTeamGoalsCount) {
+            return Optional.ofNullable(host);
+        } else if (guestTeamGoalsCount < hostTeamGoalsCount) {
+            return Optional.ofNullable(guest);
+        } else {
+            return Optional.empty();
+        }
+    }
 }

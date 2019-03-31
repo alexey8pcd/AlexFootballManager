@@ -12,10 +12,13 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.*;
 import ru.alexey_ovcharov.rusfootballmanager.simulation.Simulator;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -330,10 +333,12 @@ public class StartMatchForm extends javax.swing.JDialog {
         listMatchEvents.setVisible(true);
         listMatchEvents.updateUI();
         buttonCalculateResult.setEnabled(false);
+        buttonExit.setText("Далее");
     }
 
-    public Match getMatchResult() {
-        return match;
+    @Nonnull
+    public Optional<Match> getMatchResult() {
+        return Optional.ofNullable(match);
     }
 
     private void buttonExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonExitActionPerformed

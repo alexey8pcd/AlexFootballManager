@@ -35,8 +35,8 @@ public class Schedule {
      * @param loopsCount        число кругов
      * @param teams             список команд-участников
      */
-    public Schedule(LocalDate startDate, LocalDate endDate, LocalDate holidaysStartDate,
-                    LocalDate holidaysEndDate, int loopsCount, List<Team> teams) {
+    public Schedule(LocalDate startDate, LocalDate endDate, LocalDate holidaysStartDate, LocalDate holidaysEndDate,
+                    int loopsCount, List<Team> teams) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.holidaysStartDate = holidaysStartDate;
@@ -109,7 +109,7 @@ public class Schedule {
         for (List<Opponents> opponents : games) {
             if (tourDate.isAfter(holidaysStart) && tourDate.isBefore(holidaysEnd)) {
                 if (tourDate.isBefore(middleOfHolidays)) {
-                    tourDate = holidaysStart;
+                    tourDate = holidaysStart.minusDays(1);
                     result.put(tourDate, opponents);
                     tourDate = holidaysEnd;
                 } else {
