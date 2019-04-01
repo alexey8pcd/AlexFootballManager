@@ -1,12 +1,13 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import java.util.List;
+
 import javafx.util.Pair;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.ProgressParameters;
 
 /**
- *
  * @author Алексей
  */
 public class AboutPlayerForm extends javax.swing.JDialog {
@@ -30,7 +31,9 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         builder.append("Возраст: ").append(age).append("\n");
         builder.append("Общее: ").append(avg).append("\n");
         builder.append("Позиция: ").append(player.getPreferredPosition().getDescription()).append("\n");
-        builder.append("Контракт: ").append(player.getContract()).append("\n");
+        builder.append("Контракт: ").append(player.getContract()
+                                                  .map(Contract::toString)
+                                                  .orElse("")).append("\n");
         builder.append("---------- Основные навыки ---------\n");
         List<Pair<String, Integer>> primaryChars = player.getPrimaryChars();
         for (Pair<String, Integer> primaryChar : primaryChars) {
@@ -91,24 +94,24 @@ public class AboutPlayerForm extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(bClose)
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                      .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                                                  .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                  .addComponent(bClose)
+                                                                                  .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(bClose)
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                                      .addGap(18, 18, 18)
+                                      .addComponent(bClose)
+                                      .addContainerGap())
         );
 
         pack();

@@ -12,7 +12,7 @@ public enum GlobalPosition {
     FORWARD(0.6, "НАП", 0, Color.RED),
     MIDFIELDER(0.9, "ПЗЩ", 1, Color.CYAN),
     DEFENDER(0.5, "ЗАЩ", 2, Color.GREEN),
-    GOALKEEPER(0.1, "ВР", 3, Color.ORANGE);
+    GOALKEEPER(0.2, "ВР", 3, Color.ORANGE);
 
     private final double fatigueCoefficient;
     private final String abreviation;

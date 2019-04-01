@@ -36,7 +36,7 @@ public class MatchEventGenerator {
     private static final int PREFERRED_TIME_TO_CHANGE_PLAYER = 60;
     private static final int CHANCE_TO_ASSIST_BY_MIDFIELDER = 75;
     private static final int CHANCE_TO_ASSIST_BY_DEFENDER = 20;
-    private static final double DEFAULT_EXPERIENCE_VALUE = 0.0111;
+    private static final double DEFAULT_EXPERIENCE_VALUE = 1.1;
 
     private static final GlobalPosition[] GOALKEEPER_PRIORITY = new GlobalPosition[]{
             GlobalPosition.GOALKEEPER,

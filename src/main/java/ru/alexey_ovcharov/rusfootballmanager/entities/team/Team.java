@@ -1,6 +1,5 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
-import javafx.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
@@ -22,7 +21,8 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
 import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Alexey
@@ -87,6 +87,14 @@ public class Team {
 
     private static boolean isGoalkeeper(Player player) {
         return player.getPreferredPosition() == LocalPosition.GOALKEEPER;
+    }
+
+    private static boolean playerHealthy(Player player) {
+        return !player.getInjure().isPresent();
+    }
+
+    private static boolean notGoalkeeper(Player player) {
+        return player.getPositionOnField() != GlobalPosition.GOALKEEPER;
     }
 
 
@@ -380,7 +388,7 @@ public class Team {
         reserve.add(player);
     }
 
-    private void swapLikeRole(List<Player> players, int i, LocalPosition localPosition) {
+    private static void swapLikeRole(List<Player> players, int i, LocalPosition localPosition) {
         //находим первого подходящего игрока по амплуа
         for (int j = i; j < players.size(); j++) {
             Player player2 = players.get(j);
@@ -391,7 +399,7 @@ public class Team {
         }
     }
 
-    private boolean swapLikePosition(List<Player> players, int startIndex, LocalPosition localPosition) {
+    private static boolean swapLikePosition(List<Player> players, int startIndex, LocalPosition localPosition) {
         boolean isSwap = false;
         //находим первого подходящего игрока на эту позицию
         for (int j = startIndex + 1; j < players.size(); j++) {
@@ -600,7 +608,7 @@ public class Team {
     private List<Player> getPlayers(GlobalPosition position) {
         return startPlayers.stream()
                            .filter(player -> (player.getPreferredPosition().getPositionOnField() == position))
-                           .collect(Collectors.toList());
+                           .collect(toList());
     }
 
     public boolean addPlayerFromSportSchool(Player player) {
@@ -698,30 +706,27 @@ public class Team {
     @Nonnull
     public String performTraining(List<Exercise> exercises) {
         StringBuilder resultBuilder = new StringBuilder();
-        exercises.stream()
-                 .map(Exercise::getCharacteristics)
-                 .forEach(characteristics -> performExercise(resultBuilder, characteristics));
+        for (Exercise exercise : exercises) {
+            if (exercise == Exercise.GOALKEEPER_TRAINING) {
+                performGoalkeeperExercises(resultBuilder, exercise.getCharacteristics());
+            } else {
+                performOtherExercises(resultBuilder, exercise.getCharacteristics());
+            }
+        }
         return resultBuilder.toString();
     }
 
-    private void performExercise(StringBuilder resultBuilder, Characteristic[] characteristics) {
+    private void performGoalkeeperExercises(StringBuilder resultBuilder, Characteristic[] characteristics) {
         getAllPlayers().stream()
-                       .filter(player -> !player.getInjure().isPresent())
+                       .filter(Team::playerHealthy)
+                       .filter(Team::isGoalkeeper)
                        .forEach(player -> {
                            GlobalPosition positionOnField = player.getPositionOnField();
                            for (Characteristic characteristic : characteristics) {
                                boolean up = checkUp(positionOnField, characteristic, player);
                                if (up) {
                                    int value = player.increaseOneCharacteristic(characteristic);
-                                   resultBuilder.append("У игрока ")
-                                                .append(player.getNameAbbrAndLastName())
-                                                .append(" (")
-                                                .append(player.getPreferredPosition().getDescription())
-                                                .append(") улучшился навык: ")
-                                                .append(characteristic.getName())
-                                                .append(" до ")
-                                                .append(value)
-                                                .append("\n");
+                                   printImprovement(resultBuilder, player, characteristic, value);
                                }
                            }
                            //усталось после тренировки
@@ -729,13 +734,44 @@ public class Team {
                        });
     }
 
+    private void performOtherExercises(StringBuilder resultBuilder, Characteristic[] characteristics) {
+        getAllPlayers().stream()
+                       .filter(Team::playerHealthy)
+                       .filter(Team::notGoalkeeper)
+                       .forEach(player -> {
+                           GlobalPosition positionOnField = player.getPositionOnField();
+                           for (Characteristic characteristic : characteristics) {
+                               boolean up = checkUp(positionOnField, characteristic, player);
+                               if (up) {
+                                   int value = player.increaseOneCharacteristic(characteristic);
+                                   printImprovement(resultBuilder, player, characteristic, value);
+                               }
+                           }
+                           //усталось после тренировки
+                           player.addFatigue(20);
+                       });
+    }
+
+    private static void printImprovement(StringBuilder resultBuilder, Player player, Characteristic characteristic, int value) {
+        resultBuilder.append("У игрока ")
+                     .append(player.getNameAbbrAndLastName())
+                     .append(" (")
+                     .append(player.getPreferredPosition().getDescription())
+                     .append(") улучшился навык: ")
+                     .append(characteristic.getName())
+                     .append(" до ")
+                     .append(value)
+                     .append("\n");
+    }
+
     private boolean checkUp(GlobalPosition positionOnField,
                             Characteristic characteristic,
                             Player player) {
-        int forwardThreshold = personal.getForwardsTrainer() * 3 + 1;
-        int midThreshold = personal.getMidfieldersTrainer() * 3 + 1;
-        int defThreshold = personal.getDefendersTrainer() * 3 + 1;
-        int gkThreshold = personal.getGoalkeepersTrainer() * 3 + 1;
+        int baseValue = 5;
+        int forwardThreshold = personal.getForwardsTrainer() * 3 + baseValue;
+        int midThreshold = personal.getMidfieldersTrainer() * 3 + baseValue;
+        int defThreshold = personal.getDefendersTrainer() * 3 + baseValue;
+        int gkThreshold = personal.getGoalkeepersTrainer() * 3 + baseValue;
         int value = Randomization.nextInt(1000);
         if (!CharacteristicsBuilder.getPrimaryChars(player.getPreferredPosition()).contains(characteristic)) {
             //шанс для неосновных характеристик ниже
