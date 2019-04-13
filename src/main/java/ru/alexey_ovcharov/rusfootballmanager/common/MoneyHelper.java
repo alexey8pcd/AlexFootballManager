@@ -5,15 +5,17 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 /**
  * @author Alexey
  */
-public class CostCalculator {
+public class MoneyHelper {
 
-    private static final int PAY_AVG_FACTOR = 50;
+    private static final int PAY_AVG_FACTOR = 20;
     private static final int PAY_AGE_FACTOR = 3;
     private static final double B = 0.2;
     private static final int A = 20;
     private static final int COST_AVG_BASE_VALUE = 7;
     private static final int COST_AVG_FACTOR = 120;
     private static final double COST_AVG_POWER_COEFF = 2.15;
+    private static final long TICKETS_COEFF = 400;
+    private static final int BASE_TICKETS = 10;
 
     public static int calculatePayForMatch(Player player) {
         return calculatePayForMatch(player.getAge(), player.getAverage());
@@ -32,7 +34,11 @@ public class CostCalculator {
         return (int) Math.round(top / down);
     }
 
-    private CostCalculator() {
+    public static long calculateMoneyFromTickets(int stadiumManager, int support) {
+        return TICKETS_COEFF * (BASE_TICKETS + stadiumManager) * support;
+    }
+
+    private MoneyHelper() {
 
     }
 

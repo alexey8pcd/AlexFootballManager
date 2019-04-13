@@ -1,5 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
+import ru.alexey_ovcharov.rusfootballmanager.common.LowBalanceException;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.simulation.Simulator;
@@ -142,10 +143,37 @@ public class Tournament {
                 if (!matchResult.isDraw()) {
                     updateSupport(matchResult);
                 }
+                moneyEventsHost(matchDate, host);
+
+                moneyEventsGuest(matchDate, guest);
             }
         }
+        Team host = matchResultExclude.getHost();
+        moneyEventsHost(matchDate, host);
+
+        Team guest = matchResultExclude.getGuest();
+        moneyEventsGuest(matchDate, guest);
         ++matchIndex;
         LOGGER.info(() -> "Finish simulateTour, next matchIndex = " + matchIndex);
+    }
+
+    private static void moneyEventsGuest(LocalDate matchDate, Team guest) {
+        moneyEvents(matchDate, guest);
+    }
+
+    private static void moneyEventsHost(LocalDate matchDate, Team host) {
+        host.addMoneyFromTickets(matchDate);
+        moneyEvents(matchDate, host);
+    }
+
+    private static void moneyEvents(LocalDate matchDate, Team host) {
+        host.getMoneyFromSponsor(matchDate);
+        host.repayLoad(matchDate);
+        try {
+            host.paySalaryPerMatch(matchDate);
+        } catch (LowBalanceException e) {
+            host.addCredit(matchDate);
+        }
     }
 
     private static void updateSupport(@Nonnull Match matchResult) {

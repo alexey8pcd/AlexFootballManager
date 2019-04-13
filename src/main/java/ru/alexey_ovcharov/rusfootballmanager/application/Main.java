@@ -10,6 +10,7 @@ import ru.alexey_ovcharov.rusfootballmanager.represent.StartCareerForm;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Main {
 
@@ -22,7 +23,8 @@ public class Main {
             if (user == null) {
                 return;
             }
-            if (user.getSettings().isNewCareer()) {
+            CareerSettings userCareerSettings = user.getSettings();
+            if (userCareerSettings.isNewCareer()) {
                 CareerSettings careerSettings = new CareerSettings();
                 user.setSettings(careerSettings);
                 List<League> leagues = careerSettings.getLeagues();
@@ -30,6 +32,7 @@ public class Main {
                 startCareerForm.setData(leagues);
                 startCareerForm.setVisible(true);
                 careerSettings.createTournaments(user.getCurrentDate());
+                careerSettings.createTransfers();
                 Team team = startCareerForm.getChoosenTeam();
                 user.setTeam(team);
             }

@@ -2,13 +2,16 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
+import ru.alexey_ovcharov.rusfootballmanager.common.LowBalanceException;
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
 import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
+import ru.alexey_ovcharov.rusfootballmanager.entities.Credit;
+import ru.alexey_ovcharov.rusfootballmanager.entities.MoneyDay;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
@@ -20,6 +23,8 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
 
 import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.util.stream.Collectors.*;
@@ -31,6 +36,7 @@ public class Team {
 
     public static final int MAX_PLAYERS_COUNT = 33;
     public static final int RECOMMENDED_PLAYERS_COUNT = 25;
+    public static final long STABLE_BUDGET_VALUE = 150_000;
 
     private static final int START_PLAYERS_COUNT = 11;
     private static final int SUBSTITUTES_COUNT = 7;
@@ -40,16 +46,19 @@ public class Team {
     private static final int TEAMWORK_DEFAULT = 20;
     private static final int MAX_VALUE = 99;
     private static final int MIN_VALUE = 1;
-    private List<Player> startPlayers;
-    private List<Player> substitutes;
-    private List<Player> reserve;
-    private final Set<Player> playersOnTransfer;
-    private final Set<Player> playersOnRent;
-    private final Set<Player> juniors;
-    private final Personal personal;
-    private final NavigableMap<Integer, Player> playersNumbers;
-    private final String name;
 
+    private final Set<Player> playersOnTransfer = new HashSet<>();
+    private final Set<Player> playersOnRent = new HashSet<>();
+    private final Set<Player> juniors = new HashSet<>();
+    private final Personal personal;
+    private final NavigableMap<Integer, Player> playersNumbers = new TreeMap<>();
+    private final String name;
+    private final Map<LocalDate, MoneyDay> moneyLog = new LinkedHashMap<>();
+    private final Set<Credit> credits = new HashSet<>();
+
+    private List<Player> startPlayers = new ArrayList<>();
+    private List<Player> substitutes = new ArrayList<>();
+    private List<Player> reserve = new ArrayList<>();
     private Player goalkeeper;
     private Player playerPenaltyScore;
     private Player playerFreeKickScore;
@@ -69,20 +78,13 @@ public class Team {
         this.name = name;
         this.budget = budget;
         this.tricks = EnumSet.noneOf(Trick.class);
-        int level = Math.max(BUDGET_LEVEL_OFFSET, MathUtils.log2(budget));
-        int budgetLevel = Math.min(level - BUDGET_LEVEL_OFFSET, Personal.MAX_LEVEL);
-        personal = new Personal(budgetLevel);
         this.support = SUPPORT_LEVEL_DEFAULT;
         this.teamwork = TEAMWORK_DEFAULT;
-        playersNumbers = new TreeMap<>();
-        this.startPlayers = new ArrayList<>();
-        this.substitutes = new ArrayList<>();
-        this.reserve = new ArrayList<>();
-        gameStrategy = Strategy.BALANCE;
-        tactics = Tactics.T_4_4_2;
-        playersOnTransfer = new HashSet<>();
-        playersOnRent = new HashSet<>();
-        juniors = new HashSet<>();
+        this.gameStrategy = Strategy.BALANCE;
+        this.tactics = Tactics.T_4_4_2;
+        int level = Math.max(BUDGET_LEVEL_OFFSET, MathUtils.log2(budget));
+        int budgetLevel = Math.min(level - BUDGET_LEVEL_OFFSET, Personal.MAX_LEVEL);
+        this.personal = new Personal(budgetLevel);
     }
 
     private static boolean isGoalkeeper(Player player) {
@@ -213,13 +215,16 @@ public class Team {
      * Изменяет бюджет на заданную величину.
      *
      * @param value положительная для пополения или отрицательная для траты.
+     * @param date
+     * @param info
      * @return true, если операция удалась.
      */
-    public boolean budgetOperation(long value) {
+    public boolean budgetOperation(long value, LocalDate date, String info) {
         if (budget + value < 0) {
             return false;
         }
         this.budget += value;
+        addMoneyLog(date, value, info);
         return true;
     }
 
@@ -615,7 +620,7 @@ public class Team {
         if (juniors.contains(player) && getPlayersCount() < MAX_PLAYERS_COUNT) {
             addPlayer(player);
             juniors.remove(player);
-            player.setContract(new Contract(2, CostCalculator.calculatePayForMatch(player)));
+            player.setContract(new Contract(2, MoneyHelper.calculatePayForMatch(player)));
             Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
             return true;
         }
@@ -788,5 +793,71 @@ public class Team {
                 return value < gkThreshold;
         }
         return false;
+    }
+
+    public void paySalaryPerMatch(LocalDate matchDate) throws LowBalanceException {
+        int sum = getAllPlayers().stream()
+                                 .map(Player::getContract)
+                                 .filter(Optional::isPresent)
+                                 .map(Optional::get)
+                                 .mapToInt(Contract::getFare)
+                                 .sum();
+        addMoneyLog(matchDate, -sum, "Выплата зарплаты игрокам за " + matchDate.format(DateTimeFormatter.ISO_DATE));
+        budget -= sum;
+        if (budget < 0) {
+            throw new LowBalanceException();
+        }
+    }
+
+    private void addMoneyLog(LocalDate date, long sum, String info) {
+        MoneyDay moneyDay = moneyLog.computeIfAbsent(date, k -> new MoneyDay());
+        moneyDay.addMoneyEvent(budget, sum, info);
+    }
+
+    public void getMoneyFromSponsor(LocalDate matchDate) {
+        long sumPerMatch = sponsor.getSumPerMatch();
+        addMoneyLog(matchDate, sumPerMatch, "Поступление денег от спонсора за " + matchDate.format(DateTimeFormatter.ISO_DATE));
+        budget += sumPerMatch;
+    }
+
+    public void repayLoad(LocalDate date) {
+        if (!credits.isEmpty()) {
+            Credit credit = credits.iterator().next();
+            long rest = credit.getRest();
+            if (rest == 0) {
+                credits.remove(credit);
+            } else {
+                long sumToPay = budget / 8;
+                if (rest >= sumToPay) {
+                    credit.pay(sumToPay);
+                    budget -= sumToPay;
+                    addMoneyLog(date, -sumToPay, "Погашение кредита " + date.format(DateTimeFormatter.ISO_DATE));
+                } else {
+                    credit.pay(rest);
+                    budget -= rest;
+                    addMoneyLog(date, -rest, "Погашение кредита " + date.format(DateTimeFormatter.ISO_DATE));
+                }
+            }
+        }
+    }
+
+    public void addMoneyFromTickets(LocalDate matchDate) {
+        int stadiumManager = personal.getStadiumManager();
+        long moneyFromTickets = MoneyHelper.calculateMoneyFromTickets(stadiumManager, support);
+        addMoneyLog(matchDate, moneyFromTickets, "Поступление денег от продажи билетов за "
+                + matchDate.format(DateTimeFormatter.ISO_DATE));
+        this.budget += moneyFromTickets;
+    }
+
+    @Nonnull
+    public Optional<MoneyDay> getMoneyLog(LocalDate matchDate) {
+        return Optional.ofNullable(moneyLog.get(matchDate));
+    }
+
+    public void addCredit(LocalDate date) {
+        Credit credit = new Credit(sponsor.getSumPerMatch() * 8);
+        credits.add(credit);
+        budget += credit.getSum();
+        addMoneyLog(date, credit.getSum(), "Бюджет исчерпан, предоставлен кредит от спонсора на сумму " + credit.getSum());
     }
 }

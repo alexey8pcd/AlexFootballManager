@@ -1,30 +1,28 @@
 package ru.alexey_ovcharov.rusfootballmanager.common;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.school.MasteryLevel;
+import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
+import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
+import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Status;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
+
+import javax.annotation.Nonnull;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
-import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
-import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Status;
-import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
-import ru.alexey_ovcharov.rusfootballmanager.entities.school.MasteryLevel;
-import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 
 /**
  * @author Alexey
@@ -92,7 +90,7 @@ public class DataLoader {
                 List<Player> players = createPlayers(masteryLevel);
                 players.stream()
                        .peek(player -> player.setContract(new Contract(Randomization.getValueInBounds(1, 6),
-                               CostCalculator.calculatePayForMatch(player))))
+                               MoneyHelper.calculatePayForMatch(player))))
                        .forEach(team::addPlayer);
                 IntStream.range(0, 5)
                          .forEach(index -> team.addJuniorPlayer());

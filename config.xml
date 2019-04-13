@@ -3,12 +3,12 @@
     <!--LOW, LOW_MID, MID, HIGH_MID, HIGH-->
     <leagues>
         <league name="Низшая лига" level="LOW" experience="0">
-            <team name="Мир" city="Москва" budget="750000" sponsor="ЛогоМир" sponsor-level="LOW_MID"/>
+            <team name="Мир" city="Москва" budget="750000" sponsor="ЛогоМир" sponsor-level="LOW"/>
             <team name="Виктория" city="Санкт-Петербург" budget="600000" sponsor="Трайд" sponsor-level="LOW"/>
             <team name="Победа" city="Нижний Новгород" budget="500000" sponsor="Центр-сити" sponsor-level="LOW"/>
             <team name="Воронеж" city="Воронеж" budget="650000" sponsor="Реа-Холдинг" sponsor-level="LOW"/>
             <team name="Авиатор" city="Саратов" budget="500000" sponsor="Карат" sponsor-level="LOW"/>
-            <team name="Шахтер" city="Кемерово" budget="350000" sponsor="Коксохим" sponsor-level="LOW_MID"/>
+            <team name="Шахтер" city="Кемерово" budget="350000" sponsor="Коксохим" sponsor-level="LOW"/>
             <team name="Барнаулец" city="Барнаул" budget="750000" sponsor="Шинный завод" sponsor-level="LOW"/>
             <team name="Снеговик" city="Якутск" budget="900000" sponsor="Алмаз-Групп" sponsor-level="MID"/>
             <team name="Амурские тигры" city="Уссурийск" budget="450000" sponsor="Кантель" sponsor-level="LOW"/>
@@ -18,37 +18,37 @@
         </league>
        
         <league name="Национальная лига" level="LOW_MID" experience="20">
-            <team name="Сибирские ястребы" city="Новосибирск" budget="2500000" sponsor="ООО Знахарь" sponsor-level="MID"/>
-            <team name="Нефтехим" city="Пермь" budget="3000000" sponsor="Химкомбинат" sponsor-level="MID"/>
-            <team name="Айрат" city="Казань" budget="1500000" sponsor="Ильдар и Ко" sponsor-level="HIGH_MID"/>
-            <team name="Белогорье" city="Белгород" budget="2000000" sponsor="Виртуз" sponsor-level="MID"/>
-            <team name="Эльбрус" city="Владикавказ" budget="2700000" sponsor="Рамаз" sponsor-level="MID"/>
-            <team name="Хабаровск" city="Хабаровск" budget="4000000" sponsor="Дальпром" sponsor-level="MID"/>
-            <team name="Вулкан" city="Петропавловск Камчатский" budget="1400000" sponsor="ХГАЭС" sponsor-level="MID"/>
-            <team name="Витязь" city="Санкт-Петербург" budget="2000000" sponsor="Судострой" sponsor-level="MID"/>
-            <team name="Надежда" city="Астрахань" budget="2200000" sponsor="ХозАгро" sponsor-level="MID"/>
-            <team name="Арсенал" city="Уфа" budget="2500000" sponsor="Керган" sponsor-level="HIGH_MID"/>
-            <team name="Металлист" city="Челябинск" budget="3000000" sponsor="Металпром" sponsor-level="HIGH_MID"/>
-            <team name="КСШ Здоровье" city="Чита" budget="3600000" sponsor="Турбаза Лесное" sponsor-level="MID"/>
+            <team name="Сибирские ястребы" city="Новосибирск" budget="2500000" sponsor="ООО Знахарь" sponsor-level="LOW_MID"/>
+            <team name="Нефтехим" city="Пермь" budget="3000000" sponsor="Химкомбинат" sponsor-level="LOW_MID"/>
+            <team name="Айрат" city="Казань" budget="1500000" sponsor="Ильдар и Ко" sponsor-level="LOW_MID"/>
+            <team name="Белогорье" city="Белгород" budget="2000000" sponsor="Виртуз" sponsor-level="LOW_MID"/>
+            <team name="Эльбрус" city="Владикавказ" budget="2700000" sponsor="Рамаз" sponsor-level="LOW_MID"/>
+            <team name="Хабаровск" city="Хабаровск" budget="4000000" sponsor="Дальпром" sponsor-level="LOW_MID"/>
+            <team name="Вулкан" city="Петропавловск Камчатский" budget="1400000" sponsor="ХГАЭС" sponsor-level="LOW_MID"/>
+            <team name="Витязь" city="Санкт-Петербург" budget="2000000" sponsor="Судострой" sponsor-level="LOW_MID"/>
+            <team name="Надежда" city="Астрахань" budget="2200000" sponsor="ХозАгро" sponsor-level="LOW_MID"/>
+            <team name="Арсенал" city="Уфа" budget="2500000" sponsor="Керган" sponsor-level="LOW_MID"/>
+            <team name="Металлист" city="Челябинск" budget="3000000" sponsor="Металпром" sponsor-level="LOW_MID"/>
+            <team name="КСШ Здоровье" city="Чита" budget="3600000" sponsor="Турбаза Лесное" sponsor-level="LOW_MID"/>
         </league>
         
         <league name="Первый дивизион" level="MID" experience="45">
-            <team name="Легион" city="Самара" budget="14000000" sponsor="СпутСвязь" sponsor-level="HIGH_MID"/>
-            <team name="Комета" city="Омск" budget="12000000" sponsor="РосБанк" sponsor-level="HIGH"/>
-            <team name="Вымпел" city="Ростов-на-Дону" budget="13000000" sponsor="Доверие" sponsor-level="HIGH_MID"/>
-            <team name="Метеор" city="Грозный" budget="8000000" sponsor="НефтеЮг" sponsor-level="HIGH_MID"/>
-            <team name="СКА" city="Иркутск" budget="9000000" sponsor="Спорт для Нас" sponsor-level="HIGH"/>
-            <team name="ВСОР(Ф)" city="Комсомольск-на-Амуре" budget="10000000" sponsor="ЗАО КритОз" sponsor-level="HIGH_MID"/>
-            <team name="Звезда" city="Курск" budget="13000000" sponsor="Адриан" sponsor-level="HIGH_MID"/>
-            <team name="Динамо" city="Екатеринбург" budget="12000000" sponsor="ГорСтрой" sponsor-level="HIGH_MID"/>
-            <team name="Кристалл" city="Красноярск" budget="8000000" sponsor="Рудный комбинат" sponsor-level="HIGH"/>
-            <team name="Металлург" city="Новокузнецк" budget="7000000" sponsor="ЧернМетПром" sponsor-level="HIGH_MID"/>
-            <team name="Энтузиаст" city="Волгоград" budget="11000000" sponsor="Банк Кредит Доверия" sponsor-level="HIGH_MID"/>
-            <team name="Командир" city="Краснодар" budget="15000000" sponsor="Свет в дом" sponsor-level="HIGH_MID"/>
-            <team name="Триумф" city="Астрахань" budget="13000000" sponsor="Полк славы" sponsor-level="HIGH"/>
-            <team name="Богатырь" city="Ижевск" budget="10000000" sponsor="Юность" sponsor-level="HIGH_MID"/>
-            <team name="Автомобилист" city="Тольятти" budget="7000000" sponsor="Автозавод" sponsor-level="HIGH_MID"/>
-            <team name="Локомотив" city="Ульяновск" budget="8000000" sponsor="Депо №3" sponsor-level="HIGH_MID"/>
+            <team name="Легион" city="Самара" budget="14000000" sponsor="СпутСвязь" sponsor-level="MID"/>
+            <team name="Комета" city="Омск" budget="12000000" sponsor="РосБанк" sponsor-level="MID"/>
+            <team name="Вымпел" city="Ростов-на-Дону" budget="13000000" sponsor="Доверие" sponsor-level="MID"/>
+            <team name="Метеор" city="Грозный" budget="8000000" sponsor="НефтеЮг" sponsor-level="MID"/>
+            <team name="СКА" city="Иркутск" budget="9000000" sponsor="Спорт для Нас" sponsor-level="MID"/>
+            <team name="ВСОР(Ф)" city="Комсомольск-на-Амуре" budget="10000000" sponsor="ЗАО КритОз" sponsor-level="MID"/>
+            <team name="Звезда" city="Курск" budget="13000000" sponsor="Адриан" sponsor-level="MID"/>
+            <team name="Динамо" city="Екатеринбург" budget="12000000" sponsor="ГорСтрой" sponsor-level="MID"/>
+            <team name="Кристалл" city="Красноярск" budget="8000000" sponsor="Рудный комбинат" sponsor-level="MID"/>
+            <team name="Металлург" city="Новокузнецк" budget="7000000" sponsor="ЧернМетПром" sponsor-level="MID"/>
+            <team name="Энтузиаст" city="Волгоград" budget="11000000" sponsor="Банк Кредит Доверия" sponsor-level="MID"/>
+            <team name="Командир" city="Краснодар" budget="15000000" sponsor="Свет в дом" sponsor-level="MID"/>
+            <team name="Триумф" city="Астрахань" budget="13000000" sponsor="Полк славы" sponsor-level="MID"/>
+            <team name="Богатырь" city="Ижевск" budget="10000000" sponsor="Юность" sponsor-level="MID"/>
+            <team name="Автомобилист" city="Тольятти" budget="7000000" sponsor="Автозавод" sponsor-level="MID"/>
+            <team name="Локомотив" city="Ульяновск" budget="8000000" sponsor="Депо №3" sponsor-level="MID"/>
         </league>
         
         <league name="Высшая лига" level="HIGH" experience="75">

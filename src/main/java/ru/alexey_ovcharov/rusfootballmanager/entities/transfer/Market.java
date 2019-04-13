@@ -1,35 +1,27 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 /**
+ * Трансферный рынок
+ *
  * @author Alexey
  */
 public class Market {
 
-    private static Market market;
-    private List<Transfer> players;
-    private Set<Offer> offers;
-    private Map<Team, List<Transfer>> cache;
+    private static final Market market = new Market();
+    private final List<Transfer> players = new ArrayList<>();
+    private final Set<Offer> offers = new HashSet<>();
+    private final Map<Team, List<Transfer>> cache = new HashMap<>();
 
     private Market() {
-        players = new ArrayList<>();
-        cache = new HashMap<>();
-        offers = new HashSet<>();
     }
 
     public static Market getInstance() {
-        if (market == null) {
-            market = new Market();
-        }
         return market;
     }
 
@@ -45,8 +37,8 @@ public class Market {
         for (Transfer transferPlayer : players) {
             if (transferPlayer.getPlayer() == player) {
                 players.remove(transferPlayer);
+                return;
             }
-            return;
         }
     }
 
@@ -56,17 +48,17 @@ public class Market {
 
     public List<Transfer> getTransfers(Filter filter) {
         if (filter != null) {
-            return players.parallelStream()
-                    .filter(tr -> filter.accept(tr))
-                    .collect(Collectors.toList());
+            return players.stream()
+                          .filter(filter::accept)
+                          .collect(Collectors.toList());
         }
         return players;
     }
 
     public List<Transfer> getTransfers(Status transferStatus) {
-        return players.parallelStream()
-                .filter(tr -> tr.getStatus() == transferStatus)
-                .collect(Collectors.toList());
+        return players.stream()
+                      .filter(tr -> tr.getStatus() == transferStatus)
+                      .collect(Collectors.toList());
     }
 
     public List<Transfer> getTransfers(Team team) {
@@ -74,9 +66,10 @@ public class Market {
         if (cache.containsKey(team)) {
             playersFromTeam = cache.get(team);
         } else {
-            playersFromTeam = players.stream().filter(
-                    player -> player != null && player.getTeam() == team).
-                    collect(Collectors.toList());
+            playersFromTeam = players.stream()
+                                     .filter(Objects::nonNull)
+                                     .filter(player -> player.getTeam() == team)
+                                     .collect(Collectors.toList());
             cache.put(team, playersFromTeam);
         }
         return playersFromTeam;
@@ -85,19 +78,18 @@ public class Market {
     public List<Transfer> getTransfers(Team team, Filter filter) {
         List<Transfer> playersFromTeam = getTransfers(team);
         if (filter != null) {
-            return playersFromTeam.stream().
-                    filter(tr -> filter.accept(tr)).
-                    collect(Collectors.toList());
+            return playersFromTeam.stream()
+                                  .filter(filter::accept)
+                                  .collect(Collectors.toList());
         } else {
             return playersFromTeam;
         }
     }
 
     public List<Offer> getOffers(Team team) {
-        List<Offer> offersByTeam = offers.parallelStream().
-                filter(off -> off.getFrom() == team)
-                .collect(Collectors.toList());
-        return offersByTeam;
+        return offers.stream()
+                     .filter(offer -> offer.getFrom() == team)
+                     .collect(Collectors.toList());
     }
 
     public void makeOffer(Offer offer) {

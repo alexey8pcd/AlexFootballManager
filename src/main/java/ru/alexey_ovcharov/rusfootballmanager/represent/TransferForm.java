@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.*;
 
@@ -23,14 +24,11 @@ import java.util.*;
 public class TransferForm extends javax.swing.JDialog {
 
     private static final String ANY = "Не важно";
-    private Team team;
-    private List<Transfer> transferPlayers = Collections.emptyList();
-    private Filter filter = new Filter();
-    private boolean filtered = false;
-
+    private static final String NAME_AND_LAST_NAME = "Имя/фамилия";
+    private static final String AGE = "Возраст";
     private static final String[] HEADERS = {
-            "Имя/фамилия",
-            "Возраст",
+            NAME_AND_LAST_NAME,
+            AGE,
             "Амплуа",
             "Позиция",
             "Общее",
@@ -38,24 +36,18 @@ public class TransferForm extends javax.swing.JDialog {
             "Стоимость",
             "Команда"
     };
+    private static final String[] EMPTY = {};
 
-    private String[] localPositionCurrentData;
-    private String[][] localPositionData;
-    private String[] empty = {};
+    private final transient Market market = Market.getInstance();
 
-    {
-        Set<LocalPosition> defenders = GlobalPosition.DEFENDER.getLocalPositions();
-        Set<LocalPosition> midfielders = GlobalPosition.MIDFIELDER.getLocalPositions();
-        Set<LocalPosition> forwards = GlobalPosition.FORWARD.getLocalPositions();
-        localPositionData = new String[][]{
-                namesToArray(defenders),
-                namesToArray(midfielders),
-                namesToArray(forwards)
-        };
-        localPositionCurrentData = empty;
-    }
+    private transient Team team;
+    private transient List<Transfer> transferPlayers = Collections.emptyList();
+    private final transient Filter filter = new Filter();
+    private transient boolean filtered = false;
+    private transient String[] localPositionCurrentData;
+    private transient String[][] localPositionData;
 
-    private String[] namesToArray(Set<LocalPosition> positions) {
+    private static String[] namesToArray(Set<LocalPosition> positions) {
         int index = 1;
         String[] result = new String[positions.size() + 1];
         result[0] = ANY;
@@ -68,87 +60,29 @@ public class TransferForm extends javax.swing.JDialog {
     TransferForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        initLocation();
-        TableModel transferTableModel = new DefaultTableModel() {
+        init();
+    }
 
-            @Override
-            public int getRowCount() {
-                return transferPlayers.size();
-            }
-
-            @Override
-            public String getColumnName(int column) {
-                return HEADERS[column];
-            }
-
-            @Override
-            public int getColumnCount() {
-                return HEADERS.length;
-            }
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-
-            @Override
-            public Object getValueAt(int row, int column) {
-                Transfer transfer = transferPlayers.get(row);
-                if (transfer != null) {
-                    Player player = transfer.getPlayer();
-                    switch (column) {
-                        case 0:
-                            return player.getFullName();
-                        case 1:
-                            return player.getAge();
-                        case 2:
-                            return player.getPreferredPosition().
-                                    getPositionOnField().getAbreviation();
-                        case 3:
-                            return player.getPreferredPosition().getAbreviation();
-                        case 4:
-                            return player.getAverage();
-                        case 5:
-                            return transfer.getStatus().getDescription();
-                        case 6:
-                            return transfer.getCost();
-                        case 7:
-                            return transfer.getTeam().getName();
-                    }
-                }
-                return "";
-            }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                switch (columnIndex) {
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 6:
-                        return Integer.class;
-                }
-                return String.class;
-            }
-
+    private void init() {
+        Set<LocalPosition> defenders = GlobalPosition.DEFENDER.getLocalPositions();
+        Set<LocalPosition> midfielders = GlobalPosition.MIDFIELDER.getLocalPositions();
+        Set<LocalPosition> forwards = GlobalPosition.FORWARD.getLocalPositions();
+        localPositionData = new String[][]{
+                namesToArray(defenders),
+                namesToArray(midfielders),
+                namesToArray(forwards)
         };
+        localPositionCurrentData = EMPTY;
+        TableModel transferTableModel = new MyDefaultTableModel();
         tableTransfers.setModel(transferTableModel);
         TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(transferTableModel);
         tableTransfers.setRowSorter(rowSorter);
         tableTransfers.getColumnModel()
                       .getColumn(4)
-                      .setCellRenderer(new DefaultTableCellRenderer() {
-                          @Override
-                          public Component getTableCellRendererComponent(JTable table, Object value,
-                                                                         boolean isSelected, boolean hasFocus, int row, int column) {
-                              super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                              if (column == 4) {
-                                  int val = (int) table.getValueAt(row, column);
-                                  setBackground(RenderUtil.getPlayerAverageColor(val));
-                              }
-                              return this;
-                          }
-                      });
+                      .setCellRenderer(new MyTableCellRenderer());
+        tableTransfers.getColumnModel()
+                      .getColumn(6)
+                      .setCellRenderer(new MyTableCellRenderer());
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(localPositionCurrentData);
         comboLocal.setModel(model);
         comboLocal.setEnabled(false);
@@ -158,15 +92,15 @@ public class TransferForm extends javax.swing.JDialog {
         this.team = team;
         filter.setTransferStatus(Status.ANY);
         rbAnyStatus.setEnabled(true);
-        transferPlayers = Market.getInstance().getTransfers(team);
+        transferPlayers = market.getTransfers(team);
         tableTransfers.updateUI();
     }
 
     private void researchPlayersWithoutFilter() {
         if (rbMyTeam.isSelected()) {
-            transferPlayers = Market.getInstance().getTransfers(team);
+            transferPlayers = market.getTransfers(team);
         } else {
-            transferPlayers = Market.getInstance().getTransfers();
+            transferPlayers = market.getTransfers();
         }
         tableTransfers.getSelectionModel().clearSelection();
         tableTransfers.getRowSorter().modelStructureChanged();
@@ -184,9 +118,9 @@ public class TransferForm extends javax.swing.JDialog {
         filter.setAvgTo(cbAvgTo.isSelected()
                 ? (int) spinnerAvgTo.getValue() : Filter.DEFAULT_VALUE);
         if (rbMyTeam.isSelected()) {
-            transferPlayers = Market.getInstance().getTransfers(team, filter);
+            transferPlayers = market.getTransfers(team, filter);
         } else {
-            transferPlayers = Market.getInstance().getTransfers(filter);
+            transferPlayers = market.getTransfers(filter);
         }
         tableTransfers.getSelectionModel().clearSelection();
         tableTransfers.getRowSorter().modelStructureChanged();
@@ -198,16 +132,22 @@ public class TransferForm extends javax.swing.JDialog {
         transferPlayer.ifPresent(transfer -> {
             Player player = transfer.getPlayer();
             if (!team.containsPlayer(player)) {
-                List<Offer> offers = Market.getInstance().getOffers(team);
+                List<Offer> offers = market.getOffers(team);
                 boolean did = offers.stream()
                                     .map(Offer::getPlayer)
                                     .anyMatch(player1 -> player1 == player);
                 if (did) {
                     JOptionPane.showMessageDialog(null, "Предложение этому игроку уже сделано!");
                 } else {
-                    TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transfer, team, Status.ON_TRANSFER);
-                    offerForm.setVisible(true);
+                    int cost = transfer.getCost();
+                    if (cost > team.getBudget()) {
+                        JOptionPane.showMessageDialog(null, "В вашем бюджете недостаточно средств!");
+                    } else {
+                        TransferOfferForm offerForm = new TransferOfferForm(null, true);
+                        offerForm.setLocationRelativeTo(this);
+                        offerForm.setParams(transfer, team, Status.ON_TRANSFER);
+                        offerForm.setVisible(true);
+                    }
                 }
             }
         });
@@ -219,7 +159,7 @@ public class TransferForm extends javax.swing.JDialog {
         transferPlayer.ifPresent(transfer -> {
             Player player = transfer.getPlayer();
             if (!team.containsPlayer(player)) {
-                List<Offer> myOffers = Market.getInstance().getOffers(team);
+                List<Offer> myOffers = market.getOffers(team);
                 boolean did = myOffers.stream()
                                       .map(Offer::getPlayer)
                                       .anyMatch(player1 -> player1 == player);
@@ -247,30 +187,31 @@ public class TransferForm extends javax.swing.JDialog {
         return transferPlayerOpt.filter(transfer -> team.containsPlayer(transfer.getPlayer()));
     }
 
-    private void onTransfer(Transfer transferPlayer) throws HeadlessException {
-        if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != Status.ON_TRANSFER) {
-                int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
-                        + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    team.onTransfer(transferPlayer.getPlayer());
-                    tableTransfers.updateUI();
-                }
+    private void onTransfer(Transfer transferPlayer) {
+        if (transferPlayer != null && transferPlayer.getStatus() != Status.ON_TRANSFER) {
+            int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
+                    + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                team.onTransfer(transferPlayer.getPlayer());
+                tableTransfers.updateUI();
             }
         }
     }
 
-    private void toRent(Transfer transferPlayer) throws HeadlessException {
-        if (transferPlayer != null) {
-            if (transferPlayer.getStatus() != Status.TO_RENT) {
-                int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
-                        + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    team.onRent(transferPlayer.getPlayer());
-                    tableTransfers.updateUI();
-                }
+    private void toRent(Transfer transferPlayer) {
+        if (transferPlayer != null && transferPlayer.getStatus() != Status.TO_RENT) {
+            int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
+                    + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                team.onRent(transferPlayer.getPlayer());
+                tableTransfers.updateUI();
             }
         }
+    }
+
+    private void onSale() {
+        Optional<Transfer> selectedTransferOpt = getSelectedTransfer();
+        selectedTransferOpt.ifPresent(this::onTransfer);
     }
 
     private void globalPositionComboAction() {
@@ -290,7 +231,7 @@ public class TransferForm extends javax.swing.JDialog {
             }
             filter.setLocalPosition(null);
         } else {
-            localPositionCurrentData = empty;
+            localPositionCurrentData = EMPTY;
             if (index == 0) {
                 filter.setGlobalPosition(null);
             } else {
@@ -351,22 +292,22 @@ public class TransferForm extends javax.swing.JDialog {
         setResizable(false);
 
         tableTransfers.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "Имя/фамилия", "Возраст", "Амплуа", "Позиция", "Общее", "Статус", "Стоимость", "Команда"
-            }
+                new Object[][]{
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null}
+                },
+                new String[]{
+                        NAME_AND_LAST_NAME, AGE, "Амплуа", "Позиция", "Общее", "Статус", "Стоимость", "Команда"
+                }
         ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Object.class
+            Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
         });
         jScrollPane1.setViewportView(tableTransfers);
@@ -390,14 +331,14 @@ public class TransferForm extends javax.swing.JDialog {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Фильтр"));
 
-        comboGlobal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Не важно", "Вратарь", "Защитник", "Полузащитник", "Нападающий" }));
+        comboGlobal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Не важно", "Вратарь", "Защитник", "Полузащитник", "Нападающий"}));
         comboGlobal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboGlobalActionPerformed(evt);
             }
         });
 
-        comboLocal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Не важно" }));
+        comboLocal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Не важно"}));
         comboLocal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboLocalActionPerformed(evt);
@@ -450,30 +391,30 @@ public class TransferForm extends javax.swing.JDialog {
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rbAnyStatus)
-                    .addComponent(rbForSale)
-                    .addComponent(rbForRent)
-                    .addComponent(rbOnSaleOrRent)
-                    .addComponent(rbFreeAgentStatus))
-                .addContainerGap(9, Short.MAX_VALUE))
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(jPanel3Layout.createSequentialGroup()
+                                                    .addContainerGap()
+                                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(rbAnyStatus)
+                                                                           .addComponent(rbForSale)
+                                                                           .addComponent(rbForRent)
+                                                                           .addComponent(rbOnSaleOrRent)
+                                                                           .addComponent(rbFreeAgentStatus))
+                                                    .addContainerGap(9, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(rbAnyStatus)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(rbForSale)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rbForRent)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rbOnSaleOrRent)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(rbFreeAgentStatus)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(jPanel3Layout.createSequentialGroup()
+                                                    .addComponent(rbAnyStatus)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(rbForSale)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(rbForRent)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(rbOnSaleOrRent)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(rbFreeAgentStatus)
+                                                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -521,56 +462,56 @@ public class TransferForm extends javax.swing.JDialog {
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(8, 8, 8)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbAgeFrom)
-                    .addComponent(cbAgeTo)
-                    .addComponent(cbAvgFrom)
-                    .addComponent(cbAvgTo))
-                .addGap(12, 12, 12)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(jPanel4Layout.createSequentialGroup()
+                                                    .addGap(8, 8, 8)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(cbAgeFrom)
+                                                                           .addComponent(cbAgeTo)
+                                                                           .addComponent(cbAvgFrom)
+                                                                           .addComponent(cbAvgTo))
+                                                    .addGap(12, 12, 12)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                           .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                           .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                           .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbAgeFrom)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(8, 8, 8)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbAgeTo)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(8, 8, 8)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbAvgFrom)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(3, 3, 3)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbAvgTo)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(jPanel4Layout.createSequentialGroup()
+                                                    .addGap(12, 12, 12)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(cbAgeFrom)
+                                                                           .addGroup(jPanel4Layout.createSequentialGroup()
+                                                                                                  .addGap(1, 1, 1)
+                                                                                                  .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                    .addGap(8, 8, 8)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(cbAgeTo)
+                                                                           .addGroup(jPanel4Layout.createSequentialGroup()
+                                                                                                  .addGap(1, 1, 1)
+                                                                                                  .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                    .addGap(8, 8, 8)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(cbAvgFrom)
+                                                                           .addGroup(jPanel4Layout.createSequentialGroup()
+                                                                                                  .addGap(1, 1, 1)
+                                                                                                  .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                    .addGap(3, 3, 3)
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(cbAvgTo)
+                                                                           .addGroup(jPanel4Layout.createSequentialGroup()
+                                                                                                  .addGap(1, 1, 1)
+                                                                                                  .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jLabel1.setText("Амплуа");
 
         jLabel2.setText("Позиция");
 
-        jLabel3.setText("Имя/фамилия");
+        jLabel3.setText(NAME_AND_LAST_NAME);
 
         bApplyFilter.setText("Отфильтровать");
         bApplyFilter.addActionListener(new java.awt.event.ActionListener() {
@@ -589,56 +530,56 @@ public class TransferForm extends javax.swing.JDialog {
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3))
-                        .addGap(48, 48, 48)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bApplyFilter)
-                        .addGap(18, 18, 18)
-                        .addComponent(bClearFilter)
-                        .addGap(67, 67, 67)))
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(jPanel1Layout.createSequentialGroup()
+                                                    .addContainerGap()
+                                                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addGroup(jPanel1Layout.createSequentialGroup()
+                                                                                                  .addGap(18, 18, 18)
+                                                                                                  .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                                                         .addComponent(jLabel1)
+                                                                                                                         .addComponent(jLabel2)
+                                                                                                                         .addComponent(jLabel3))
+                                                                                                  .addGap(48, 48, 48)
+                                                                                                  .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                                                         .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                         .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                         .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                                           .addGroup(jPanel1Layout.createSequentialGroup()
+                                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(bApplyFilter)
+                                                                                                  .addGap(18, 18, 18)
+                                                                                                  .addComponent(bClearFilter)
+                                                                                                  .addGap(67, 67, 67)))
+                                                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addGap(14, 14, 14)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(bApplyFilter)
-                            .addComponent(bClearFilter)))
-                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                                                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                                                                                       .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                                       .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                                                                                                                                                         .addGap(12, 12, 12)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                                                                                .addComponent(jLabel1))
+                                                                                                                                                                                         .addGap(14, 14, 14)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(jLabel2)
+                                                                                                                                                                                                                .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                                                                                                                                         .addGap(18, 18, 18)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(jLabel3)
+                                                                                                                                                                                                                .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                                                                                                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(bApplyFilter)
+                                                                                                                                                                                                                .addComponent(bClearFilter)))
+                                                                                                                       .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                                                                .addContainerGap())
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -683,73 +624,77 @@ public class TransferForm extends javax.swing.JDialog {
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(bTryBuy)
-                .addGap(18, 18, 18)
-                .addComponent(bTryGetRent)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(bMyOffers)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(bOnSale)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(bToRent)
-                .addContainerGap())
+                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                                                                .addContainerGap()
+                                                                                                .addComponent(bTryBuy)
+                                                                                                .addGap(18, 18, 18)
+                                                                                                .addComponent(bTryGetRent)
+                                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                                .addComponent(bMyOffers)
+                                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                .addComponent(bOnSale)
+                                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                                .addComponent(bToRent)
+                                                                                                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(bToRent)
-                    .addComponent(bOnSale)
-                    .addComponent(bTryGetRent)
-                    .addComponent(bTryBuy)
-                    .addComponent(bMyOffers))
-                .addContainerGap())
+                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                       .addComponent(bToRent)
+                                                                                                                       .addComponent(bOnSale)
+                                                                                                                       .addComponent(bTryGetRent)
+                                                                                                                       .addComponent(bTryBuy)
+                                                                                                                       .addComponent(bMyOffers))
+                                                                                                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(rbMyTeam)
-                        .addGap(38, 38, 38)
-                        .addComponent(rbAllTeams)
-                        .addGap(38, 38, 38)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addComponent(jScrollPane1)
+                                                      .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addComponent(rbMyTeam)
+                                                                      .addGap(38, 38, 38)
+                                                                      .addComponent(rbAllTeams)
+                                                                      .addGap(38, 38, 38)
+                                                                      .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                      .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(rbMyTeam)
-                            .addComponent(rbAllTeams)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addGap(23, 23, 23)
+                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                      .addComponent(rbMyTeam)
+                                                                                      .addComponent(rbAllTeams)))
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addContainerGap()
+                                                                      .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                      .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                      .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                      .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                      .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                      .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void rbMyTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbMyTeamActionPerformed
+        filterMyTeam();
+    }//GEN-LAST:event_rbMyTeamActionPerformed
+
+    private void filterMyTeam() {
         bTryBuy.setEnabled(false);
         bTryGetRent.setEnabled(false);
         if (filtered) {
@@ -757,7 +702,7 @@ public class TransferForm extends javax.swing.JDialog {
         } else {
             researchPlayersWithoutFilter();
         }
-    }//GEN-LAST:event_rbMyTeamActionPerformed
+    }
 
     private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
         filter.setTransferStatus(Status.ON_TRANSFER);
@@ -780,6 +725,10 @@ public class TransferForm extends javax.swing.JDialog {
     }//GEN-LAST:event_comboGlobalActionPerformed
 
     private void rbAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAllTeamsActionPerformed
+        filterAllTeam();
+    }//GEN-LAST:event_rbAllTeamsActionPerformed
+
+    private void filterAllTeam() {
         bTryBuy.setEnabled(true);
         bTryGetRent.setEnabled(true);
         if (filtered) {
@@ -787,7 +736,7 @@ public class TransferForm extends javax.swing.JDialog {
         } else {
             researchPlayersWithoutFilter();
         }
-    }//GEN-LAST:event_rbAllTeamsActionPerformed
+    }
 
     private void bTryBuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTryBuyActionPerformed
         makeTransferOfferToPlayer();
@@ -797,10 +746,6 @@ public class TransferForm extends javax.swing.JDialog {
         onSale();
     }//GEN-LAST:event_bOnSaleActionPerformed
 
-    private void onSale() {
-        Optional<Transfer> selectedTransferOpt = getSelectedTransfer();
-        selectedTransferOpt.ifPresent(this::onTransfer);
-    }
 
     private void bToRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bToRentActionPerformed
         toRent();
@@ -901,8 +846,93 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.JTextField tfName;
     // End of variables declaration//GEN-END:variables
 
-    private void initLocation() {
-        setLocationRelativeTo(null);
+    private static class MyTableCellRenderer extends DefaultTableCellRenderer {
+
+        private final NumberFormat numberFormat = NumberFormat.getInstance();
+
+        MyTableCellRenderer() {
+            super();
+            numberFormat.setGroupingUsed(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (column == 4) {
+                Object o = table.getValueAt(row, column);
+                if (o instanceof Integer) {
+                    int val = (int) o;
+                    setBackground(RenderUtil.getPlayerAverageColor(val));
+                }
+            } else if (column == 6) {
+                String s = numberFormat.format(value);
+                setValue(s);
+            }
+            return this;
+        }
     }
 
+    private class MyDefaultTableModel extends DefaultTableModel {
+
+        @Override
+        public int getRowCount() {
+            return transferPlayers.size();
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return HEADERS[column];
+        }
+
+        @Override
+        public int getColumnCount() {
+            return HEADERS.length;
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+
+        @Override
+        public Object getValueAt(int row, int column) {
+            Transfer transfer = transferPlayers.get(row);
+            if (transfer != null) {
+                Player player = transfer.getPlayer();
+                switch (column) {
+                    case 0:
+                        return player.getFullName();
+                    case 1:
+                        return player.getAge();
+                    case 2:
+                        return player.getPreferredPosition().
+                                getPositionOnField().getAbbreviation();
+                    case 3:
+                        return player.getPreferredPosition().getAbreviation();
+                    case 4:
+                        return player.getAverage();
+                    case 5:
+                        return transfer.getStatus().getDescription();
+                    case 6:
+                        return transfer.getCost();
+                    case 7:
+                        return transfer.getTeam().getName();
+                }
+            }
+            return "";
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 1:
+                case 4:
+                case 6:
+                    return Integer.class;
+            }
+            return String.class;
+        }
+
+    }
 }

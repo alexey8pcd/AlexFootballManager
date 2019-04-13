@@ -5,7 +5,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * @author Alexey Амплуа игрока: вратарь, защитник, полузащитник, нападающий
+ * Амплуа игрока: вратарь, защитник, полузащитник, нападающий
+ * @author Alexey
  */
 public enum GlobalPosition {
 
@@ -15,13 +16,13 @@ public enum GlobalPosition {
     GOALKEEPER(0.2, "ВР", 3, Color.ORANGE);
 
     private final double fatigueCoefficient;
-    private final String abreviation;
+    private final String abbreviation;
     private final int index;
     private final Color color;
 
-    GlobalPosition(double fatigueCoefficient, String abreviation, int index, Color color) {
+    GlobalPosition(double fatigueCoefficient, String abbreviation, int index, Color color) {
         this.fatigueCoefficient = fatigueCoefficient;
-        this.abreviation = abreviation;
+        this.abbreviation = abbreviation;
         this.index = index;
         this.color = color;
     }
@@ -30,8 +31,8 @@ public enum GlobalPosition {
         return fatigueCoefficient;
     }
 
-    public String getAbreviation() {
-        return abreviation;
+    public String getAbbreviation() {
+        return abbreviation;
     }
 
     public static GlobalPosition getByIndex(int index) {

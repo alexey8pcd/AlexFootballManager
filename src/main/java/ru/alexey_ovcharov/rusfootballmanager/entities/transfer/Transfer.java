@@ -2,7 +2,7 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
 import java.util.Comparator;
 
-import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
@@ -41,7 +41,7 @@ public class Transfer {
         this.player = player;
         this.team = team;
         this.status = status;
-        this.sum = CostCalculator.calculateTransferCost(player.getAge(), player.getAverage());
+        this.sum = MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
     }
 
     public Player getPlayer() {

@@ -38,12 +38,10 @@ public class CareerSettings {
             transferMarket = Market.getInstance();
             leagues.stream()
                    .map(League::getTeams)
-                   .parallel()
                    .flatMap(List::stream)
                    .forEach(team -> {
                        List<Player> players = team.getAllPlayers();
-                       players.forEach(player -> transferMarket.addPlayer(player,
-                               team, Status.ON_CONTRACT));
+                       players.forEach(player -> transferMarket.addPlayer(player, team, Status.ON_CONTRACT));
                    });
         }
     }

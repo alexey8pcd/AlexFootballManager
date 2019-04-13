@@ -1,6 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
-import ru.alexey_ovcharov.rusfootballmanager.common.CostCalculator;
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Offer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
@@ -31,7 +31,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
             lOfferedSum.setVisible(false);
             ftfSum.setVisible(false);
         }
-        int payForMatch = CostCalculator.calculatePayForMatch(
+        int payForMatch = MoneyHelper.calculatePayForMatch(
                 transferPlayer.getPlayer());
         lDesiredPay.setText(String.valueOf(payForMatch));
         ftfPay.setValue(payForMatch / 10 * 11);

@@ -1,6 +1,8 @@
 package ru.alexey_ovcharov.rusfootballmanager.career;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -8,13 +10,12 @@ import java.util.Date;
  */
 public class Message {
 
-    private String from;
-    private Date date;
-    private String theme;
-    private String body;
-    private static final String datePattern = "dd.MM.yyyy";
+    private final String from;
+    private final LocalDate date;
+    private final String theme;
+    private final String body;
 
-    public Message(String from, Date date, String theme, String body) {
+    public Message(String from, LocalDate date, String theme, String body) {
         this.from = from;
         this.date = date;
         this.theme = theme;
@@ -25,7 +26,7 @@ public class Message {
         return from;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -40,8 +41,12 @@ public class Message {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Date: ").append(new SimpleDateFormat(datePattern).format(date));
-        builder.append(", ").append(" From: ").append(from).append(", ");
+        builder.append("Date: ")
+               .append(date.format(DateTimeFormatter.BASIC_ISO_DATE));
+        builder.append(", ")
+               .append(" From: ")
+               .append(from)
+               .append(", ");
         builder.append("Theme: ").append(theme);
         return builder.toString();
     }
