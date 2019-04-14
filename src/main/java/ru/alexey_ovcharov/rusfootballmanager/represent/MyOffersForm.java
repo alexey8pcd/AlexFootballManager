@@ -2,35 +2,36 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
+import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Offer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
 
 /**
- *
  * @author Алексей
  */
 public class MyOffersForm extends javax.swing.JDialog {
 
-    private List<Offer> myOffers = Collections.EMPTY_LIST;
-    private Team team;
+    private final Market market = Market.getInstance();
+    private transient List<Offer> myOffers = Collections.emptyList();
+    private transient Team team;
 
     private static final String[] OFFER_TABLE_HEADERS = {
-        "Имя/Фамилия",
-        "Возраст",
-        "Позиция",
-        "Общее",
-        "Предложение",
-        "Зарплата",
-        "Стоимость"
+            "Имя/Фамилия",
+            "Возраст",
+            "Позиция",
+            "Общее",
+            "Предложение",
+            "Зарплата",
+            "Стоимость"
     };
+    private User user;
 
-    private void initLocation() {
-        setLocationRelativeTo(null);
-    }
 
     private class OffersTableModel extends DefaultTableModel {
 
@@ -61,7 +62,7 @@ public class MyOffersForm extends javax.swing.JDialog {
                 case 3:
                     return player.getAverage();
                 case 4:
-                    return offer.getStatus().getDescription();
+                    return offer.getTransferStatus().getDescription();
                 case 5:
                     return offer.getFare();
                 case 6:
@@ -85,21 +86,21 @@ public class MyOffersForm extends javax.swing.JDialog {
     public MyOffersForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        initLocation();
         tableOffers.setModel(new OffersTableModel());
     }
 
-    public void setTeam(Team team) {
+    public void setParams(Team team, User user) {
         this.team = team;
-        myOffers = Market.getInstance().getOffers(team);
+        this.user = user;
+        this.myOffers = market.getOffers(team);
     }
 
-    private Offer getSelectedOffer() {
+    private Optional<Offer> getSelectedOffer() {
         int selectedIndex = tableOffers.getSelectedRow();
         if (selectedIndex >= 0 && selectedIndex < myOffers.size()) {
-            return myOffers.get(selectedIndex);
+            return Optional.ofNullable(myOffers.get(selectedIndex));
         }
-        return null;
+        return Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
@@ -115,29 +116,29 @@ public class MyOffersForm extends javax.swing.JDialog {
         setTitle("Мои предложения");
 
         tableOffers.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
-            },
-            new String [] {
-                "Игрок", "Возраст", "Позиция", "Общее", "Зарплата", "Стоимость"
-            }
+                new Object[][]{
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null}
+                },
+                new String[]{
+                        "Игрок", "Возраст", "Позиция", "Общее", "Зарплата", "Стоимость"
+                }
         ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class
+            Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class
             };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+            boolean[] canEdit = new boolean[]{
+                    false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+                return canEdit[columnIndex];
             }
         });
         jScrollPane2.setViewportView(tableOffers);
@@ -159,46 +160,63 @@ public class MyOffersForm extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(440, Short.MAX_VALUE)
-                        .addComponent(bRemoveOffer)
-                        .addGap(18, 18, 18)
-                        .addComponent(bChangeOffer))
-                    .addComponent(jScrollPane2))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addContainerGap(440, Short.MAX_VALUE)
+                                                                      .addComponent(bRemoveOffer)
+                                                                      .addGap(18, 18, 18)
+                                                                      .addComponent(bChangeOffer))
+                                                      .addComponent(jScrollPane2))
+                                      .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(bRemoveOffer)
-                    .addComponent(bChangeOffer))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                                                  .addContainerGap()
+                                                                                  .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                  .addComponent(bRemoveOffer)
+                                                                                                  .addComponent(bChangeOffer))
+                                                                                  .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void bChangeOfferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeOfferActionPerformed
-        // TODO add your handling code here:
+        changeOffer();
     }//GEN-LAST:event_bChangeOfferActionPerformed
 
     private void bRemoveOfferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRemoveOfferActionPerformed
+        removeOffer();
+    }//GEN-LAST:event_bRemoveOfferActionPerformed
+
+
+    private void changeOffer() {
+        Optional<Offer> selectedOfferOpt = getSelectedOffer();
+        selectedOfferOpt.ifPresent(offer -> {
+            TransferOfferForm transferOfferForm = new TransferOfferForm(null, true);
+            transferOfferForm.setParams(offer, user);
+            transferOfferForm.setLocationRelativeTo(MyOffersForm.this);
+            transferOfferForm.setVisible(true);
+        });
+    }
+
+    private void removeOffer() {
         int result = JOptionPane.showConfirmDialog(null,
                 "Отказаться?", "Подтверждение отказа", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-            Offer selectedOffer = getSelectedOffer();
-            Market.getInstance().removeOffer(selectedOffer);
-            myOffers = Market.getInstance().getOffers(team);
-            tableOffers.updateUI();
+            Optional<Offer> selectedOfferOpt = getSelectedOffer();
+            selectedOfferOpt.ifPresent(offer -> {
+                market.removeOffer(offer);
+                myOffers = market.getOffers(team);
+                tableOffers.updateUI();
+            });
         }
-    }//GEN-LAST:event_bRemoveOfferActionPerformed
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

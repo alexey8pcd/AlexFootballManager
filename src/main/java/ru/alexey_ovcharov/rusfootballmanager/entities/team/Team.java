@@ -18,7 +18,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
 import ru.alexey_ovcharov.rusfootballmanager.entities.training.Exercise;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
+import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.TransferStatus;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
 
 import javax.annotation.Nonnull;
@@ -34,10 +34,6 @@ import static java.util.stream.Collectors.*;
  */
 public class Team {
 
-    public static final int MAX_PLAYERS_COUNT = 33;
-    public static final int RECOMMENDED_PLAYERS_COUNT = 25;
-    public static final long STABLE_BUDGET_VALUE = 150_000;
-
     private static final int START_PLAYERS_COUNT = 11;
     private static final int SUBSTITUTES_COUNT = 7;
     private static final int BASE_PLAYERS_COUNT = START_PLAYERS_COUNT + SUBSTITUTES_COUNT;
@@ -46,6 +42,12 @@ public class Team {
     private static final int TEAMWORK_DEFAULT = 20;
     private static final int MAX_VALUE = 99;
     private static final int MIN_VALUE = 1;
+
+    public static final int MAX_PLAYERS_COUNT = 33;
+    public static final long STABLE_BUDGET_VALUE = 150_000;
+    public static final int STABLE_PLAYERS_COUNT = BASE_PLAYERS_COUNT + 3;
+
+
 
     private final Set<Player> playersOnTransfer = new HashSet<>();
     private final Set<Player> playersOnRent = new HashSet<>();
@@ -110,7 +112,7 @@ public class Team {
                  .filter(transfer -> transfer.getPlayer() == player)
                  .forEach(transfer -> {
                      playersOnRent.remove(player);
-                     transfer.setStatus(Status.ON_TRANSFER);
+                     transfer.setTransferStatus(TransferStatus.ON_TRANSFER);
                  });
     }
 
@@ -123,7 +125,7 @@ public class Team {
                  .filter(transfer -> transfer.getPlayer() == player)
                  .forEach(transfer -> {
                      playersOnTransfer.remove(player);
-                     transfer.setStatus(Status.TO_RENT);
+                     transfer.setTransferStatus(TransferStatus.TO_RENT);
                  });
     }
 
@@ -621,7 +623,7 @@ public class Team {
             addPlayer(player);
             juniors.remove(player);
             player.setContract(new Contract(2, MoneyHelper.calculatePayForMatch(player)));
-            Market.getInstance().addPlayer(player, this, Status.ON_CONTRACT);
+            Market.getInstance().addPlayer(player, this, TransferStatus.ON_CONTRACT);
             return true;
         }
         return false;

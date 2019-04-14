@@ -35,12 +35,12 @@ public class Transfer {
     private final Player player;
     private final Team team;
     private final int sum;
-    private Status status;
+    private TransferStatus transferStatus;
 
-    public Transfer(Player player, Team team, Status status) {
+    public Transfer(Player player, Team team, TransferStatus transferStatus) {
         this.player = player;
         this.team = team;
-        this.status = status;
+        this.transferStatus = transferStatus;
         this.sum = MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
     }
 
@@ -56,12 +56,12 @@ public class Transfer {
         return sum;
     }
 
-    public Status getStatus() {
-        return status;
+    public TransferStatus getTransferStatus() {
+        return transferStatus;
     }
 
-    public void setStatus(Status transferStatus) {
-        this.status = transferStatus;
+    public void setTransferStatus(TransferStatus transferStatus) {
+        this.transferStatus = transferStatus;
     }
 
 }

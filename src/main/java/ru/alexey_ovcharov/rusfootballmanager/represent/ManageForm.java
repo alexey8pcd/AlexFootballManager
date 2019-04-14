@@ -1,6 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import ru.alexey_ovcharov.rusfootballmanager.career.Message;
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.MoneyDay;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
@@ -12,7 +13,6 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.event.ActionEvent;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -127,7 +127,7 @@ public class ManageForm extends javax.swing.JDialog {
             }
         } else {
             LOGGER.info("holidays");
-            user.getSettings().simulateTransfers();
+            user.getSettings().simulateTransfers(currentDate);
             availableHours = ONE_EVENT_TRAINING_HOURS;
         }
         Optional<Tournament.Event> eventOpt = tournament.nextEvent();
@@ -181,7 +181,7 @@ public class ManageForm extends javax.swing.JDialog {
     private void showTransferForm() {
         TransferForm transferForm = new TransferForm(null, true);
         transferForm.setLocationRelativeTo(this);
-        transferForm.setTeam(team);
+        transferForm.setParams(team, user);
         transferForm.setVisible(true);
     }
 
@@ -193,10 +193,7 @@ public class ManageForm extends javax.swing.JDialog {
     }
 
     private void updateBudgetLabel() {
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setGroupingUsed(true);
-        String budgetPrinted = numberFormat.format(team.getBudget());
-        lBudget.setText("Бюджет: " + budgetPrinted);
+        lBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
     }
 
     private void showTournamentForm() {

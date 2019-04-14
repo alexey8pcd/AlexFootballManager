@@ -2,6 +2,9 @@ package ru.alexey_ovcharov.rusfootballmanager.common;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 
+import javax.annotation.Nonnull;
+import java.text.NumberFormat;
+
 /**
  * @author Alexey
  */
@@ -28,8 +31,8 @@ public class MoneyHelper {
     }
 
     public static int calculateTransferCost(int age, int avg) {
-        double top = Math.pow(2, Math.sqrt(avg - COST_AVG_BASE_VALUE)
-                * COST_AVG_POWER_COEFF) * COST_AVG_FACTOR;
+        double sqrt = Math.sqrt(avg - COST_AVG_BASE_VALUE);
+        double top = Math.pow(2, sqrt * COST_AVG_POWER_COEFF) * COST_AVG_FACTOR;
         double down = (double) age / A + B;
         return (int) Math.round(top / down);
     }
@@ -38,8 +41,18 @@ public class MoneyHelper {
         return TICKETS_COEFF * (BASE_TICKETS + stadiumManager) * support;
     }
 
+    @Nonnull
+    public static String formatSum(long sum) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        numberFormat.setGroupingUsed(true);
+        return numberFormat.format(sum);
+    }
+
     private MoneyHelper() {
 
     }
 
+    public static int calculateTransferCost(Player player) {
+        return calculateTransferCost(player.getAge(), player.getAverage());
+    }
 }

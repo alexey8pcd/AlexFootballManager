@@ -1,6 +1,8 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
@@ -13,6 +15,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
  */
 public class Market {
 
+    private static final Logger LOGGER = Logger.getLogger(Market.class.getName());
     private static final Market market = new Market();
     private final List<Transfer> players = new ArrayList<>();
     private final Set<Offer> offers = new HashSet<>();
@@ -29,8 +32,8 @@ public class Market {
         players.clear();
     }
 
-    public void addPlayer(Player player, Team team, Status status) {
-        players.add(new Transfer(player, team, status));
+    public void addPlayer(Player player, Team team, TransferStatus transferStatus) {
+        players.add(new Transfer(player, team, transferStatus));
     }
 
     public void removePlayer(Player player) {
@@ -55,9 +58,9 @@ public class Market {
         return players;
     }
 
-    public List<Transfer> getTransfers(Status transferStatus) {
+    public List<Transfer> getTransfers(TransferStatus transferStatus) {
         return players.stream()
-                      .filter(tr -> tr.getStatus() == transferStatus)
+                      .filter(tr -> tr.getTransferStatus() == transferStatus)
                       .collect(Collectors.toList());
     }
 
@@ -88,7 +91,7 @@ public class Market {
 
     public List<Offer> getOffers(Team team) {
         return offers.stream()
-                     .filter(offer -> offer.getFrom() == team)
+                     .filter(offer -> offer.getFromTeam() == team)
                      .collect(Collectors.toList());
     }
 
@@ -100,4 +103,22 @@ public class Market {
         this.offers.remove(selectedOffer);
     }
 
+    public void processOffers(LocalDate date) {
+        LOGGER.info("Start processOffers");
+        Set<Player> accepted = new HashSet<>();
+        for (Iterator<Offer> iterator = offers.iterator(); iterator.hasNext(); ) {
+            Offer offer = iterator.next();
+            Player player = offer.getPlayer();
+            if (accepted.contains(player)) {
+                offer.decline();
+                iterator.remove();
+            } else {
+                TransferResult transferResult = offer.process(date);
+                if (transferResult == TransferResult.ACCEPT) {
+                    accepted.add(player);
+                }
+            }
+
+        }
+    }
 }

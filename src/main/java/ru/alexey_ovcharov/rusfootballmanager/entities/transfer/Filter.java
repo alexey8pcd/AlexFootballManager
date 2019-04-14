@@ -8,7 +8,7 @@ public class Filter {
 
     public static final int DEFAULT_VALUE = 0;
 
-    private Status transferStatus;
+    private TransferStatus transferStatus;
     private GlobalPosition globalPosition;
     private LocalPosition localPosition;
     private String name;
@@ -17,12 +17,12 @@ public class Filter {
     private int avgFrom;
     private int avgTo;
 
-    public Filter(Status transferStatus) {
+    public Filter(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
     }
 
     public Filter() {
-        transferStatus = Status.ANY;
+        transferStatus = TransferStatus.ANY;
     }
 
     public GlobalPosition getGlobalPosition() {
@@ -87,11 +87,11 @@ public class Filter {
         this.avgTo = avgTo;
     }
 
-    public Status getTransferStatus() {
+    public TransferStatus getTransferStatus() {
         return transferStatus;
     }
 
-    public void setTransferStatus(Status transferStatus) {
+    public void setTransferStatus(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
     }
 
@@ -102,12 +102,12 @@ public class Filter {
             case TO_RENT:
             case ON_CONTRACT:
             case FREE_AGENT:
-                matchByStatus = transferStatus == transferPlayer.getStatus();
+                matchByStatus = transferStatus == transferPlayer.getTransferStatus();
                 break;
             case ON_TRANSFER_OR_RENT:
                 matchByStatus
-                        = Status.TO_RENT == transferPlayer.getStatus()
-                        || Status.ON_TRANSFER == transferPlayer.getStatus();
+                        = TransferStatus.TO_RENT == transferPlayer.getTransferStatus()
+                        || TransferStatus.ON_TRANSFER == transferPlayer.getTransferStatus();
                 break;
             default:
                 matchByStatus = true;

@@ -1,28 +1,50 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.career.Message;
+import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Offer;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Status;
+
+import java.time.LocalDate;
 
 /**
- *
  * @author Алексей
  */
 public class TransferOfferForm extends javax.swing.JDialog {
 
-    private Transfer transferPlayer;
-    private Team team;
-    private Status transferStatus;
+    private transient final Market market = Market.getInstance();
+    private transient Transfer transferPlayer;
+    private transient Team team;
+    private transient TransferStatus transferStatus;
+    private transient LocalDate date;
+    private transient User user;
+    private transient Offer offer;
 
-    public void setParams(Transfer transferPlayer, Team team,
-            Status transferStatus) {
+    public void setParams(Offer offer, User user) {
+        this.offer = offer;
+        this.transferStatus = offer.getTransferStatus();
+        this.team = offer.getFromTeam();
+        this.date = offer.getDate();
+        this.user = user;
+        ftfSum.setValue(offer.getSumOfTransfer());
+        ftfPay.setValue(offer.getFare());
+        spinnerContractDuration.setValue(offer.getContractDuration());
+        Player player = offer.getPlayer();
+        int transferCost = MoneyHelper.calculateTransferCost(player);
+        lDesiredSum.setText(MoneyHelper.formatSum(transferCost));
+        long fare = MoneyHelper.calculatePayForMatch(player);
+        lDesiredPay.setText(MoneyHelper.formatSum(fare));
+    }
+
+    public void setParams(Transfer transferPlayer, Team team, TransferStatus transferStatus, LocalDate date, User user) {
         this.transferPlayer = transferPlayer;
         this.team = team;
         this.transferStatus = transferStatus;
-        if (transferStatus == Status.ON_TRANSFER) {
+        this.date = date;
+        this.user = user;
+        if (transferStatus == TransferStatus.ON_TRANSFER) {
             int cost = transferPlayer.getCost();
             lDesiredSum.setText(String.valueOf(cost));
             ftfSum.setValue(cost / 10 * 11);
@@ -31,8 +53,7 @@ public class TransferOfferForm extends javax.swing.JDialog {
             lOfferedSum.setVisible(false);
             ftfSum.setVisible(false);
         }
-        int payForMatch = MoneyHelper.calculatePayForMatch(
-                transferPlayer.getPlayer());
+        int payForMatch = MoneyHelper.calculatePayForMatch(transferPlayer.getPlayer());
         lDesiredPay.setText(String.valueOf(payForMatch));
         ftfPay.setValue(payForMatch / 10 * 11);
 
@@ -44,12 +65,24 @@ public class TransferOfferForm extends javax.swing.JDialog {
     }
 
     private void makeOffer() {
-        int sum = ftfSum.getValue() == null ? 0 : (int) ftfSum.getValue();
+        Number sum = ftfSum.getValue() == null ? 0 : (Number) ftfSum.getValue();
         int pay = (int) ftfPay.getValue();
-        int contract = (int) spinnerContractDuration.getValue();
-        Offer offer = new Offer(team, transferPlayer.getTeam(), 
-                transferPlayer.getPlayer(), transferStatus, sum, pay, contract);
-        Market.getInstance().makeOffer(offer);
+        int contractDuration = (int) spinnerContractDuration.getValue();
+        if (offer == null) {
+            Team teamTo = transferPlayer.getTeam();
+            Player player = transferPlayer.getPlayer();
+            offer = new Offer(this.team, teamTo, player, transferStatus, sum.intValue(), pay, contractDuration, date);
+            offer.setOfferListener(offerObj -> {
+                String body = "Решение: " + offerObj.getTransferResult().getDescription();
+                user.addMessage(new Message("Директор команды " + offerObj.getFromTeam().getName(), offerObj.getDate(),
+                        "Трансферное предложение по игроку " + offerObj.getPlayer().getNameAbbrAndLastName(), body));
+            });
+            market.makeOffer(offer);
+        } else {
+            offer.setSumOfTransfer(sum.intValue());
+            offer.setFare(pay);
+            offer.setContractDuration(contractDuration);
+        }
     }
 
     @SuppressWarnings("unchecked")

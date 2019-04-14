@@ -1,5 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.career.User;
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.RenderUtil;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
@@ -15,6 +17,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.*;
 
@@ -37,6 +40,14 @@ public class TransferForm extends javax.swing.JDialog {
             "Команда"
     };
     private static final String[] EMPTY = {};
+    private static final int COLUMN_AGE = 1;
+    private static final int COLUMN_NAME_AND_LAST_NAME = 0;
+    private static final int COLUMN_GLOBAL_POSITION = 2;
+    private static final int COLUMN_LOCAL_POSITION = 3;
+    private static final int COLUMN_AVERAGE = 4;
+    private static final int COLUMN_TRANSFER_STATUS = 5;
+    private static final int COLUMN_COST = 6;
+    private static final int COLUMN_TEAM_NAME = 7;
 
     private final transient Market market = Market.getInstance();
 
@@ -46,6 +57,8 @@ public class TransferForm extends javax.swing.JDialog {
     private transient boolean filtered = false;
     private transient String[] localPositionCurrentData;
     private transient String[][] localPositionData;
+    private transient LocalDate date;
+    private transient User user;
 
     private static String[] namesToArray(Set<LocalPosition> positions) {
         int index = 1;
@@ -88,9 +101,12 @@ public class TransferForm extends javax.swing.JDialog {
         comboLocal.setEnabled(false);
     }
 
-    public void setTeam(Team team) {
+    public void setParams(Team team, User user) {
         this.team = team;
-        filter.setTransferStatus(Status.ANY);
+        this.date = user.getCurrentDate();
+        this.user = user;
+        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
+        filter.setTransferStatus(TransferStatus.ANY);
         rbAnyStatus.setEnabled(true);
         transferPlayers = market.getTransfers(team);
         tableTransfers.updateUI();
@@ -145,7 +161,7 @@ public class TransferForm extends javax.swing.JDialog {
                     } else {
                         TransferOfferForm offerForm = new TransferOfferForm(null, true);
                         offerForm.setLocationRelativeTo(this);
-                        offerForm.setParams(transfer, team, Status.ON_TRANSFER);
+                        offerForm.setParams(transfer, team, TransferStatus.ON_TRANSFER, date, user);
                         offerForm.setVisible(true);
                     }
                 }
@@ -165,7 +181,7 @@ public class TransferForm extends javax.swing.JDialog {
                                       .anyMatch(player1 -> player1 == player);
                 if (did) {
                     TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transfer, team, Status.TO_RENT);
+                    offerForm.setParams(transfer, team, TransferStatus.TO_RENT, date, user);
                     offerForm.setVisible(true);
                 }
             }
@@ -188,7 +204,7 @@ public class TransferForm extends javax.swing.JDialog {
     }
 
     private void onTransfer(Transfer transferPlayer) {
-        if (transferPlayer != null && transferPlayer.getStatus() != Status.ON_TRANSFER) {
+        if (transferPlayer != null && transferPlayer.getTransferStatus() != TransferStatus.ON_TRANSFER) {
             int result = JOptionPane.showConfirmDialog(null, "Вы хотите выставить этого "
                     + "игрока на трансфер?", "Подтверждение", JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
@@ -199,7 +215,7 @@ public class TransferForm extends javax.swing.JDialog {
     }
 
     private void toRent(Transfer transferPlayer) {
-        if (transferPlayer != null && transferPlayer.getStatus() != Status.TO_RENT) {
+        if (transferPlayer != null && transferPlayer.getTransferStatus() != TransferStatus.TO_RENT) {
             int result = JOptionPane.showConfirmDialog(null, "Вы хотите отдать этого "
                     + "игрока в аренду?", "Подтверждение", JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
@@ -275,9 +291,9 @@ public class TransferForm extends javax.swing.JDialog {
         spinnerAgeTo = new javax.swing.JSpinner();
         spinnerAvgFrom = new javax.swing.JSpinner();
         spinnerAvgTo = new javax.swing.JSpinner();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        labelGlobalPosition = new javax.swing.JLabel();
+        labelPosition = new javax.swing.JLabel();
+        labelNameAndLastName = new javax.swing.JLabel();
         bApplyFilter = new javax.swing.JButton();
         bClearFilter = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -286,6 +302,7 @@ public class TransferForm extends javax.swing.JDialog {
         bTryGetRent = new javax.swing.JButton();
         bTryBuy = new javax.swing.JButton();
         bMyOffers = new javax.swing.JButton();
+        labelBudget = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Трансферный рынок");
@@ -299,7 +316,7 @@ public class TransferForm extends javax.swing.JDialog {
                         {null, null, null, null, null, null, null, null}
                 },
                 new String[]{
-                        NAME_AND_LAST_NAME, AGE, "Амплуа", "Позиция", "Общее", "Статус", "Стоимость", "Команда"
+                        "Имя/фамилия", "Возраст", "Амплуа", "Позиция", "Общее", "Статус", "Стоимость", "Команда"
                 }
         ) {
             Class[] types = new Class[]{
@@ -475,7 +492,8 @@ public class TransferForm extends javax.swing.JDialog {
                                                                            .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                            .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                            .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                           .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                                           .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                    .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -507,11 +525,11 @@ public class TransferForm extends javax.swing.JDialog {
                                                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel1.setText("Амплуа");
+        labelGlobalPosition.setText("Амплуа");
 
-        jLabel2.setText("Позиция");
+        labelPosition.setText("Позиция");
 
-        jLabel3.setText(NAME_AND_LAST_NAME);
+        labelNameAndLastName.setText("Имя/фамилия");
 
         bApplyFilter.setText("Отфильтровать");
         bApplyFilter.addActionListener(new java.awt.event.ActionListener() {
@@ -538,9 +556,9 @@ public class TransferForm extends javax.swing.JDialog {
                                                                            .addGroup(jPanel1Layout.createSequentialGroup()
                                                                                                   .addGap(18, 18, 18)
                                                                                                   .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                                                                         .addComponent(jLabel1)
-                                                                                                                         .addComponent(jLabel2)
-                                                                                                                         .addComponent(jLabel3))
+                                                                                                                         .addComponent(labelGlobalPosition)
+                                                                                                                         .addComponent(labelPosition)
+                                                                                                                         .addComponent(labelNameAndLastName))
                                                                                                   .addGap(48, 48, 48)
                                                                                                   .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                                                                          .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -552,7 +570,7 @@ public class TransferForm extends javax.swing.JDialog {
                                                                                                   .addComponent(bApplyFilter)
                                                                                                   .addGap(18, 18, 18)
                                                                                                   .addComponent(bClearFilter)
-                                                                                                  .addGap(67, 67, 67)))
+                                                                                                  .addGap(53, 53, 53)))
                                                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                     .addContainerGap())
         );
@@ -565,14 +583,14 @@ public class TransferForm extends javax.swing.JDialog {
                                                                                                                                                                                          .addGap(12, 12, 12)
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                                                                                                                                                                                 .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                                                                .addComponent(jLabel1))
+                                                                                                                                                                                                                .addComponent(labelGlobalPosition))
                                                                                                                                                                                          .addGap(14, 14, 14)
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                                                                                                                                                                                .addComponent(jLabel2)
+                                                                                                                                                                                                                .addComponent(labelPosition)
                                                                                                                                                                                                                 .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                                                                                                                                                          .addGap(18, 18, 18)
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                                                                                                                                                                                .addComponent(jLabel3)
+                                                                                                                                                                                                                .addComponent(labelNameAndLastName)
                                                                                                                                                                                                                 .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                                                                                                                                                          .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -661,9 +679,12 @@ public class TransferForm extends javax.swing.JDialog {
                                                       .addComponent(jScrollPane1)
                                                       .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addGroup(layout.createSequentialGroup()
-                                                                      .addComponent(rbMyTeam)
-                                                                      .addGap(38, 38, 38)
-                                                                      .addComponent(rbAllTeams)
+                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                                      .addGroup(layout.createSequentialGroup()
+                                                                                                      .addComponent(rbMyTeam)
+                                                                                                      .addGap(38, 38, 38)
+                                                                                                      .addComponent(rbAllTeams))
+                                                                                      .addComponent(labelBudget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                                                       .addGap(38, 38, 38)
                                                                       .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                       .addContainerGap())
@@ -671,15 +692,15 @@ public class TransferForm extends javax.swing.JDialog {
         layout.setVerticalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                       .addGroup(layout.createSequentialGroup()
-                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                      .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                       .addGroup(layout.createSequentialGroup()
-                                                                      .addGap(23, 23, 23)
+                                                                      .addComponent(labelBudget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                      .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                                                       .addComponent(rbMyTeam)
-                                                                                      .addComponent(rbAllTeams)))
-                                                      .addGroup(layout.createSequentialGroup()
-                                                                      .addContainerGap()
-                                                                      .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                                                      .addComponent(rbAllTeams))))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                       .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -705,19 +726,19 @@ public class TransferForm extends javax.swing.JDialog {
     }
 
     private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
-        filter.setTransferStatus(Status.ON_TRANSFER);
+        filter.setTransferStatus(TransferStatus.ON_TRANSFER);
     }//GEN-LAST:event_rbForSaleActionPerformed
 
     private void rbForRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForRentActionPerformed
-        filter.setTransferStatus(Status.TO_RENT);
+        filter.setTransferStatus(TransferStatus.TO_RENT);
     }//GEN-LAST:event_rbForRentActionPerformed
 
     private void rbOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbOnSaleOrRentActionPerformed
-        filter.setTransferStatus(Status.ON_TRANSFER_OR_RENT);
+        filter.setTransferStatus(TransferStatus.ON_TRANSFER_OR_RENT);
     }//GEN-LAST:event_rbOnSaleOrRentActionPerformed
 
     private void rbAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAnyStatusActionPerformed
-        filter.setTransferStatus(Status.ANY);
+        filter.setTransferStatus(TransferStatus.ANY);
     }//GEN-LAST:event_rbAnyStatusActionPerformed
 
     private void comboGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGlobalActionPerformed
@@ -766,12 +787,13 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void myOffers() {
         MyOffersForm myOffersForm = new MyOffersForm(null, true);
-        myOffersForm.setTeam(team);
+        myOffersForm.setLocationRelativeTo(this);
+        myOffersForm.setParams(team, user);
         myOffersForm.setVisible(true);
     }
 
     private void rbFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbFreeAgentStatusActionPerformed
-        filter.setTransferStatus(Status.FREE_AGENT);
+        filter.setTransferStatus(TransferStatus.FREE_AGENT);
     }//GEN-LAST:event_rbFreeAgentStatusActionPerformed
 
     private void comboLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLocalActionPerformed
@@ -823,14 +845,15 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.JCheckBox cbAvgTo;
     private javax.swing.JComboBox<String> comboGlobal;
     private javax.swing.JComboBox<String> comboLocal;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel labelGlobalPosition;
+    private javax.swing.JLabel labelPosition;
+    private javax.swing.JLabel labelNameAndLastName;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel labelBudget;
     private javax.swing.JRadioButton rbAllTeams;
     private javax.swing.JRadioButton rbAnyStatus;
     private javax.swing.JRadioButton rbForRent;
@@ -859,13 +882,13 @@ public class TransferForm extends javax.swing.JDialog {
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (column == 4) {
+            if (column == COLUMN_AVERAGE) {
                 Object o = table.getValueAt(row, column);
                 if (o instanceof Integer) {
                     int val = (int) o;
                     setBackground(RenderUtil.getPlayerAverageColor(val));
                 }
-            } else if (column == 6) {
+            } else if (column == COLUMN_COST) {
                 String s = numberFormat.format(value);
                 setValue(s);
             }
@@ -901,22 +924,21 @@ public class TransferForm extends javax.swing.JDialog {
             if (transfer != null) {
                 Player player = transfer.getPlayer();
                 switch (column) {
-                    case 0:
+                    case COLUMN_NAME_AND_LAST_NAME:
                         return player.getFullName();
-                    case 1:
+                    case COLUMN_AGE:
                         return player.getAge();
-                    case 2:
-                        return player.getPreferredPosition().
-                                getPositionOnField().getAbbreviation();
-                    case 3:
+                    case COLUMN_GLOBAL_POSITION:
+                        return player.getPositionOnField().getAbbreviation();
+                    case COLUMN_LOCAL_POSITION:
                         return player.getPreferredPosition().getAbreviation();
-                    case 4:
+                    case COLUMN_AVERAGE:
                         return player.getAverage();
-                    case 5:
-                        return transfer.getStatus().getDescription();
-                    case 6:
+                    case COLUMN_TRANSFER_STATUS:
+                        return transfer.getTransferStatus().getDescription();
+                    case COLUMN_COST:
                         return transfer.getCost();
-                    case 7:
+                    case COLUMN_TEAM_NAME:
                         return transfer.getTeam().getName();
                 }
             }
@@ -926,9 +948,9 @@ public class TransferForm extends javax.swing.JDialog {
         @Override
         public Class<?> getColumnClass(int columnIndex) {
             switch (columnIndex) {
-                case 1:
-                case 4:
-                case 6:
+                case COLUMN_AGE:
+                case COLUMN_AVERAGE:
+                case COLUMN_COST:
                     return Integer.class;
             }
             return String.class;

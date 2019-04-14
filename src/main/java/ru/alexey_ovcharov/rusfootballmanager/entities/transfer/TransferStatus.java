@@ -1,6 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
-public enum Status {
+public enum TransferStatus {
 
     ON_TRANSFER("На продажу", 0),
     TO_RENT("В аренду", 1),
@@ -11,7 +11,7 @@ public enum Status {
     private final String description;
     private final int number;
 
-    private Status(String description, int number) {
+    private TransferStatus(String description, int number) {
         this.description = description;
         this.number = number;
     }
