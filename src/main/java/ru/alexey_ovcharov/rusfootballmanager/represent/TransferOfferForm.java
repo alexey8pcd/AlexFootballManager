@@ -14,13 +14,14 @@ import java.time.LocalDate;
  */
 public class TransferOfferForm extends javax.swing.JDialog {
 
-    private transient final Market market = Market.getInstance();
+    private final transient Market market = Market.getInstance();
     private transient Transfer transferPlayer;
     private transient Team team;
     private transient TransferStatus transferStatus;
     private transient LocalDate date;
     private transient User user;
     private transient Offer offer;
+    private Offer.OfferType offerType;
 
     public void setParams(Offer offer, User user) {
         this.offer = offer;
@@ -38,12 +39,14 @@ public class TransferOfferForm extends javax.swing.JDialog {
         lDesiredPay.setText(MoneyHelper.formatSum(fare));
     }
 
-    public void setParams(Transfer transferPlayer, Team team, TransferStatus transferStatus, LocalDate date, User user) {
+    public void setParams(Transfer transferPlayer, Team team, TransferStatus transferStatus, LocalDate date,
+                          User user, Offer.OfferType offerType) {
         this.transferPlayer = transferPlayer;
         this.team = team;
         this.transferStatus = transferStatus;
         this.date = date;
         this.user = user;
+        this.offerType = offerType;
         if (transferStatus == TransferStatus.ON_TRANSFER) {
             int cost = transferPlayer.getCost();
             lDesiredSum.setText(String.valueOf(cost));
@@ -66,16 +69,17 @@ public class TransferOfferForm extends javax.swing.JDialog {
 
     private void makeOffer() {
         Number sum = ftfSum.getValue() == null ? 0 : (Number) ftfSum.getValue();
-        int pay = (int) ftfPay.getValue();
+        int pay = ((Number) ftfPay.getValue()).intValue();
         int contractDuration = (int) spinnerContractDuration.getValue();
         if (offer == null) {
-            Team teamTo = transferPlayer.getTeam();
+            Team teamFrom = transferPlayer.getTeam();
             Player player = transferPlayer.getPlayer();
-            offer = new Offer(this.team, teamTo, player, transferStatus, sum.intValue(), pay, contractDuration, date);
+            offer = new Offer(teamFrom, this.team, player, transferStatus, sum.intValue(), pay,
+                    contractDuration, date, offerType);
             offer.setOfferListener(offerObj -> {
                 String body = "Решение: " + offerObj.getTransferResult().getDescription();
-                user.addMessage(new Message("Директор команды " + offerObj.getFromTeam().getName(), offerObj.getDate(),
-                        "Трансферное предложение по игроку " + offerObj.getPlayer().getNameAbbrAndLastName(), body));
+                user.addMessage(new Message("Директор команды " + teamFrom.getName(), date,
+                        "Трансферное предложение по игроку " + player.getNameAbbrAndLastName(), body));
             });
             market.makeOffer(offer);
         } else {

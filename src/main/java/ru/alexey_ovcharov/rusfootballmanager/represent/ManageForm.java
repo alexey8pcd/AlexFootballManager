@@ -193,7 +193,9 @@ public class ManageForm extends javax.swing.JDialog {
     }
 
     private void updateBudgetLabel() {
-        lBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
+        long budget = team.getBudget();
+        String budgetPrinted = MoneyHelper.formatSum(budget);
+        lBudget.setText("Бюджет: " + budgetPrinted);
     }
 
     private void showTournamentForm() {

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
@@ -37,12 +38,10 @@ public class Market {
     }
 
     public void removePlayer(Player player) {
-        for (Transfer transferPlayer : players) {
-            if (transferPlayer.getPlayer() == player) {
-                players.remove(transferPlayer);
-                return;
-            }
-        }
+        players.stream()
+               .filter(transferPlayer -> transferPlayer.getPlayer() == player)
+               .findFirst()
+               .ifPresent(players::remove);
     }
 
     public List<Transfer> getTransfers() {
@@ -91,7 +90,7 @@ public class Market {
 
     public List<Offer> getOffers(Team team) {
         return offers.stream()
-                     .filter(offer -> offer.getFromTeam() == team)
+                     .filter(offer -> offer.getFromTeam() == team || offer.getToTeam() == team)
                      .collect(Collectors.toList());
     }
 
@@ -120,5 +119,17 @@ public class Market {
             }
 
         }
+    }
+
+    public void performTransfer(Offer offer) {
+        Player player = offer.getPlayer();
+        Team fromTeam = offer.getFromTeam();
+        fromTeam.removePlayer(player);
+
+        Team toTeam = offer.getToTeam();
+        toTeam.addPlayer(player);
+        player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
+        removePlayer(player);
+        addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
     }
 }

@@ -2,6 +2,7 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import javax.swing.JOptionPane;
 
+import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Personal;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
@@ -12,16 +13,23 @@ import java.time.LocalDate;
  */
 public class PersonalForm extends javax.swing.JDialog {
 
-    private static final String TOOLTIP_TEXT
-            = "<html>1->2:  10 000<br>"
-            + "2->3:  25 000<br>"
-            + "3->4:  50 000<br>"
-            + "4->5:  100 000<br>"
-            + "5->6:  250 000<br>"
-            + "6->7:  500 000<br>"
-            + "7->8:  1 000 000<br>"
-            + "8->9:  2 500 000<br>"
-            + "9->10:  5 000 000";
+    private static final String TOOLTIP_TEXT;
+
+    static {
+        int[] nextLevelSums = Personal.NEXT_LEVEL_SUMS;
+        StringBuilder builder = new StringBuilder("<html>");
+        for (int i = 0; i < nextLevelSums.length; i++) {
+            int i1 = i + 1;
+            builder.append(i1)
+                   .append("->")
+                   .append(i1 + 1)
+                   .append(": ")
+                   .append(MoneyHelper.formatSum(nextLevelSums[i]))
+                   .append("<br>");
+        }
+        TOOLTIP_TEXT = builder.toString();
+    }
+
     private static final String INFO = "Повышение квалификации персонала";
     private transient Team team;
     private transient LocalDate localDate;
@@ -47,7 +55,7 @@ public class PersonalForm extends javax.swing.JDialog {
     }
 
     private void updateInterface(Team team) {
-        lBudget.setText("Бюджет: " + team.getBudget());
+        lBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
         Personal personal = team.getPersonal();
 
         pbDoctor.setValue(personal.getDoctor() + 1);
@@ -97,28 +105,28 @@ public class PersonalForm extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        labelDoctor = new javax.swing.JLabel();
         pbDoctor = new javax.swing.JProgressBar();
         bDoctorInc = new javax.swing.JButton();
         bTrDefInc = new javax.swing.JButton();
         pbTrainerDefenders = new javax.swing.JProgressBar();
-        jLabel2 = new javax.swing.JLabel();
+        labelDefendersTrainer = new javax.swing.JLabel();
         pbTrainerMidfielders = new javax.swing.JProgressBar();
         bTrMidInc = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
+        labelMidfieldersTrainer = new javax.swing.JLabel();
         bForwTrInc = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        labelGoalkeepersTrainer = new javax.swing.JLabel();
         pbTrainerForwards = new javax.swing.JProgressBar();
         bGkTrInc = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
+        labelForwardsTrainer = new javax.swing.JLabel();
         pbTrainerGoalkeepers = new javax.swing.JProgressBar();
-        jLabel6 = new javax.swing.JLabel();
+        labelPsyhologist = new javax.swing.JLabel();
         bPsyInc = new javax.swing.JButton();
         pbPsyholigist = new javax.swing.JProgressBar();
         bJunTrInc = new javax.swing.JButton();
         pbJuniorsTrainer = new javax.swing.JProgressBar();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        labelJuniorsTrainer = new javax.swing.JLabel();
+        labelStadiumManager = new javax.swing.JLabel();
         pbStadiumManager = new javax.swing.JProgressBar();
         bStadManInc = new javax.swing.JButton();
         lBudget = new javax.swing.JLabel();
@@ -126,7 +134,7 @@ public class PersonalForm extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Управление персоналом");
 
-        jLabel1.setText("Врач");
+        labelDoctor.setText("Врач");
 
         pbDoctor.setMaximum(10);
         pbDoctor.setString("0");
@@ -151,7 +159,7 @@ public class PersonalForm extends javax.swing.JDialog {
         pbTrainerDefenders.setString("0");
         pbTrainerDefenders.setStringPainted(true);
 
-        jLabel2.setText("Тренер защитников");
+        labelDefendersTrainer.setText("Тренер защитников");
 
         pbTrainerMidfielders.setMaximum(10);
         pbTrainerMidfielders.setString("0");
@@ -164,7 +172,7 @@ public class PersonalForm extends javax.swing.JDialog {
             }
         });
 
-        jLabel3.setText("Тренер полузащитников");
+        labelMidfieldersTrainer.setText("Тренер полузащитников");
 
         bForwTrInc.setText("Повысить");
         bForwTrInc.addActionListener(new java.awt.event.ActionListener() {
@@ -173,7 +181,7 @@ public class PersonalForm extends javax.swing.JDialog {
             }
         });
 
-        jLabel4.setText("Тренер вратарей");
+        labelGoalkeepersTrainer.setText("Тренер вратарей");
 
         pbTrainerForwards.setMaximum(10);
         pbTrainerForwards.setString("0");
@@ -186,13 +194,13 @@ public class PersonalForm extends javax.swing.JDialog {
             }
         });
 
-        jLabel5.setText("Тренер нападающих");
+        labelForwardsTrainer.setText("Тренер нападающих");
 
         pbTrainerGoalkeepers.setMaximum(10);
         pbTrainerGoalkeepers.setString("0");
         pbTrainerGoalkeepers.setStringPainted(true);
 
-        jLabel6.setText("Психолог");
+        labelPsyhologist.setText("Психолог");
 
         bPsyInc.setText("Повысить");
         bPsyInc.addActionListener(new java.awt.event.ActionListener() {
@@ -216,20 +224,16 @@ public class PersonalForm extends javax.swing.JDialog {
         pbJuniorsTrainer.setString("0");
         pbJuniorsTrainer.setStringPainted(true);
 
-        jLabel7.setText("Тренер молодежного состава");
+        labelJuniorsTrainer.setText("Тренер молодежного состава");
 
-        jLabel8.setText("Менеджер стадиона");
+        labelStadiumManager.setText("Менеджер стадиона");
 
         pbStadiumManager.setMaximum(10);
         pbStadiumManager.setString("0");
         pbStadiumManager.setStringPainted(true);
 
         bStadManInc.setText("Повысить");
-        bStadManInc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bStadManIncActionPerformed(evt);
-            }
-        });
+        bStadManInc.addActionListener(this::bStadManIncActionPerformed);
 
         lBudget.setText("Бюджет");
 
@@ -241,16 +245,16 @@ public class PersonalForm extends javax.swing.JDialog {
                                                                                   .addContainerGap()
                                                                                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                                                                                   .addComponent(lBudget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelDefendersTrainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelMidfieldersTrainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                                                   .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                                                                                                                                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                             .addComponent(labelPsyhologist, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                                                                                                              .addGap(0, 0, Short.MAX_VALUE))
-                                                                                                  .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE))
+                                                                                                  .addComponent(labelGoalkeepersTrainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelForwardsTrainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelDoctor, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelJuniorsTrainer, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                  .addComponent(labelStadiumManager, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE))
                                                                                   .addGap(18, 18, 18)
                                                                                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                                                                   .addComponent(pbPsyholigist, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -278,17 +282,17 @@ public class PersonalForm extends javax.swing.JDialog {
                       .addGroup(layout.createSequentialGroup()
                                       .addContainerGap()
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelDoctor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bDoctorInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbDoctor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelDefendersTrainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bTrDefInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbTrainerDefenders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelMidfieldersTrainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bTrMidInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbTrainerMidfielders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -296,25 +300,25 @@ public class PersonalForm extends javax.swing.JDialog {
                                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                                       .addComponent(bForwTrInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                       .addComponent(pbTrainerForwards, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                                      .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                      .addComponent(labelForwardsTrainer, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                       .addComponent(bGkTrInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbTrainerGoalkeepers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                      .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                      .addComponent(labelGoalkeepersTrainer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelPsyhologist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bPsyInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbPsyholigist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelJuniorsTrainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bJunTrInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbJuniorsTrainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                       .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                      .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                      .addComponent(labelStadiumManager, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(bStadManInc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                       .addComponent(pbStadiumManager, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                       .addGap(18, 18, 18)
@@ -479,14 +483,14 @@ public class PersonalForm extends javax.swing.JDialog {
     private javax.swing.JButton bStadManInc;
     private javax.swing.JButton bTrDefInc;
     private javax.swing.JButton bTrMidInc;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel labelDoctor;
+    private javax.swing.JLabel labelDefendersTrainer;
+    private javax.swing.JLabel labelMidfieldersTrainer;
+    private javax.swing.JLabel labelGoalkeepersTrainer;
+    private javax.swing.JLabel labelForwardsTrainer;
+    private javax.swing.JLabel labelPsyhologist;
+    private javax.swing.JLabel labelJuniorsTrainer;
+    private javax.swing.JLabel labelStadiumManager;
     private javax.swing.JLabel lBudget;
     private javax.swing.JProgressBar pbDoctor;
     private javax.swing.JProgressBar pbJuniorsTrainer;

@@ -16,20 +16,39 @@ import java.util.Objects;
  */
 public class Offer {
 
+    public OfferType getOfferType() {
+        return offerType;
+    }
+
+    public enum OfferType {
+        BUY("Купить"),
+        RENT("Арендовать");
+        private final String description;
+
+        OfferType(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     private static final int NO_ARG_DECLINE_CHANCE = 7;
-    private Team fromTeam;
-    private Team toTeam;
-    private Player player;
-    private TransferStatus transferStatus;
+    private final Team fromTeam;
+    private final Team toTeam;
+    private final Player player;
+    private final TransferStatus transferStatus;
     private int sumOfTransfer;
     private int fare;
     private int contractDuration;
     private LocalDate date;
+    private final OfferType offerType;
     private TransferResult transferResult;
     private OfferListener offerListener;
 
     public Offer(Team fromTeam, Team toTeam, Player player, TransferStatus transferStatus,
-                 int sumOfTransfer, int fare, int contractDuration, LocalDate date) {
+                 int sumOfTransfer, int fare, int contractDuration, LocalDate date, OfferType offerType) {
         this.fromTeam = fromTeam;
         this.toTeam = toTeam;
         this.player = player;
@@ -38,6 +57,7 @@ public class Offer {
         this.sumOfTransfer = sumOfTransfer;
         this.fare = fare;
         this.date = date;
+        this.offerType = offerType;
         this.transferResult = TransferResult.UNDER_CONSIDERATION;
     }
 

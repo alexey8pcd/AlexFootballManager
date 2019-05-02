@@ -16,6 +16,7 @@ public class Filter {
     private int ageTo;
     private int avgFrom;
     private int avgTo;
+    private int priceLow;
 
     public Filter(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
@@ -121,7 +122,12 @@ public class Filter {
         boolean matchByAgeTo = ageTo == DEFAULT_VALUE || player.getAge() <= ageTo;
         boolean matchByAvgFrom = avgFrom == DEFAULT_VALUE || player.getAverage() >= avgFrom;
         boolean matchByAvgTo = avgTo == DEFAULT_VALUE || player.getAverage() <= avgTo;
+        boolean matchPrice = transferPlayer.getCost() <= priceLow;
         return matchByAgeFrom && matchByAgeTo && matchByAvgFrom && matchByAvgTo
-                && matchByGlobal && matchByLocalPosition && matchByName && matchByStatus;
+                && matchByGlobal && matchByLocalPosition && matchByName && matchByStatus && matchPrice;
+    }
+
+    public void setPriceLow(int priceLow) {
+        this.priceLow = priceLow;
     }
 }

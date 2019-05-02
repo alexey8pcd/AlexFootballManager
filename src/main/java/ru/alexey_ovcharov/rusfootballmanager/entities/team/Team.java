@@ -57,6 +57,7 @@ public class Team {
     private final String name;
     private final Map<LocalDate, MoneyDay> moneyLog = new LinkedHashMap<>();
     private final Set<Credit> credits = new HashSet<>();
+    private final Market market = Market.getInstance();
 
     private List<Player> startPlayers = new ArrayList<>();
     private List<Player> substitutes = new ArrayList<>();
@@ -107,7 +108,7 @@ public class Team {
         if (added) {
             player.decreaseMood(7);
         }
-        List<Transfer> transfers = Market.getInstance().getTransfers(this);
+        List<Transfer> transfers = market.getTransfers(this);
         transfers.stream()
                  .filter(transfer -> transfer.getPlayer() == player)
                  .forEach(transfer -> {
@@ -120,7 +121,7 @@ public class Team {
         if (playersOnRent.add(player)) {
             player.decreaseMood(4);
         }
-        List<Transfer> transfers = Market.getInstance().getTransfers(this);
+        List<Transfer> transfers = market.getTransfers(this);
         transfers.stream()
                  .filter(transfer -> transfer.getPlayer() == player)
                  .forEach(transfer -> {
@@ -623,7 +624,7 @@ public class Team {
             addPlayer(player);
             juniors.remove(player);
             player.setContract(new Contract(2, MoneyHelper.calculatePayForMatch(player)));
-            Market.getInstance().addPlayer(player, this, TransferStatus.ON_CONTRACT);
+            market.addPlayer(player, this, TransferStatus.ON_CONTRACT);
             return true;
         }
         return false;
@@ -861,5 +862,10 @@ public class Team {
         credits.add(credit);
         budget += credit.getSum();
         addMoneyLog(date, credit.getSum(), "Бюджет исчерпан, предоставлен кредит от спонсора на сумму " + credit.getSum());
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
