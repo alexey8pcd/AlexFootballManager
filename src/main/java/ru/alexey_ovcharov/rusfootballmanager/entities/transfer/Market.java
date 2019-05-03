@@ -88,9 +88,15 @@ public class Market {
         }
     }
 
-    public List<Offer> getOffers(Team team) {
+    public List<Offer> getOffersBuy(Team team) {
         return offers.stream()
-                     .filter(offer -> offer.getFromTeam() == team || offer.getToTeam() == team)
+                     .filter(offer -> offer.getToTeam() == team)
+                     .collect(Collectors.toList());
+    }
+
+    public List<Offer> getOffersSale(Team team) {
+        return offers.stream()
+                     .filter(offer -> offer.getFromTeam() == team)
                      .collect(Collectors.toList());
     }
 
@@ -122,14 +128,33 @@ public class Market {
     }
 
     public void performTransfer(Offer offer) {
-        Player player = offer.getPlayer();
-        Team fromTeam = offer.getFromTeam();
-        fromTeam.removePlayer(player);
+        if (offer.getTransferStatus() == TransferStatus.ON_TRANSFER
+                || offer.getTransferStatus() == TransferStatus.ON_TRANSFER_OR_RENT
+                || offer.getTransferStatus() == TransferStatus.ON_CONTRACT) {
+            Player player = offer.getPlayer();
+            Team fromTeam = offer.getFromTeam();
+            fromTeam.removePlayer(player);
+            fromTeam.budgetOperation(offer.getSumOfTransfer(), offer.getDate(),
+                    "Продажа игрока " + player.getNameAbbrAndLastName());
 
-        Team toTeam = offer.getToTeam();
-        toTeam.addPlayer(player);
-        player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
-        removePlayer(player);
-        addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
+            Team toTeam = offer.getToTeam();
+            toTeam.addPlayer(player);
+            toTeam.budgetOperation(-offer.getSumOfTransfer(), offer.getDate(),
+                    "Покупка игрока " + player.getNameAbbrAndLastName());
+            player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
+            removePlayer(player);
+            addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
+            removeOffer(offer);
+
+        } else if (offer.getTransferStatus() == TransferStatus.FREE_AGENT) {
+            //свободный агент
+            Player player = offer.getPlayer();
+            Team toTeam = offer.getToTeam();
+            toTeam.addPlayer(player);
+            player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
+            addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
+            removeOffer(offer);
+        }
+
     }
 }

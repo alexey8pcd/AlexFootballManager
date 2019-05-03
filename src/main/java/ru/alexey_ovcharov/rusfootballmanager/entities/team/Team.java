@@ -17,9 +17,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
 import ru.alexey_ovcharov.rusfootballmanager.entities.training.Exercise;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.TransferStatus;
-import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Transfer;
+import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.*;
 
 import javax.annotation.Nonnull;
 import javax.xml.transform.TransformerException;
@@ -103,6 +101,13 @@ public class Team {
         return player.getPositionOnField() != GlobalPosition.GOALKEEPER;
     }
 
+    private static Double getPlayersAvgAge(List<Player> players) {
+        return players.stream()
+                      .mapToInt(Player::getAge)
+                      .average()
+                      .orElse(0);
+    }
+
 
     public void onTransfer(Player player) {
         boolean added = playersOnTransfer.add(player);
@@ -173,9 +178,9 @@ public class Team {
         this.sponsor = sponsor;
     }
 
-    public void simulateTransfers() {
+    public void simulateTransfers(LocalDate date) {
         simulateSale();
-        simulateBuy();
+        simulateBuy(date);
     }
 
     /**
@@ -247,11 +252,86 @@ public class Team {
      * 3) игрок в команде на данную позицию 1 либо 0<br>
      * 4) количество игроков в команде меньше 27<br>
      * 5) средний возраст игроков на данную позицию в команде больше 30 лет<br>
+     *
+     * @param date
      */
-    private void simulateBuy() {
+    private void simulateBuy(LocalDate date) {
         if (getPlayersCount() < MANY_PLAYERS) {
+            List<Offer> offers = market.getOffersBuy(this)
+                                       .stream()
+                                       .filter(offer -> offer.getToTeam() == this)
+                                       .collect(toList());
+            if (offers.size() < 6) {
+                List<Player> allPlayers = getAllPlayers();
+                Set<LocalPosition> insufficientPositions = getInsufficientPositions(allPlayers);
+                if (!insufficientPositions.isEmpty()) {
+                    makeOffers(date, offers, insufficientPositions, Player.MAX_AGE);
+                } else {
+                    int ageLimit = 30;
+                    Set<LocalPosition> oldPosition = allPlayers.stream()
+                                                               .collect(groupingBy(Player::getPreferredPosition))
+                                                               .entrySet()
+                                                               .stream()
+                                                               .filter(entry -> getPlayersAvgAge(
+                                                                       entry.getValue()) >= ageLimit)
+                                                               .map(Map.Entry::getKey)
+                                                               .collect(toSet());
+                    if (!oldPosition.isEmpty()) {
+                        makeOffers(date, offers, oldPosition, ageLimit - 3);
+                    }
+                }
+            }
         }
-        //TODO
+    }
+
+    private static Set<LocalPosition> getInsufficientPositions(List<Player> allPlayers) {
+        Map<LocalPosition, List<Player>> playersByPositions = allPlayers.stream()
+                                                                        .collect(groupingBy(
+                                                                                Player::getPreferredPosition));
+        Set<LocalPosition> localPositions = EnumSet.noneOf(LocalPosition.class);
+        for (Map.Entry<LocalPosition, List<Player>> entry : playersByPositions.entrySet()) {
+            List<Player> candidates = entry.getValue();
+            int size = candidates.size();
+            LocalPosition position = entry.getKey();
+            if ((position == LocalPosition.CENTRAL_DEFENDER && size < 3) ||
+                    (position != LocalPosition.CENTRAL_DEFENDER && size < 2)) {
+                localPositions.add(position);
+            }
+        }
+        return localPositions;
+    }
+
+    private void makeOffers(LocalDate date, List<Offer> offers, Set<LocalPosition> localPositions, int ageLimit) {
+        int maxSum = (int) Math.min(budget / 3 * 2, Integer.MAX_VALUE);
+        Set<LocalPosition> offeredPositions = offers.stream()
+                                                    .map(Offer::getPlayer)
+                                                    .map(Player::getPreferredPosition)
+                                                    .collect(toSet());
+        localPositions.removeAll(offeredPositions);
+        for (LocalPosition localPosition : localPositions) {
+            Filter filter = Filter.of(localPosition);
+            filter.setPriceLow(maxSum);
+            filter.setAgeTo(ageLimit);
+            filter.setTransferStatus(TransferStatus.ANY);
+            filter.setAvgFrom(getAverage() - 1);
+            List<Transfer> transfers = market.getTransfers(filter);
+            if (!transfers.isEmpty()) {
+                Transfer transfer = transfers.get(Randomization.nextInt(transfers.size()));
+                Player player = transfer.getPlayer();
+                Offer offer = makeOffer(date, transfer, player);
+                market.makeOffer(offer);
+            }
+        }
+    }
+
+    private Offer makeOffer(LocalDate date, Transfer transfer, Player player) {
+        Team team = transfer.getTeam();
+        TransferStatus transferStatus = transfer.getTransferStatus();
+        int cost = transfer.getCost();
+        int fare = MoneyHelper.calculatePayForMatch(player);
+        int contractDuration = Randomization.nextInt(3) + 3;
+        return new Offer(team, this, player, transferStatus, cost, fare,
+                contractDuration, date, Offer.OfferType.BUY);
     }
 
     public List<Player> getPlayersOnPosition(LocalPosition position) {
@@ -307,6 +387,7 @@ public class Team {
             }
             int number = getFirstFreeNumber();
             playersNumbers.put(number, player);
+            teamwork = Math.max(1, teamwork - 2);
             return true;
         }
         return false;

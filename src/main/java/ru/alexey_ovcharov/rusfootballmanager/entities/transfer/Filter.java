@@ -3,6 +3,9 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+
+import java.util.Set;
 
 public class Filter {
 
@@ -24,6 +27,12 @@ public class Filter {
 
     public Filter() {
         transferStatus = TransferStatus.ANY;
+    }
+
+    public static Filter of(LocalPosition localPosition) {
+        Filter filter = new Filter();
+        filter.setLocalPosition(localPosition);
+        return filter;
     }
 
     public GlobalPosition getGlobalPosition() {

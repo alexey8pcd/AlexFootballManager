@@ -48,7 +48,7 @@ public class CareerSettings {
                        List<Player> players = team.getAllPlayers();
                        players.forEach(player -> transferMarket.addPlayer(player, team, TransferStatus.ON_CONTRACT));
                    });
-            simulateTransfers(date);
+            simulateTransfers(date, myTeam);
         }
     }
 
@@ -73,12 +73,13 @@ public class CareerSettings {
         }
     }
 
-    public void simulateTransfers(LocalDate date) {
+    public void simulateTransfers(LocalDate date, Team myTeam) {
         transferMarket.processOffers(date);
         leagues.stream()
                .map(League::getTeams)
                .flatMap(Collection::stream)
-               .forEach(Team::simulateTransfers);
+               .filter(team -> team != myTeam)
+               .forEach(team -> team.simulateTransfers(date));
     }
 
 }

@@ -119,9 +119,14 @@ public class TransferForm extends javax.swing.JDialog {
         this.team = team;
         this.date = user.getCurrentDate();
         this.user = user;
-        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
+        long budget = team.getBudget();
+        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(budget));
         filter.setTransferStatus(TransferStatus.ANY);
-        spinnerPrice.setValue((int) Math.min(team.getBudget(), Integer.MAX_VALUE));
+        spinnerPrice.setValue((int) Math.min(budget, Integer.MAX_VALUE));
+        SpinnerModel model = spinnerPrice.getModel();
+        if (model instanceof SpinnerNumberModel) {
+            ((SpinnerNumberModel) model).setStepSize(budget / 20);
+        }
         radioButtonAnyStatus.setEnabled(true);
         transferPlayers = market.getTransfers(team);
         int maxPage = transferPlayers.size() / PAGE_SIZE;
@@ -173,7 +178,7 @@ public class TransferForm extends javax.swing.JDialog {
         transferPlayer.ifPresent(transfer -> {
             Player player = transfer.getPlayer();
             if (!team.containsPlayer(player)) {
-                List<Offer> offers = market.getOffers(team);
+                List<Offer> offers = market.getOffersBuy(team);
                 boolean did = offers.stream()
                                     .map(Offer::getPlayer)
                                     .anyMatch(player1 -> player1 == player);
@@ -188,6 +193,8 @@ public class TransferForm extends javax.swing.JDialog {
                         offerForm.setLocationRelativeTo(this);
                         offerForm.setParams(transfer, team, TransferStatus.ON_TRANSFER, date, user, Offer.OfferType.BUY);
                         offerForm.setVisible(true);
+                        long budget = team.getBudget();
+                        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(budget));
                     }
                 }
             }
@@ -200,7 +207,7 @@ public class TransferForm extends javax.swing.JDialog {
         transferPlayer.ifPresent(transfer -> {
             Player player = transfer.getPlayer();
             if (!team.containsPlayer(player)) {
-                List<Offer> myOffers = market.getOffers(team);
+                List<Offer> myOffers = market.getOffersBuy(team);
                 boolean did = myOffers.stream()
                                       .map(Offer::getPlayer)
                                       .anyMatch(player1 -> player1 == player);

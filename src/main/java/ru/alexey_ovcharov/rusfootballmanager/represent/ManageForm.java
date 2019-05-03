@@ -127,7 +127,7 @@ public class ManageForm extends javax.swing.JDialog {
             }
         } else {
             LOGGER.info("holidays");
-            user.getSettings().simulateTransfers(currentDate);
+            user.getSettings().simulateTransfers(currentDate, team);
             availableHours = ONE_EVENT_TRAINING_HOURS;
         }
         Optional<Tournament.Event> eventOpt = tournament.nextEvent();
@@ -183,6 +183,7 @@ public class ManageForm extends javax.swing.JDialog {
         transferForm.setLocationRelativeTo(this);
         transferForm.setParams(team, user);
         transferForm.setVisible(true);
+        updateBudgetLabel();
     }
 
     private void showPersonalForm() {

@@ -146,6 +146,36 @@ public class Offer {
 
     public TransferResult process(LocalDate date) {
         this.date = date;
+        switch (transferStatus) {
+            case ON_TRANSFER:
+            case ON_TRANSFER_OR_RENT:
+                onTransfer();
+                break;
+            case ON_CONTRACT:
+                onContract();
+                break;
+            case TO_RENT:
+                toRent();
+                break;
+            case FREE_AGENT:
+                freeAgent();
+                break;
+        }
+        if (offerListener != null) {
+            offerListener.onStatusChanged(this);
+        }
+        return transferResult;
+    }
+
+    private void freeAgent() {
+        //todo not supported yet
+    }
+
+    private void toRent() {
+        //todo not supported yet
+    }
+
+    private void onContract() {
         if (transferResult == TransferResult.UNDER_CONSIDERATION
                 || transferResult == TransferResult.MORE_SUM
                 || transferResult == TransferResult.AMBIGUOUS) {
@@ -171,11 +201,21 @@ public class Offer {
                     }
                 }
             }
-            if (offerListener != null) {
-                offerListener.onStatusChanged(this);
-            }
         }
-        return transferResult;
+    }
+
+    private void onTransfer() {
+        //если игрока выставили на продажу, то согласие за сумму трансфера
+        int playerCost = getPlayerCost();
+        if (sumOfTransfer >= playerCost) {
+            transferResult = TransferResult.ACCEPT;
+        } else {
+            transferResult = TransferResult.AMBIGUOUS;
+        }
+    }
+
+    private int getPlayerCost() {
+        return MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
     }
 
     private boolean isPlayerReadyToTransfer() {
@@ -197,7 +237,7 @@ public class Offer {
     private boolean isSufficientAmount() {
         int average = player.getAverage();
         int fromAverage = fromTeam.getAverage();
-        int playerCost = MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
+        int playerCost = getPlayerCost();
         int diff = average - fromAverage;
         int desiredCost = playerCost / 100 * (110 + diff * 5);
         return sumOfTransfer >= desiredCost;
