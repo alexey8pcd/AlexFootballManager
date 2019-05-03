@@ -26,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -42,11 +43,11 @@ public class Team {
     private static final int TEAMWORK_DEFAULT = 20;
     private static final int MAX_VALUE = 99;
     private static final int MIN_VALUE = 1;
+    private static final int MANY_PLAYERS = 27;
 
     public static final int MAX_PLAYERS_COUNT = 33;
     public static final long STABLE_BUDGET_VALUE = 150_000;
     public static final int STABLE_PLAYERS_COUNT = BASE_PLAYERS_COUNT + 3;
-
 
 
     private final Set<Player> playersOnTransfer = new HashSet<>();
@@ -173,23 +174,70 @@ public class Team {
     }
 
     public void simulateTransfers() {
-        if (getPlayersCount() < 30) {
-            simulateSale();
-        }
-        if (getPlayersCount() > 27) {
-            simulateBuy();
-        }
+        simulateSale();
+        simulateBuy();
     }
 
     /**
      * Симуляция желания продажи: <br>
      * 1) игроков на данную позицию 3 и больше<br>
-     * 2) игроку больше 30 лет, а в команде есть более молодой игрок с большим показателем на этой позиции<br>
-     * 3) игроков в команде больше 27<br>
+     * 3) игроков в команде больше 28<br>
      * 4) среднее игрока меньше среднего по команде, а возраст игрока больше среднего по команде<br>
      */
     private void simulateSale() {
-        //TODO
+        List<Player> allPlayers = getAllPlayers();
+        allPlayers.removeAll(playersOnTransfer);
+
+        Map<LocalPosition, List<Player>> map = allPlayers.stream()
+                                                         .collect(groupingBy(Player::getPreferredPosition));
+        Set<Player> playersToTransfer = new HashSet<>();
+        for (Map.Entry<LocalPosition, List<Player>> entry : map.entrySet()) {
+            List<Player> candidates = entry.getValue();
+            int size = candidates.size();
+            LocalPosition position = entry.getKey();
+            if (position == LocalPosition.CENTRAL_DEFENDER && size > 4) {
+                List<Player> players = findCandidateOnTransfer(candidates, 4);
+                playersToTransfer.addAll(players);
+            } else if (position != LocalPosition.CENTRAL_DEFENDER && size > 3) {
+                List<Player> players = findCandidateOnTransfer(candidates, 3);
+                playersToTransfer.addAll(players);
+            }
+        }
+
+        int playersCount = getPlayersCount();
+        if (playersCount > MANY_PLAYERS) {
+            int teamAverage = getAverage();
+            double ageAvg = allPlayers.stream()
+                                      .mapToInt(Player::getAge)
+                                      .average()
+                                      .orElse(0);
+            for (Player player : allPlayers) {
+                if (player.getAge() > ageAvg && player.getAverage() < teamAverage) {
+                    playersToTransfer.add(player);
+                }
+            }
+        }
+
+        List<Player> playersToTransferList = new ArrayList<>(playersToTransfer);
+        if (playersCount - playersToTransferList.size() <= MANY_PLAYERS) {
+            int countToTransfer = playersCount - MANY_PLAYERS;
+            if (countToTransfer > 0) {
+                for (int i = 0; i < countToTransfer; i++) {
+                    playersToTransferList.remove(Randomization.nextInt(playersToTransferList.size()));
+                }
+            }
+        }
+        for (Player player : playersToTransferList) {
+            onTransfer(player);
+        }
+
+    }
+
+    private static List<Player> findCandidateOnTransfer(List<Player> candidates, int limit) {
+        return candidates.stream()
+                         .sorted(Player.TRANSFER_PRIORITY_CALCULATOR)
+                         .skip(limit)
+                         .collect(Collectors.toList());
     }
 
     /**
@@ -197,10 +245,12 @@ public class Team {
      * 1) искать игрока, у которого среднее больше либо равно среднему по команде<br>
      * 2) стоимость игрока не превышает 2/3 от бюджета клуба <br>
      * 3) игрок в команде на данную позицию 1 либо 0<br>
-     * 4) количество игроков в команде меньше 30<br>
+     * 4) количество игроков в команде меньше 27<br>
      * 5) средний возраст игроков на данную позицию в команде больше 30 лет<br>
      */
     private void simulateBuy() {
+        if (getPlayersCount() < MANY_PLAYERS) {
+        }
         //TODO
     }
 
@@ -218,8 +268,8 @@ public class Team {
      * Изменяет бюджет на заданную величину.
      *
      * @param value положительная для пополения или отрицательная для траты.
-     * @param date
-     * @param info
+     * @param date  дата операции
+     * @param info  описание
      * @return true, если операция удалась.
      */
     public boolean budgetOperation(long value, LocalDate date, String info) {
@@ -319,13 +369,20 @@ public class Team {
         return startPlayers;
     }
 
-    private void prepare() {
+    public void prepare() {
         if (tactics != null && getPlayersCount() > START_PLAYERS_COUNT) {
             List<Player> players = primaryReorderPlayers();
             secondaryReorderPlayers(players);
             initRestartPositionsPerformers();
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    public void addJuniors() {
+        if (getPlayersCount() < MANY_PLAYERS) {
+            juniors.forEach(this::addPlayer);
+            juniors.clear();
         }
     }
 
@@ -512,12 +569,13 @@ public class Team {
     }
 
     public int calculateForm() {
+        //TODO добавить получение результатов из турнира
         List<GameResult> lastFiveResults = Collections.emptyList();
         int matchesPlayed = lastFiveResults.size();
         if (matchesPlayed == 0) {
             return 50;
         } else {
-            float max = matchesPlayed * GameResult.WIN.getScore();
+            float max = (float) matchesPlayed * GameResult.WIN.getScore();
             float scored = 0;
             for (GameResult gameResult : lastFiveResults) {
                 scored += gameResult.getScore();

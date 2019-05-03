@@ -9,8 +9,8 @@ import ru.alexey_ovcharov.rusfootballmanager.represent.ManageForm;
 import ru.alexey_ovcharov.rusfootballmanager.represent.StartCareerForm;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class Main {
 
@@ -28,12 +28,15 @@ public class Main {
                 CareerSettings careerSettings = new CareerSettings();
                 user.setSettings(careerSettings);
                 List<League> leagues = careerSettings.getLeagues();
+                LocalDate currentDate = user.getCurrentDate();
+
                 StartCareerForm startCareerForm = new StartCareerForm(null, true);
                 startCareerForm.setData(leagues);
                 startCareerForm.setVisible(true);
-                careerSettings.createTournaments(user.getCurrentDate());
-                careerSettings.createTransfers();
                 Team team = startCareerForm.getChoosenTeam();
+
+                careerSettings.createTournaments(currentDate);
+                careerSettings.createTransfers(team, currentDate);
                 user.setTeam(team);
             }
             ManageForm manageForm = new ManageForm(null, true);

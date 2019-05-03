@@ -26,6 +26,11 @@ public class Player {
     private static final int MOOD_DEFAULT = 50;
     private static final int HUNDRED = 100;
     private static final int MAX_EXPERIENCE_VALUE = 100;
+    public static final Comparator<Player> TRANSFER_PRIORITY_CALCULATOR = (o1, o2) -> {
+        int v1 = calcPriority(o1);
+        int v2 = calcPriority(o2);
+        return -Integer.compare(v1, v2);
+    };
 
     private final String name;
     private final String lastName;
@@ -61,6 +66,10 @@ public class Player {
         this.lastName = lastName;
         this.fullName = name + SEPARATOR_SPACE + lastName;
         this.talentType = TalentType.getByProbability();
+    }
+
+    private static int calcPriority(Player o1) {
+        return 2 * (37 - o1.getAge()) + 3 * o1.getAverage();
     }
 
     public TalentType getTalentType() {

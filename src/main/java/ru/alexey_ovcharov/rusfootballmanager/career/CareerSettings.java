@@ -2,6 +2,7 @@ package ru.alexey_ovcharov.rusfootballmanager.career;
 
 import ru.alexey_ovcharov.rusfootballmanager.common.DataLoader;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
+import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
@@ -10,6 +11,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.TransferStatus;
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,16 +35,20 @@ public class CareerSettings {
         return leagues;
     }
 
-    public void createTransfers() {
+    public void createTransfers(Team myTeam, LocalDate date) {
         if (transferMarket == null) {
             transferMarket = Market.getInstance();
             leagues.stream()
                    .map(League::getTeams)
                    .flatMap(List::stream)
                    .forEach(team -> {
+                       if (myTeam != team) {
+                           team.addJuniors();
+                       }
                        List<Player> players = team.getAllPlayers();
                        players.forEach(player -> transferMarket.addPlayer(player, team, TransferStatus.ON_CONTRACT));
                    });
+            simulateTransfers(date);
         }
     }
 
@@ -69,6 +75,10 @@ public class CareerSettings {
 
     public void simulateTransfers(LocalDate date) {
         transferMarket.processOffers(date);
+        leagues.stream()
+               .map(League::getTeams)
+               .flatMap(Collection::stream)
+               .forEach(Team::simulateTransfers);
     }
 
 }

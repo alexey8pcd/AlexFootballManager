@@ -94,7 +94,7 @@ public class TransferForm extends javax.swing.JDialog {
 
         TableColumnModel columnModel = tableTransfers.getColumnModel();
         int[] columnSizeValues = {
-                20, 8, 8, 8, 8, 8, 12, 28
+                20, 8, 8, 8, 8, 10, 12, 26
         };
         for (int i = 0; i < columnSizeValues.length - 1; i++) {
             int sizeValue = columnSizeValues[i];
@@ -122,7 +122,7 @@ public class TransferForm extends javax.swing.JDialog {
         labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(team.getBudget()));
         filter.setTransferStatus(TransferStatus.ANY);
         spinnerPrice.setValue((int) Math.min(team.getBudget(), Integer.MAX_VALUE));
-        rbAnyStatus.setEnabled(true);
+        radioButtonAnyStatus.setEnabled(true);
         transferPlayers = market.getTransfers(team);
         int maxPage = transferPlayers.size() / PAGE_SIZE;
         updatePrevAndNextButtons(maxPage);
@@ -130,7 +130,7 @@ public class TransferForm extends javax.swing.JDialog {
     }
 
     private void researchPlayersWithoutFilter() {
-        if (rbMyTeam.isSelected()) {
+        if (radoButtonMyTeam.isSelected()) {
             transferPlayers = market.getTransfers(team);
         } else {
             transferPlayers = market.getTransfers();
@@ -142,16 +142,20 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void researchPlayersWithFilter() {
         filter.setName(tfName.getText());
-        filter.setAgeFrom(cbAgeFrom.isSelected()
+        filter.setAgeFrom(checkBoxAgeFrom.isSelected()
                 ? (int) spinnerAgeFrom.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAgeTo(cbAgeTo.isSelected()
+        filter.setAgeTo(checkBoxAgeTo.isSelected()
                 ? (int) spinnerAgeTo.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAvgFrom(cbAvgFrom.isSelected()
+        filter.setAvgFrom(checkBoxAvgFrom.isSelected()
                 ? (int) spinnerAvgFrom.getValue() : Filter.DEFAULT_VALUE);
-        filter.setAvgTo(cbAvgTo.isSelected()
+        filter.setAvgTo(checkBoxAvgTo.isSelected()
                 ? (int) spinnerAvgTo.getValue() : Filter.DEFAULT_VALUE);
-        filter.setPriceLow((int) spinnerPrice.getValue());
-        if (rbMyTeam.isSelected()) {
+        if (checkBoxPriceLow.isSelected()) {
+            filter.setPriceLow((int) spinnerPrice.getValue());
+        } else {
+            filter.setPriceLow(Integer.MAX_VALUE);
+        }
+        if (radoButtonMyTeam.isSelected()) {
             transferPlayers = market.getTransfers(team, filter);
         } else {
             transferPlayers = market.getTransfers(filter);
@@ -295,31 +299,30 @@ public class TransferForm extends javax.swing.JDialog {
         comboGlobal = new javax.swing.JComboBox<>();
         comboLocal = new javax.swing.JComboBox<>();
         jPanel3 = new javax.swing.JPanel();
-        rbAnyStatus = new javax.swing.JRadioButton();
-        rbForSale = new javax.swing.JRadioButton();
-        rbForRent = new javax.swing.JRadioButton();
-        rbOnSaleOrRent = new javax.swing.JRadioButton();
-        rbFreeAgentStatus = new javax.swing.JRadioButton();
+        radioButtonAnyStatus = new javax.swing.JRadioButton();
+        radioButtonForSale = new javax.swing.JRadioButton();
+        radioButtonForRent = new javax.swing.JRadioButton();
+        radioButtonOnSaleOrRent = new javax.swing.JRadioButton();
+        radioButtonFreeAgentStatus = new javax.swing.JRadioButton();
         tfName = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
-        cbAgeFrom = new javax.swing.JCheckBox();
-        cbAgeTo = new javax.swing.JCheckBox();
-        cbAvgFrom = new javax.swing.JCheckBox();
-        cbAvgTo = new javax.swing.JCheckBox();
+        checkBoxAgeFrom = new javax.swing.JCheckBox();
+        checkBoxAgeTo = new javax.swing.JCheckBox();
+        checkBoxAvgFrom = new javax.swing.JCheckBox();
+        checkBoxAvgTo = new javax.swing.JCheckBox();
         spinnerAgeFrom = new javax.swing.JSpinner();
         spinnerAgeTo = new javax.swing.JSpinner();
         spinnerAvgFrom = new javax.swing.JSpinner();
         spinnerAvgTo = new javax.swing.JSpinner();
-        labelPriceLowThan = new javax.swing.JLabel();
         spinnerPrice = new javax.swing.JSpinner();
+        checkBoxPriceLow = new javax.swing.JCheckBox();
         labelGlobalPosition = new javax.swing.JLabel();
         labelPosition = new javax.swing.JLabel();
         labelNameAndLastName = new javax.swing.JLabel();
-
         bApplyFilter = new javax.swing.JButton();
         bClearFilter = new javax.swing.JButton();
-        rbMyTeam = new javax.swing.JRadioButton();
-        rbAllTeams = new javax.swing.JRadioButton();
+        radoButtonMyTeam = new javax.swing.JRadioButton();
+        radioButtonAllTeams = new javax.swing.JRadioButton();
         jPanel2 = new javax.swing.JPanel();
         bToRent = new javax.swing.JButton();
         bOnSale = new javax.swing.JButton();
@@ -327,11 +330,9 @@ public class TransferForm extends javax.swing.JDialog {
         bTryBuy = new javax.swing.JButton();
         bMyOffers = new javax.swing.JButton();
         labelBudget = new javax.swing.JLabel();
-
         labelPage = new javax.swing.JLabel();
         buttonNextPage = new javax.swing.JButton();
         buttonPrevPage = new javax.swing.JButton();
-
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Трансферный рынок");
@@ -376,44 +377,44 @@ public class TransferForm extends javax.swing.JDialog {
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Статус"));
 
-        bgTransferStatus.add(rbAnyStatus);
-        rbAnyStatus.setSelected(true);
-        rbAnyStatus.setText("Не важно");
-        rbAnyStatus.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(radioButtonAnyStatus);
+        radioButtonAnyStatus.setSelected(true);
+        radioButtonAnyStatus.setText("Не важно");
+        radioButtonAnyStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbAnyStatusActionPerformed(evt);
+                radioButtonAnyStatusActionPerformed(evt);
             }
         });
 
-        bgTransferStatus.add(rbForSale);
-        rbForSale.setText("На продажу");
-        rbForSale.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(radioButtonForSale);
+        radioButtonForSale.setText("На продажу");
+        radioButtonForSale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbForSaleActionPerformed(evt);
+                radioButtonForSaleActionPerformed(evt);
             }
         });
 
-        bgTransferStatus.add(rbForRent);
-        rbForRent.setText("В аренду");
-        rbForRent.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(radioButtonForRent);
+        radioButtonForRent.setText("В аренду");
+        radioButtonForRent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbForRentActionPerformed(evt);
+                radioButtonForRentActionPerformed(evt);
             }
         });
 
-        bgTransferStatus.add(rbOnSaleOrRent);
-        rbOnSaleOrRent.setText("На продажу или в аренду");
-        rbOnSaleOrRent.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(radioButtonOnSaleOrRent);
+        radioButtonOnSaleOrRent.setText("На продажу или в аренду");
+        radioButtonOnSaleOrRent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbOnSaleOrRentActionPerformed(evt);
+                radioButtonOnSaleOrRentActionPerformed(evt);
             }
         });
 
-        bgTransferStatus.add(rbFreeAgentStatus);
-        rbFreeAgentStatus.setText("Свободный агент");
-        rbFreeAgentStatus.addActionListener(new java.awt.event.ActionListener() {
+        bgTransferStatus.add(radioButtonFreeAgentStatus);
+        radioButtonFreeAgentStatus.setText("Свободный агент");
+        radioButtonFreeAgentStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbFreeAgentStatusActionPerformed(evt);
+                radioButtonFreeAgentStatusActionPerformed(evt);
             }
         });
 
@@ -424,55 +425,55 @@ public class TransferForm extends javax.swing.JDialog {
                              .addGroup(jPanel3Layout.createSequentialGroup()
                                                     .addContainerGap()
                                                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(rbAnyStatus)
-                                                                           .addComponent(rbForSale)
-                                                                           .addComponent(rbForRent)
-                                                                           .addComponent(rbOnSaleOrRent)
-                                                                           .addComponent(rbFreeAgentStatus))
+                                                                           .addComponent(radioButtonAnyStatus)
+                                                                           .addComponent(radioButtonForSale)
+                                                                           .addComponent(radioButtonForRent)
+                                                                           .addComponent(radioButtonOnSaleOrRent)
+                                                                           .addComponent(radioButtonFreeAgentStatus))
                                                     .addContainerGap(9, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
                 jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                              .addGroup(jPanel3Layout.createSequentialGroup()
-                                                    .addComponent(rbAnyStatus)
+                                                    .addComponent(radioButtonAnyStatus)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                    .addComponent(rbForSale)
+                                                    .addComponent(radioButtonForSale)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(rbForRent)
+                                                    .addComponent(radioButtonForRent)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(rbOnSaleOrRent)
+                                                    .addComponent(radioButtonOnSaleOrRent)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                    .addComponent(rbFreeAgentStatus)
+                                                    .addComponent(radioButtonFreeAgentStatus)
                                                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        cbAgeFrom.setText("Возраст от:");
-        cbAgeFrom.addActionListener(new java.awt.event.ActionListener() {
+        checkBoxAgeFrom.setText("Возраст от:");
+        checkBoxAgeFrom.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbAgeFromActionPerformed(evt);
+                checkBoxAgeFromActionPerformed(evt);
             }
         });
 
-        cbAgeTo.setText("Возраст до:");
-        cbAgeTo.addActionListener(new java.awt.event.ActionListener() {
+        checkBoxAgeTo.setText("Возраст до:");
+        checkBoxAgeTo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbAgeToActionPerformed(evt);
+                checkBoxAgeToActionPerformed(evt);
             }
         });
 
-        cbAvgFrom.setText("Общее от:");
-        cbAvgFrom.addActionListener(new java.awt.event.ActionListener() {
+        checkBoxAvgFrom.setText("Общее от:");
+        checkBoxAvgFrom.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbAvgFromActionPerformed(evt);
+                checkBoxAvgFromActionPerformed(evt);
             }
         });
 
-        cbAvgTo.setText("Общее до:");
-        cbAvgTo.addActionListener(new java.awt.event.ActionListener() {
+        checkBoxAvgTo.setText("Общее до:");
+        checkBoxAvgTo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbAvgToActionPerformed(evt);
+                checkBoxAvgToActionPerformed(evt);
             }
         });
 
@@ -488,9 +489,9 @@ public class TransferForm extends javax.swing.JDialog {
         spinnerAvgTo.setModel(new javax.swing.SpinnerNumberModel(50, 25, 99, 5));
         spinnerAvgTo.setEnabled(false);
 
-        labelPriceLowThan.setText("Цена до:");
+        spinnerPrice.setModel(new javax.swing.SpinnerNumberModel(10000000, 10000, 999999999, 1000000));
 
-        spinnerPrice.setModel(new javax.swing.SpinnerNumberModel(999999999, 10000, 999999999, 100000));
+        checkBoxPriceLow.setText("Цена до:");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -499,54 +500,51 @@ public class TransferForm extends javax.swing.JDialog {
                              .addGroup(jPanel4Layout.createSequentialGroup()
                                                     .addContainerGap()
                                                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(cbAgeFrom)
-                                                                           .addComponent(cbAgeTo)
-                                                                           .addComponent(cbAvgFrom)
-                                                                           .addComponent(cbAvgTo)
-                                                                           .addComponent(labelPriceLowThan))
+                                                                           .addComponent(checkBoxAgeFrom)
+                                                                           .addComponent(checkBoxAgeTo)
+                                                                           .addComponent(checkBoxAvgFrom)
+                                                                           .addComponent(checkBoxAvgTo)
+                                                                           .addComponent(checkBoxPriceLow))
                                                     .addGap(12, 12, 12)
-
-
-                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                                           .addComponent(spinnerAgeTo, javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(spinnerAvgTo, javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(spinnerPrice, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                           .addComponent(spinnerAgeFrom))
-                                                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                           .addComponent(spinnerAvgTo)
+                                                                           .addComponent(spinnerPrice, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                                                                           .addComponent(spinnerAgeFrom)
+                                                                           .addComponent(spinnerAgeTo, javax.swing.GroupLayout.Alignment.TRAILING)
+                                                                           .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.Alignment.TRAILING))
+                                                    .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                              .addGroup(jPanel4Layout.createSequentialGroup()
                                                     .addContainerGap()
                                                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(cbAgeFrom)
+                                                                           .addComponent(checkBoxAgeFrom)
                                                                            .addGroup(jPanel4Layout.createSequentialGroup()
                                                                                                   .addGap(1, 1, 1)
                                                                                                   .addComponent(spinnerAgeFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                     .addGap(8, 8, 8)
                                                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(cbAgeTo)
+                                                                           .addComponent(checkBoxAgeTo)
                                                                            .addGroup(jPanel4Layout.createSequentialGroup()
                                                                                                   .addGap(1, 1, 1)
                                                                                                   .addComponent(spinnerAgeTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                     .addGap(8, 8, 8)
                                                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(cbAvgFrom)
+                                                                           .addComponent(checkBoxAvgFrom)
                                                                            .addGroup(jPanel4Layout.createSequentialGroup()
                                                                                                   .addGap(1, 1, 1)
                                                                                                   .addComponent(spinnerAvgFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                     .addGap(3, 3, 3)
                                                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(cbAvgTo)
+                                                                           .addComponent(checkBoxAvgTo)
                                                                            .addGroup(jPanel4Layout.createSequentialGroup()
                                                                                                   .addGap(1, 1, 1)
                                                                                                   .addComponent(spinnerAvgTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                           .addComponent(labelPriceLowThan)
-                                                                           .addComponent(spinnerPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                           .addComponent(spinnerPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                           .addComponent(checkBoxPriceLow))
                                                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -557,19 +555,35 @@ public class TransferForm extends javax.swing.JDialog {
         labelNameAndLastName.setText("Имя/фамилия");
 
         bApplyFilter.setText("<html>Отфильтровать");
-        bApplyFilter.addActionListener(this::bApplyFilterActionPerformed);
+        bApplyFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bApplyFilterActionPerformed(evt);
+            }
+        });
 
         bClearFilter.setText("Сбросить");
-        bClearFilter.addActionListener(this::bClearFilterActionPerformed);
+        bClearFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bClearFilterActionPerformed(evt);
+            }
+        });
 
-        bgTeamGroup.add(rbMyTeam);
-        rbMyTeam.setSelected(true);
-        rbMyTeam.setText("Моя команда");
-        rbMyTeam.addActionListener(this::rbMyTeamActionPerformed);
+        bgTeamGroup.add(radoButtonMyTeam);
+        radoButtonMyTeam.setSelected(true);
+        radoButtonMyTeam.setText("Моя команда");
+        radoButtonMyTeam.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radoButtonMyTeamActionPerformed(evt);
+            }
+        });
 
-        bgTeamGroup.add(rbAllTeams);
-        rbAllTeams.setText("Все команды");
-        rbAllTeams.addActionListener(this::rbAllTeamsActionPerformed);
+        bgTeamGroup.add(radioButtonAllTeams);
+        radioButtonAllTeams.setText("Все команды");
+        radioButtonAllTeams.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioButtonAllTeamsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -581,31 +595,26 @@ public class TransferForm extends javax.swing.JDialog {
                                                     .addGap(18, 18, 18)
                                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                                                                  .addComponent(rbMyTeam)
+                                                                                                  .addComponent(radoButtonMyTeam)
                                                                                                   .addGap(38, 38, 38)
-                                                                                                  .addComponent(rbAllTeams)
-                                                                                                  .addGap(0, 107, Short.MAX_VALUE))
+                                                                                                  .addComponent(radioButtonAllTeams))
                                                                            .addGroup(jPanel1Layout.createSequentialGroup()
                                                                                                   .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-
                                                                                                                          .addComponent(labelNameAndLastName)
                                                                                                                          .addComponent(labelPosition)
                                                                                                                          .addComponent(labelGlobalPosition))
-                                                                                                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                  .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                                                  .addGap(18, 18, 18)
+                                                                                                  .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                                                                                .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                                                                                          .addGroup(jPanel1Layout.createSequentialGroup()
                                                                                                                                                 .addComponent(bApplyFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                                                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                                                                                .addComponent(bClearFilter))
-                                                                                                                         .addGroup(jPanel1Layout.createSequentialGroup()
-                                                                                                                                                .addGap(1, 1, 1)
-                                                                                                                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                                                                                                                       .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                       .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                       .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                                                                                                                                .addComponent(bClearFilter)))))
                                                     .addGap(18, 18, 18)
-
-                                                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                     .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -615,29 +624,25 @@ public class TransferForm extends javax.swing.JDialog {
                                                                                                                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                                                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-
-                                                                                                                                                                                                                .addComponent(rbMyTeam)
-                                                                                                                                                                                                                .addComponent(rbAllTeams))
-                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                                                                                                                                                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                                                                                                                                                                                                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                                                                                                                                                       .addComponent(labelPosition)
-                                                                                                                                                                                                                                       .addGap(18, 18, 18)
-                                                                                                                                                                                                                                       .addComponent(labelNameAndLastName)
-                                                                                                                                                                                                                                       .addGap(16, 16, 16))
-                                                                                                                                                                                                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                                                                                                                                                                                                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                                                                                                                                                                       .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                                                                                                                                                                                                                              .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                                                                                                              .addComponent(labelGlobalPosition))
-                                                                                                                                                                                                                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                                                                                                                                                                       .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                                                                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                                                                                                                                                                       .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                                                                                       .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                                                                                                                                                                                                .addComponent(radoButtonMyTeam)
+                                                                                                                                                                                                                .addComponent(radioButtonAllTeams))
+                                                                                                                                                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(comboGlobal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                                                                                .addComponent(labelGlobalPosition))
+                                                                                                                                                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(comboLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                                                                                .addComponent(labelPosition))
+                                                                                                                                                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                                                                                                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                                                                                                                                                .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                                                                                .addComponent(labelNameAndLastName))
+                                                                                                                                                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                                                                                                                                                          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                                                                                                                                                                                 .addComponent(bApplyFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                                                                                                                                .addComponent(bClearFilter)))
+                                                                                                                                                                                                                .addComponent(bClearFilter))
+                                                                                                                                                                                         .addGap(0, 0, Short.MAX_VALUE))
                                                                                                                        .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                                                                                 .addContainerGap())
         );
@@ -749,7 +754,6 @@ public class TransferForm extends javax.swing.JDialog {
                                                                       .addGap(18, 18, 18)
                                                                       .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                       .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-
                                       .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -776,38 +780,38 @@ public class TransferForm extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void rbMyTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbMyTeamActionPerformed
+    private void radoButtonMyTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radoButtonMyTeamActionPerformed
         filterMyTeam();
-    }//GEN-LAST:event_rbMyTeamActionPerformed
+    }//GEN-LAST:event_radoButtonMyTeamActionPerformed
 
     private void filterMyTeam() {
         bTryBuy.setEnabled(false);
         bTryGetRent.setEnabled(false);
     }
 
-    private void rbForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForSaleActionPerformed
+    private void radioButtonForSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonForSaleActionPerformed
         filter.setTransferStatus(TransferStatus.ON_TRANSFER);
-    }//GEN-LAST:event_rbForSaleActionPerformed
+    }//GEN-LAST:event_radioButtonForSaleActionPerformed
 
-    private void rbForRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbForRentActionPerformed
+    private void radioButtonForRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonForRentActionPerformed
         filter.setTransferStatus(TransferStatus.TO_RENT);
-    }//GEN-LAST:event_rbForRentActionPerformed
+    }//GEN-LAST:event_radioButtonForRentActionPerformed
 
-    private void rbOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbOnSaleOrRentActionPerformed
+    private void radioButtonOnSaleOrRentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonOnSaleOrRentActionPerformed
         filter.setTransferStatus(TransferStatus.ON_TRANSFER_OR_RENT);
-    }//GEN-LAST:event_rbOnSaleOrRentActionPerformed
+    }//GEN-LAST:event_radioButtonOnSaleOrRentActionPerformed
 
-    private void rbAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAnyStatusActionPerformed
+    private void radioButtonAnyStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonAnyStatusActionPerformed
         filter.setTransferStatus(TransferStatus.ANY);
-    }//GEN-LAST:event_rbAnyStatusActionPerformed
+    }//GEN-LAST:event_radioButtonAnyStatusActionPerformed
 
     private void comboGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGlobalActionPerformed
         globalPositionComboAction();
     }//GEN-LAST:event_comboGlobalActionPerformed
 
-    private void rbAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAllTeamsActionPerformed
+    private void radioButtonAllTeamsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonAllTeamsActionPerformed
         filterAllTeam();
-    }//GEN-LAST:event_rbAllTeamsActionPerformed
+    }//GEN-LAST:event_radioButtonAllTeamsActionPerformed
 
     private void filterAllTeam() {
         bTryBuy.setEnabled(true);
@@ -847,9 +851,9 @@ public class TransferForm extends javax.swing.JDialog {
         myOffersForm.setVisible(true);
     }
 
-    private void rbFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbFreeAgentStatusActionPerformed
+    private void radioButtonFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonFreeAgentStatusActionPerformed
         filter.setTransferStatus(TransferStatus.FREE_AGENT);
-    }//GEN-LAST:event_rbFreeAgentStatusActionPerformed
+    }//GEN-LAST:event_radioButtonFreeAgentStatusActionPerformed
 
     private void comboLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLocalActionPerformed
         filter.setLocalPosition(
@@ -857,21 +861,21 @@ public class TransferForm extends javax.swing.JDialog {
                         Objects.requireNonNull(comboLocal.getSelectedItem()).toString()));
     }//GEN-LAST:event_comboLocalActionPerformed
 
-    private void cbAgeFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAgeFromActionPerformed
-        spinnerAgeFrom.setEnabled(cbAgeFrom.isSelected());
-    }//GEN-LAST:event_cbAgeFromActionPerformed
+    private void checkBoxAgeFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAgeFromActionPerformed
+        spinnerAgeFrom.setEnabled(checkBoxAgeFrom.isSelected());
+    }//GEN-LAST:event_checkBoxAgeFromActionPerformed
 
-    private void cbAgeToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAgeToActionPerformed
-        spinnerAgeTo.setEnabled(cbAgeTo.isSelected());
-    }//GEN-LAST:event_cbAgeToActionPerformed
+    private void checkBoxAgeToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAgeToActionPerformed
+        spinnerAgeTo.setEnabled(checkBoxAgeTo.isSelected());
+    }//GEN-LAST:event_checkBoxAgeToActionPerformed
 
-    private void cbAvgFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAvgFromActionPerformed
-        spinnerAvgFrom.setEnabled(cbAvgFrom.isSelected());
-    }//GEN-LAST:event_cbAvgFromActionPerformed
+    private void checkBoxAvgFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAvgFromActionPerformed
+        spinnerAvgFrom.setEnabled(checkBoxAvgFrom.isSelected());
+    }//GEN-LAST:event_checkBoxAvgFromActionPerformed
 
-    private void cbAvgToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAvgToActionPerformed
-        spinnerAvgTo.setEnabled(cbAvgTo.isSelected());
-    }//GEN-LAST:event_cbAvgToActionPerformed
+    private void checkBoxAvgToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAvgToActionPerformed
+        spinnerAvgTo.setEnabled(checkBoxAvgTo.isSelected());
+    }//GEN-LAST:event_checkBoxAvgToActionPerformed
 
     private void bApplyFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bApplyFilterActionPerformed
         researchPlayersWithFilter();
@@ -928,30 +932,30 @@ public class TransferForm extends javax.swing.JDialog {
     private javax.swing.ButtonGroup bgTransferStatus;
     private javax.swing.JButton buttonNextPage;
     private javax.swing.JButton buttonPrevPage;
-    private javax.swing.JCheckBox cbAgeFrom;
-    private javax.swing.JCheckBox cbAgeTo;
-    private javax.swing.JCheckBox cbAvgFrom;
-    private javax.swing.JCheckBox cbAvgTo;
+    private javax.swing.JCheckBox checkBoxAgeFrom;
+    private javax.swing.JCheckBox checkBoxAgeTo;
+    private javax.swing.JCheckBox checkBoxAvgFrom;
+    private javax.swing.JCheckBox checkBoxAvgTo;
+    private javax.swing.JCheckBox checkBoxPriceLow;
     private javax.swing.JComboBox<String> comboGlobal;
     private javax.swing.JComboBox<String> comboLocal;
-    private javax.swing.JLabel labelGlobalPosition;
-    private javax.swing.JLabel labelPosition;
-    private javax.swing.JLabel labelNameAndLastName;
-    private javax.swing.JLabel labelPriceLowThan;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelBudget;
+    private javax.swing.JLabel labelGlobalPosition;
+    private javax.swing.JLabel labelNameAndLastName;
     private javax.swing.JLabel labelPage;
-    private javax.swing.JRadioButton rbAllTeams;
-    private javax.swing.JRadioButton rbAnyStatus;
-    private javax.swing.JRadioButton rbForRent;
-    private javax.swing.JRadioButton rbForSale;
-    private javax.swing.JRadioButton rbFreeAgentStatus;
-    private javax.swing.JRadioButton rbMyTeam;
-    private javax.swing.JRadioButton rbOnSaleOrRent;
+    private javax.swing.JLabel labelPosition;
+    private javax.swing.JRadioButton radioButtonAllTeams;
+    private javax.swing.JRadioButton radioButtonAnyStatus;
+    private javax.swing.JRadioButton radioButtonForRent;
+    private javax.swing.JRadioButton radioButtonForSale;
+    private javax.swing.JRadioButton radioButtonFreeAgentStatus;
+    private javax.swing.JRadioButton radioButtonOnSaleOrRent;
+    private javax.swing.JRadioButton radoButtonMyTeam;
     private javax.swing.JSpinner spinnerAgeFrom;
     private javax.swing.JSpinner spinnerAgeTo;
     private javax.swing.JSpinner spinnerAvgFrom;

@@ -17,7 +17,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 public class Market {
 
     private static final Logger LOGGER = Logger.getLogger(Market.class.getName());
-    private static final Market market = new Market();
+    private static final Market MARKET = new Market();
     private final List<Transfer> players = new ArrayList<>();
     private final Set<Offer> offers = new HashSet<>();
     private final Map<Team, List<Transfer>> cache = new HashMap<>();
@@ -26,7 +26,7 @@ public class Market {
     }
 
     public static Market getInstance() {
-        return market;
+        return MARKET;
     }
 
     public void clear() {

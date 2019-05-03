@@ -33,23 +33,25 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jScrollPane1" max="32767" attributes="0"/>
-                  <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="labelBudget" min="-2" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
-                              <Component id="rbMyTeam" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
-                              <Component id="rbAllTeams" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelPage" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="buttonPrevPage" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="buttonNextPage" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="labelBudget" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
-                      <Component id="jPanel2" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -59,22 +61,25 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                  <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Component id="labelBudget" max="32767" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jPanel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="1" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="rbMyTeam" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="rbAllTeams" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="buttonPrevPage" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="buttonNextPage" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="labelBudget" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="labelPage" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="315" max="32767" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="246" max="-2" attributes="0"/>
+              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanel1" max="32767" attributes="0"/>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -105,29 +110,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JRadioButton" name="rbMyTeam">
-      <Properties>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="bgTeamGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="&#x41c;&#x43e;&#x44f; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x430;"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbMyTeamActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="rbAllTeams">
-      <Properties>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="bgTeamGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="&#x412;&#x441;&#x435; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x44b;"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbAllTeamsActionPerformed"/>
-      </Events>
-    </Component>
     <Container class="javax.swing.JPanel" name="jPanel1">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -144,34 +126,39 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="tfName" alignment="0" min="-2" pref="161" max="-2" attributes="0"/>
-                              <Component id="comboLocal" alignment="0" min="-2" pref="160" max="-2" attributes="0"/>
-                              <Component id="comboGlobal" alignment="0" min="-2" pref="160" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="radoButtonMyTeam" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="38" pref="38" max="-2" attributes="0"/>
+                          <Component id="radioButtonAllTeams" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="bApplyFilter" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="bClearFilter" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="labelNameAndLastName" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelPosition" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelGlobalPosition" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="comboGlobal" min="-2" pref="204" max="-2" attributes="0"/>
+                                  <Component id="comboLocal" min="-2" pref="204" max="-2" attributes="0"/>
+                                  <Component id="tfName" min="-2" pref="205" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
+                                  <Component id="bApplyFilter" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="bClearFilter" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
                   </Group>
-                  <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="jPanel4" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -182,26 +169,31 @@
                   <Group type="103" groupAlignment="1" attributes="0">
                       <Component id="jPanel3" alignment="1" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="radoButtonMyTeam" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="radioButtonAllTeams" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="comboGlobal" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelGlobalPosition" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="comboLocal" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelPosition" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="tfName" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="labelNameAndLastName" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="bApplyFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="bClearFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
                   </Group>
@@ -264,11 +256,11 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="rbAnyStatus" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="rbForSale" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="rbForRent" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="rbOnSaleOrRent" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="rbFreeAgentStatus" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="radioButtonAnyStatus" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="radioButtonForSale" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="radioButtonForRent" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="radioButtonOnSaleOrRent" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="radioButtonFreeAgentStatus" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="9" max="32767" attributes="0"/>
                   </Group>
@@ -277,22 +269,22 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="rbAnyStatus" min="-2" max="-2" attributes="0"/>
+                      <Component id="radioButtonAnyStatus" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="rbForSale" min="-2" max="-2" attributes="0"/>
+                      <Component id="radioButtonForSale" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rbForRent" min="-2" max="-2" attributes="0"/>
+                      <Component id="radioButtonForRent" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rbOnSaleOrRent" min="-2" max="-2" attributes="0"/>
+                      <Component id="radioButtonOnSaleOrRent" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="rbFreeAgentStatus" min="-2" max="-2" attributes="0"/>
+                      <Component id="radioButtonFreeAgentStatus" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JRadioButton" name="rbAnyStatus">
+            <Component class="javax.swing.JRadioButton" name="radioButtonAnyStatus">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="bgTransferStatus"/>
@@ -301,10 +293,10 @@
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x435; &#x432;&#x430;&#x436;&#x43d;&#x43e;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbAnyStatusActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonAnyStatusActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="rbForSale">
+            <Component class="javax.swing.JRadioButton" name="radioButtonForSale">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="bgTransferStatus"/>
@@ -312,10 +304,10 @@
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x430; &#x43f;&#x440;&#x43e;&#x434;&#x430;&#x436;&#x443;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbForSaleActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonForSaleActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="rbForRent">
+            <Component class="javax.swing.JRadioButton" name="radioButtonForRent">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="bgTransferStatus"/>
@@ -323,10 +315,10 @@
                 <Property name="text" type="java.lang.String" value="&#x412; &#x430;&#x440;&#x435;&#x43d;&#x434;&#x443;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbForRentActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonForRentActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="rbOnSaleOrRent">
+            <Component class="javax.swing.JRadioButton" name="radioButtonOnSaleOrRent">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="bgTransferStatus"/>
@@ -334,10 +326,10 @@
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x430; &#x43f;&#x440;&#x43e;&#x434;&#x430;&#x436;&#x443; &#x438;&#x43b;&#x438; &#x432; &#x430;&#x440;&#x435;&#x43d;&#x434;&#x443;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbOnSaleOrRentActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonOnSaleOrRentActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="rbFreeAgentStatus">
+            <Component class="javax.swing.JRadioButton" name="radioButtonFreeAgentStatus">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="bgTransferStatus"/>
@@ -345,7 +337,7 @@
                 <Property name="text" type="java.lang.String" value="&#x421;&#x432;&#x43e;&#x431;&#x43e;&#x434;&#x43d;&#x44b;&#x439; &#x430;&#x433;&#x435;&#x43d;&#x442;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rbFreeAgentStatusActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonFreeAgentStatusActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>
@@ -365,58 +357,65 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace min="8" pref="8" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cbAgeFrom" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="cbAgeTo" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="cbAvgFrom" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="cbAvgTo" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxAgeFrom" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxAgeTo" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxAvgFrom" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxAvgTo" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxPriceLow" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="spinnerAgeFrom" alignment="0" min="-2" pref="76" max="-2" attributes="0"/>
-                          <Component id="spinnerAgeTo" alignment="0" min="-2" pref="76" max="-2" attributes="0"/>
-                          <Component id="spinnerAvgFrom" alignment="0" min="-2" pref="76" max="-2" attributes="0"/>
-                          <Component id="spinnerAvgTo" alignment="0" min="-2" pref="76" max="-2" attributes="0"/>
+                          <Component id="spinnerAvgTo" alignment="0" max="32767" attributes="0"/>
+                          <Component id="spinnerPrice" alignment="1" pref="125" max="32767" attributes="0"/>
+                          <Component id="spinnerAgeFrom" alignment="0" max="32767" attributes="0"/>
+                          <Component id="spinnerAgeTo" alignment="1" max="32767" attributes="0"/>
+                          <Component id="spinnerAvgFrom" alignment="1" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="14" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cbAgeFrom" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                          <Component id="checkBoxAgeFrom" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
                               <Component id="spinnerAgeFrom" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="8" pref="8" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cbAgeTo" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                          <Component id="checkBoxAgeTo" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
                               <Component id="spinnerAgeTo" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="8" pref="8" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cbAvgFrom" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                          <Component id="checkBoxAvgFrom" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
                               <Component id="spinnerAvgFrom" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="3" pref="3" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cbAvgTo" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                          <Component id="checkBoxAvgTo" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
                               <Component id="spinnerAvgTo" min="-2" max="-2" attributes="0"/>
                           </Group>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="spinnerPrice" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxPriceLow" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -424,36 +423,36 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JCheckBox" name="cbAgeFrom">
+            <Component class="javax.swing.JCheckBox" name="checkBoxAgeFrom">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x412;&#x43e;&#x437;&#x440;&#x430;&#x441;&#x442; &#x43e;&#x442;:"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbAgeFromActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAgeFromActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="cbAgeTo">
+            <Component class="javax.swing.JCheckBox" name="checkBoxAgeTo">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x412;&#x43e;&#x437;&#x440;&#x430;&#x441;&#x442; &#x434;&#x43e;:"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbAgeToActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAgeToActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="cbAvgFrom">
+            <Component class="javax.swing.JCheckBox" name="checkBoxAvgFrom">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x41e;&#x431;&#x449;&#x435;&#x435; &#x43e;&#x442;:"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbAvgFromActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAvgFromActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="cbAvgTo">
+            <Component class="javax.swing.JCheckBox" name="checkBoxAvgTo">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x41e;&#x431;&#x449;&#x435;&#x435; &#x434;&#x43e;:"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbAvgToActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAvgToActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="spinnerAgeFrom">
@@ -488,26 +487,38 @@
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JSpinner" name="spinnerPrice">
+              <Properties>
+                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                  <SpinnerModel initial="10000000" maximum="999999999" minimum="10000" numberType="java.lang.Integer" stepSize="1000000" type="number"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="checkBoxPriceLow">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&#x426;&#x435;&#x43d;&#x430; &#x434;&#x43e;:"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="labelGlobalPosition">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x410;&#x43c;&#x43f;&#x43b;&#x443;&#x430;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel2">
+        <Component class="javax.swing.JLabel" name="labelPosition">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x41f;&#x43e;&#x437;&#x438;&#x446;&#x438;&#x44f;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
+        <Component class="javax.swing.JLabel" name="labelNameAndLastName">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x418;&#x43c;&#x44f;/&#x444;&#x430;&#x43c;&#x438;&#x43b;&#x438;&#x44f;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="bApplyFilter">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&#x41e;&#x442;&#x444;&#x438;&#x43b;&#x44c;&#x442;&#x440;&#x43e;&#x432;&#x430;&#x442;&#x44c;"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#x41e;&#x442;&#x444;&#x438;&#x43b;&#x44c;&#x442;&#x440;&#x43e;&#x432;&#x430;&#x442;&#x44c;"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bApplyFilterActionPerformed"/>
@@ -519,6 +530,29 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bClearFilterActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="radoButtonMyTeam">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="bgTeamGroup"/>
+            </Property>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="&#x41c;&#x43e;&#x44f; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x430;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radoButtonMyTeamActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="radioButtonAllTeams">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="bgTeamGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="&#x412;&#x441;&#x435; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x44b;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radioButtonAllTeamsActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -542,7 +576,7 @@
                   <Component id="bTryGetRent" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="bMyOffers" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="27" max="32767" attributes="0"/>
                   <Component id="bOnSale" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="bToRent" min="-2" max="-2" attributes="0"/>
@@ -612,6 +646,30 @@
       </SubComponents>
     </Container>
     <Component class="javax.swing.JLabel" name="labelBudget">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#x411;&#x44e;&#x434;&#x436;&#x435;&#x442;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labelPage">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#x421;&#x442;&#x440;&#x430;&#x43d;&#x438;&#x446;&#x430;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="buttonNextPage">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonNextPageActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="buttonPrevPage">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&lt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonPrevPageActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

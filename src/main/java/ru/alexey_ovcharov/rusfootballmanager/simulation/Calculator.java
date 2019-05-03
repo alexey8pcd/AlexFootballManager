@@ -8,7 +8,6 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Status;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

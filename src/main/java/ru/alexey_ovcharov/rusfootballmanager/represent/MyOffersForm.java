@@ -18,6 +18,14 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.TransferResult;
  */
 public class MyOffersForm extends javax.swing.JDialog {
 
+    private static final int COLUMN_NAME_AND_LAST_NAME = 0;
+    private static final int COLUMN_AGE = 1;
+    private static final int COLUMN_GLOBAL_POSITION = 2;
+    private static final int COLUMN_AVERAGE = 3;
+    private static final int COLUMN_OFFER_TYPE = 4;
+    private static final int COLUMN_FARE = 5;
+    private static final int COLUMN_PRICE = 6;
+    private static final int COLUMN_DEAL_PROGRESS = 7;
     private final transient Market market = Market.getInstance();
     private transient List<Offer> myOffers = Collections.emptyList();
     private transient Team team;
@@ -52,21 +60,21 @@ public class MyOffersForm extends javax.swing.JDialog {
             Offer offer = myOffers.get(rowIndex);
             Player player = offer.getPlayer();
             switch (columnIndex) {
-                case 0:
+                case COLUMN_NAME_AND_LAST_NAME:
                     return player.getFullName();
-                case 1:
+                case COLUMN_AGE:
                     return player.getAge();
-                case 2:
+                case COLUMN_GLOBAL_POSITION:
                     return player.getPreferredPosition().getAbreviation();
-                case 3:
+                case COLUMN_AVERAGE:
                     return player.getAverage();
-                case 4:
+                case COLUMN_OFFER_TYPE:
                     return offer.getOfferType().getDescription();
-                case 5:
+                case COLUMN_FARE:
                     return offer.getFare();
-                case 6:
+                case COLUMN_PRICE:
                     return offer.getSumOfTransfer();
-                case 7:
+                case COLUMN_DEAL_PROGRESS:
                     return offer.getTransferResult().getDescription();
             }
             return "";
