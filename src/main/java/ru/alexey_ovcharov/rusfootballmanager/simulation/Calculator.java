@@ -16,34 +16,34 @@ import java.util.List;
 public class Calculator {
 
     //attack team
-    private static final double FORWARND_COUNT = 0.12;
-    private static final double FORWARDS_AVG = 0.05;
+    private static final double FORWARDS_COUNT = 0.12;
+    private static final double FORWARDS_AVG = 0.08;
 
     private static final double MIDFIELDERS_COUNT_ATTACK_TEAM = 0.12;
-    private static final double MIDFIELDERS_AVG_ATTACK_TEAM = 0.023;
+    private static final double MIDFIELDERS_AVG_ATTACK_TEAM = 0.04;
 
     private static final double DEFENDERS_COUNT_ATTACK_TEAM = 0.03;
-    private static final double DEFENDERS_AVG_ATTACK_TEAM = 0.008;
+    private static final double DEFENDERS_AVG_ATTACK_TEAM = 0.02;
 
     //defender team
-    private static final double GOALKEEPER_AVG = 0.029;
+    private static final double GOALKEEPER_AVG = 0.023;
 
     private static final double MIDFIELDERS_COUNT_DEFENCE_TEAM = 0.2;
-    private static final double MIDFIELDER_AVG_DEFENCE_TEAM = 0.027;
+    private static final double MIDFIELDER_AVG_DEFENCE_TEAM = 0.02;
 
     private static final double DEFENDERS_COUNT_DEFENCE_TEAM = 0.18;
     private static final double DEFENDERS_AVG_DEFENCE_TEAM = 0.017;
 
     //common
-    private static final double TEAMWORK_COEFF = 0.025;
-    private static final double FORM_COEFF = 0.013;
-    private static final double MOOD_COEFF = 0.025;
-    private static final double STRATEGY_COEFF = 0.028;
-    private static final double WHERE_COEFF = 0.015;
+    private static final double TEAMWORK_COEFF = 0.01;
+    private static final double MOOD_COEFF = 0.05;
+    private static final double STRATEGY_COEFF_ATT = 0.2;
+    private static final double STRATEGY_COEFF_DEF = 0.17;
+    private static final double WHERE_COEFF = 0.4;
     private static final double FATIGUE_COEFF = 0.04;
 
-    private static final double DISPERSE_ATTACK_COEFF = 1.1;
-    private static final double DISPERSE_DEFENCE_COEFF = 1.5;
+    private static final double DISPERSE_ATTACK_COEFF = 0.25;
+    private static final double DISPERSE_DEFENCE_COEFF = 0.4;
     private static final double GAUSSIAN_RANDOM_CENTER = 0.5;
 
     public static int calculateGoalsCount(Team teamAttack, Team teamDefence,
@@ -69,14 +69,14 @@ public class Calculator {
         attackTeamResult += disperseAttack;
         defenceTeamResult += disperseDefence;
         double teamworkValue = TEAMWORK_COEFF * (teamAttack.getTeamwork() - teamDefence.getTeamwork());
-        double formValue = FORM_COEFF * (teamAttack.calculateForm() - teamDefence.calculateForm());
         double moodValue = MOOD_COEFF * (teamAttack.getMood() - teamDefence.getMood());
-        double schemeValue = STRATEGY_COEFF * (teamAttack.getGameStrategy().getValue()
-                + teamDefence.getGameStrategy().getValue());
-        double whereValue = WHERE_COEFF * (statusOfTeam.getValue());
+        int attStrVal = teamAttack.getGameStrategy().getValue();
+        int defStrVal = teamDefence.getGameStrategy().getValue();
+        double schemeValue = STRATEGY_COEFF_ATT * attStrVal + STRATEGY_COEFF_DEF * defStrVal;
+        double whereValue = WHERE_COEFF * Randomization.nextDouble() * (statusOfTeam.getValue());
         double fatigueValue = FATIGUE_COEFF * (teamDefence.getFatigue() - teamAttack.getFatigue());
         double raw = attackTeamResult - defenceTeamResult + teamworkValue
-                + formValue + moodValue + schemeValue + whereValue + fatigueValue;
+                + moodValue + schemeValue + whereValue + fatigueValue;
         return (int) Math.round(raw);
     }
 
@@ -111,7 +111,7 @@ public class Calculator {
         if (defendersCount != 0 && midfieldersCount != 0) {
             return defAvgValue / defendersCount + defendersCount * DEFENDERS_COUNT_ATTACK_TEAM
                     + midfAvgValue / midfieldersCount + midfieldersCount * MIDFIELDERS_COUNT_ATTACK_TEAM
-                    + (frwCountValue != 0 ? frwAvgValue / frwCountValue : 0) + frwCountValue * FORWARND_COUNT;
+                    + (frwCountValue != 0 ? frwAvgValue / frwCountValue : 0) + frwCountValue * FORWARDS_COUNT;
         } else {
             throw new IllegalStateException();
         }

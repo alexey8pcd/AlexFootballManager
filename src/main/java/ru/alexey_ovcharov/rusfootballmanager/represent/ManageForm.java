@@ -26,8 +26,8 @@ public class ManageForm extends javax.swing.JDialog {
     private static final Logger LOGGER = Logger.getLogger(ManageForm.class.getName());
     private static final int ONE_EVENT_TRAINING_HOURS = 10;
     private transient User user;
-    private int availableHours = ONE_EVENT_TRAINING_HOURS;
-    private Team team;
+    private transient int availableHours = ONE_EVENT_TRAINING_HOURS;
+    private transient Team team;
 
     public ManageForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);

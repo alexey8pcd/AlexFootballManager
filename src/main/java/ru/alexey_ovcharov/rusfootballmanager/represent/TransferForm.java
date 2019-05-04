@@ -119,9 +119,9 @@ public class TransferForm extends javax.swing.JDialog {
         this.team = team;
         this.date = user.getCurrentDate();
         this.user = user;
-        long budget = team.getBudget();
-        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(budget));
+        updateBudgetLabel();
         filter.setTransferStatus(TransferStatus.ANY);
+        long budget = team.getBudget();
         spinnerPrice.setValue((int) Math.min(budget, Integer.MAX_VALUE));
         SpinnerModel model = spinnerPrice.getModel();
         if (model instanceof SpinnerNumberModel) {
@@ -132,6 +132,11 @@ public class TransferForm extends javax.swing.JDialog {
         int maxPage = transferPlayers.size() / PAGE_SIZE;
         updatePrevAndNextButtons(maxPage);
         tableTransfers.updateUI();
+    }
+
+    private void updateBudgetLabel() {
+        long budget = team.getBudget();
+        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(budget));
     }
 
     private void researchPlayersWithoutFilter() {
@@ -193,8 +198,7 @@ public class TransferForm extends javax.swing.JDialog {
                         offerForm.setLocationRelativeTo(this);
                         offerForm.setParams(transfer, team, TransferStatus.ON_TRANSFER, date, user, Offer.OfferType.BUY);
                         offerForm.setVisible(true);
-                        long budget = team.getBudget();
-                        labelBudget.setText("Бюджет: " + MoneyHelper.formatSum(budget));
+                        updateBudgetLabel();
                     }
                 }
             }
@@ -856,6 +860,7 @@ public class TransferForm extends javax.swing.JDialog {
         myOffersForm.setLocationRelativeTo(this);
         myOffersForm.setParams(team, user);
         myOffersForm.setVisible(true);
+        updateBudgetLabel();
     }
 
     private void radioButtonFreeAgentStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonFreeAgentStatusActionPerformed

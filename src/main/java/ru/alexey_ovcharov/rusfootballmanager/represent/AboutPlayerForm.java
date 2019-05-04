@@ -1,5 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javafx.util.Pair;
@@ -61,6 +62,16 @@ public class AboutPlayerForm extends javax.swing.JDialog {
                 builder.append("Возраст: ").append(i).append(", Общее: ").append(avg).append("\n");
             }
         }
+        player.getInjure().ifPresent(injure -> {
+            builder.append("---------- Травма ----------\n");
+            builder.append("Тип травмы: ").append(injure.getInjureType().getDescription()).append("\n");
+            builder.append("Дата, когда травмировался: ")
+                   .append(injure.getInjureDate().format(DateTimeFormatter.ISO_DATE))
+                   .append("\n");
+            builder.append("Дата восстановления: ")
+                   .append(injure.getEndDate().format(DateTimeFormatter.ISO_DATE))
+                   .append("\n");
+        });
 
         taInfo.setText(builder.toString());
         taInfo.setCaretPosition(0);

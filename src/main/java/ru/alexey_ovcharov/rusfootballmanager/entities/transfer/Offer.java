@@ -144,6 +144,10 @@ public class Offer {
         return date;
     }
 
+    public void setTransferResult(TransferResult transferResult) {
+        this.transferResult = transferResult;
+    }
+
     public TransferResult process(LocalDate date) {
         this.date = date;
         switch (transferStatus) {
@@ -254,5 +258,22 @@ public class Offer {
 
     public TransferResult getTransferResult() {
         return transferResult;
+    }
+
+    @Override
+    public String toString() {
+        return "Offer{" +
+                "fromTeam=" + fromTeam +
+                ", toTeam=" + toTeam +
+                ", player=" + player +
+                ", transferStatus=" + transferStatus +
+                ", sumOfTransfer=" + sumOfTransfer +
+                ", fare=" + fare +
+                ", contractDuration=" + contractDuration +
+                ", date=" + date +
+                ", offerType=" + offerType +
+                ", transferResult=" + transferResult +
+                ", offerListener=" + offerListener +
+                '}';
     }
 }

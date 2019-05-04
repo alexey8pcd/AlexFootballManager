@@ -143,8 +143,10 @@ public class Tournament {
                 if (!matchResult.isDraw()) {
                     updateSupport(matchResult);
                 }
+                host.setTeamwork(host.getTeamwork() + 1);
                 moneyEventsHost(matchDate, host);
 
+                guest.setTeamwork(guest.getTeamwork() + 1);
                 moneyEventsGuest(matchDate, guest);
             }
         }

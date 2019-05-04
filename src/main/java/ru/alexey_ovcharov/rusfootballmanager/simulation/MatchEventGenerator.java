@@ -3,15 +3,13 @@ package ru.alexey_ovcharov.rusfootballmanager.simulation;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Event;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.EventType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +57,7 @@ public class MatchEventGenerator {
             GlobalPosition.DEFENDER
     };
     private final Tactics tactics;
+    private final LocalDate matchDate;
 
     private static boolean isGoalkeeper(PlayerWithCard reservePlayer) {
         return reservePlayer.getPositionOnField() == GlobalPosition.GOALKEEPER;
@@ -109,7 +108,8 @@ public class MatchEventGenerator {
     private int minuteForGoalIndex;
     private final double experienceCoeff;
 
-    public MatchEventGenerator(Team team, int scoredGoals, int difference) {
+    public MatchEventGenerator(LocalDate matchDate, Team team, int scoredGoals, int difference) {
+        this.matchDate = matchDate;
         this.team = team;
         this.tactics = team.getTactics();
         this.experienceCoeff = Math.max(0, 1 - EXPERIENCE_DIFFERENCE_MULTIPLIER * difference);
@@ -181,7 +181,7 @@ public class MatchEventGenerator {
             PlayerWithCard injured = startPlayers.get(playerIndex);
             Player injuredPlayer = injured.getPlayer();
             eventsOnMinute.add(new Event(EventType.INJURE, minute, injuredPlayer, team));
-            injuredPlayer.setInjured(InjureType.getInjure(Randomization.nextInt(HUNDRED)));
+            injuredPlayer.setInjured(Injure.random(matchDate));
             if (substitutesCount < MAX_SUBSTITUTIONS_COUNT) {
                 changePlayer(minute, injured, null);
             }
@@ -217,7 +217,7 @@ public class MatchEventGenerator {
                 List<Player> assistanceCandidates = getPlayerGroupAssist().stream()
                                                                           .filter(player -> player != whoScored)
                                                                           .collect(Collectors.toList());
-                if (!assistanceCandidates.isEmpty()) {
+                if (assistanceCandidates.isEmpty()) {
                     assistanceCandidates = startPlayers.stream()
                                                        .map(PlayerWithCard::getPlayer)
                                                        .filter(player -> player != whoScored)
@@ -253,10 +253,28 @@ public class MatchEventGenerator {
         List<Player> playersGroup;
         if (playersGroupChance < CHANCE_SCORE_GOAL_BY_FORWARD) {
             playersGroup = getPlayerGroup(startPlayers, GlobalPosition.FORWARD);
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.MIDFIELDER);
+            }
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.DEFENDER);
+            }
         } else if (playersGroupChance < CHANCE_TO_SCORE_GOAL_BY_MIDFIELDER) {
             playersGroup = getPlayerGroup(startPlayers, GlobalPosition.MIDFIELDER);
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.FORWARD);
+            }
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.DEFENDER);
+            }
         } else {
             playersGroup = getPlayerGroup(startPlayers, GlobalPosition.DEFENDER);
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.FORWARD);
+            }
+            if (playersGroup.isEmpty()) {
+                playersGroup = getPlayerGroup(startPlayers, GlobalPosition.MIDFIELDER);
+            }
         }
         return playersGroup;
     }

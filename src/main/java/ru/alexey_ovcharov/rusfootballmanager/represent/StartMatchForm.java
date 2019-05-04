@@ -315,6 +315,9 @@ public class StartMatchForm extends javax.swing.JDialog {
         Team host = opponents.getHost();
         Team guest = opponents.getGuest();
         match = Simulator.simulate(host, guest, matchDay);
+        host.setTeamwork(host.getTeamwork() + 1);
+        guest.setTeamwork(guest.getTeamwork() + 1);
+
         String result = match.getResult();
         List<Event> events = match.getEvents();
         labelMatchResult.setText(result);

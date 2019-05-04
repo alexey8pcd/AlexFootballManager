@@ -22,8 +22,8 @@ public class Player {
     public static final int MIN_AGE = 16;
     public static final int MAX_YOUNG_AGE = 21;
     public static final int MAX_AGE = 36;
+    public static final int MOOD_DEFAULT = 50;
     private static final String SEPARATOR_SPACE = " ";
-    private static final int MOOD_DEFAULT = 50;
     private static final int HUNDRED = 100;
     private static final int MAX_EXPERIENCE_VALUE = 100;
     public static final Comparator<Player> TRANSFER_PRIORITY_CALCULATOR = (o1, o2) -> {
@@ -50,10 +50,11 @@ public class Player {
      */
     private int mood;
     /**
-     * Тип травмы
+     * Травмы
      */
     @Nullable
-    private InjureType injure;
+    private Injure injure;
+
     @Nullable
     private Contract contract;
 
@@ -85,6 +86,14 @@ public class Player {
         ++age;
     }
 
+    public void setFatigue(float fatigue) {
+        this.fatigue = fatigue;
+    }
+
+    public void setExperience(float experience) {
+        this.experience = experience;
+    }
+
     public int getAge() {
         return age;
     }
@@ -98,7 +107,7 @@ public class Player {
     }
 
     @Nonnull
-    public Optional<InjureType> getInjure() {
+    public Optional<Injure> getInjure() {
         return Optional.ofNullable(injure);
     }
 
@@ -128,7 +137,7 @@ public class Player {
         }
     }
 
-    public void setInjured(InjureType injure) {
+    public void setInjured(Injure injure) {
         this.injure = injure;
     }
 
@@ -329,5 +338,9 @@ public class Player {
 
     public String getNameAbbrAndLastName() {
         return name.substring(0, 1) + ". " + lastName;
+    }
+
+    public void setMood(int mood) {
+        this.mood = mood;
     }
 }

@@ -3,7 +3,7 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import ru.alexey_ovcharov.rusfootballmanager.career.User;
@@ -252,25 +252,13 @@ public class MyOffersForm extends javax.swing.JDialog {
         jScrollPane3.setViewportView(tableOffersSale);
 
         buttonApplySale.setText("Принять предложение");
-        buttonApplySale.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonApplySaleActionPerformed(evt);
-            }
-        });
+        buttonApplySale.addActionListener(this::buttonApplySaleActionPerformed);
 
         buttonDeclineSale.setText("Отказаться от предложения");
-        buttonDeclineSale.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonDeclineSaleActionPerformed(evt);
-            }
-        });
+        buttonDeclineSale.addActionListener(this::buttonDeclineSaleActionPerformed);
 
         buttonRequireMoreSumSale.setText("Попросить больше");
-        buttonRequireMoreSumSale.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonRequireMoreSumSaleActionPerformed(evt);
-            }
-        });
+        buttonRequireMoreSumSale.addActionListener(this::buttonRequireMoreSumSaleActionPerformed);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -350,15 +338,44 @@ public class MyOffersForm extends javax.swing.JDialog {
     }//GEN-LAST:event_buttonRequireMoreSumSaleActionPerformed
 
     private void declineSale() {
-
+        int selectedRow = tableOffersSale.getSelectedRow();
+        if (selectedRow >= 0 && selectedRow < myOffersSale.size()) {
+            Offer offer = myOffersSale.get(selectedRow);
+            offer.setTransferResult(TransferResult.DECLINE);
+            tableOffersSale.updateUI();
+        }
     }
 
     private void applySale() {
-
+        int selectedRow = tableOffersSale.getSelectedRow();
+        if (selectedRow >= 0 && selectedRow < myOffersSale.size()) {
+            Offer offer = myOffersSale.get(selectedRow);
+            int result = JOptionPane.showConfirmDialog(this,
+                    "Продать игрока: " + offer.getPlayer().getNameAbbrAndLastName()
+                            + " за " + offer.getSumOfTransfer() + "?", "Подтвердить продажу", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                offer.setTransferResult(TransferResult.ACCEPT);
+                if (offer.getToTeam().getBudget() > offer.getSumOfTransfer()) {
+                    market.performTransfer(offer);
+                    market.removeOffer(offer);
+                    JOptionPane.showMessageDialog(this, "Сделка совершена");
+                } else {
+                    JOptionPane.showMessageDialog(this, "У команды-покупателя нет средств");
+                    market.removeOffer(offer);
+                }
+                myOffersSale.remove(offer);
+                tableOffersSale.updateUI();
+            }
+        }
     }
 
     private void requireMoreSumSale() {
-
+        int selectedRow = tableOffersSale.getSelectedRow();
+        if (selectedRow >= 0 && selectedRow < myOffersSale.size()) {
+            Offer offer = myOffersSale.get(selectedRow);
+            offer.setTransferResult(TransferResult.MORE_SUM);
+            tableOffersSale.updateUI();
+        }
     }
 
     private void makeTransfer() {
@@ -370,6 +387,7 @@ public class MyOffersForm extends javax.swing.JDialog {
             } else {
                 if (offer.getToTeam().getBudget() > offer.getSumOfTransfer()) {
                     market.performTransfer(offer);
+                    market.removeOffer(offer);
                     JOptionPane.showMessageDialog(this, "Сделка совершена");
                     myOffersBuy.remove(offer);
                     tableOffersBuy.updateUI();

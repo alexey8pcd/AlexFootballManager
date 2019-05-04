@@ -2,6 +2,7 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ public class Market {
     private final List<Transfer> players = new ArrayList<>();
     private final Set<Offer> offers = new HashSet<>();
     private final Map<Team, List<Transfer>> cache = new HashMap<>();
+    private MarketListener listener;
 
     private Market() {
     }
@@ -101,29 +103,46 @@ public class Market {
     }
 
     public void makeOffer(Offer offer) {
+        LOGGER.fine(() -> "makeOffer: " + offer);
         this.offers.add(offer);
+        notifyListener(offer);
+    }
+
+    public void setMarketListener(MarketListener listener) {
+        this.listener = listener;
+    }
+
+    private void notifyListener(Offer offer) {
+        if (listener != null) {
+            listener.onOfferAdd(offer);
+        }
     }
 
     public void removeOffer(Offer selectedOffer) {
         this.offers.remove(selectedOffer);
     }
 
-    public void processOffers(LocalDate date) {
+    public void processOffers(LocalDate date, Team myTeam) {
         LOGGER.info("Start processOffers");
         Set<Player> accepted = new HashSet<>();
         for (Iterator<Offer> iterator = offers.iterator(); iterator.hasNext(); ) {
             Offer offer = iterator.next();
-            Player player = offer.getPlayer();
-            if (accepted.contains(player)) {
-                offer.decline();
-                iterator.remove();
-            } else {
-                TransferResult transferResult = offer.process(date);
-                if (transferResult == TransferResult.ACCEPT) {
-                    accepted.add(player);
+            if (offer.getFromTeam() != myTeam) {
+                Player player = offer.getPlayer();
+                if (accepted.contains(player)) {
+                    offer.decline();
+                    iterator.remove();
+                } else {
+                    TransferResult transferResult = offer.process(date);
+                    if (transferResult == TransferResult.ACCEPT) {
+                        accepted.add(player);
+                        if (offer.getToTeam() != myTeam) {
+                            performTransfer(offer);
+                            iterator.remove();
+                        }
+                    }
                 }
             }
-
         }
     }
 
@@ -131,30 +150,40 @@ public class Market {
         if (offer.getTransferStatus() == TransferStatus.ON_TRANSFER
                 || offer.getTransferStatus() == TransferStatus.ON_TRANSFER_OR_RENT
                 || offer.getTransferStatus() == TransferStatus.ON_CONTRACT) {
-            Player player = offer.getPlayer();
-            Team fromTeam = offer.getFromTeam();
-            fromTeam.removePlayer(player);
-            fromTeam.budgetOperation(offer.getSumOfTransfer(), offer.getDate(),
-                    "Продажа игрока " + player.getNameAbbrAndLastName());
-
-            Team toTeam = offer.getToTeam();
-            toTeam.addPlayer(player);
-            toTeam.budgetOperation(-offer.getSumOfTransfer(), offer.getDate(),
-                    "Покупка игрока " + player.getNameAbbrAndLastName());
-            player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
-            removePlayer(player);
-            addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
-            removeOffer(offer);
+            performTransferBuy(offer);
 
         } else if (offer.getTransferStatus() == TransferStatus.FREE_AGENT) {
-            //свободный агент
-            Player player = offer.getPlayer();
-            Team toTeam = offer.getToTeam();
-            toTeam.addPlayer(player);
-            player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
-            addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
-            removeOffer(offer);
+            performTransferFreeAgent(offer);
         }
 
+    }
+
+    private void performTransferFreeAgent(Offer offer) {
+        //свободный агент
+        Player player = offer.getPlayer();
+        Team toTeam = offer.getToTeam();
+        toTeam.addPlayer(player);
+        player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
+        addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
+        removeOffer(offer);
+    }
+
+    private void performTransferBuy(Offer offer) {
+        Player player = offer.getPlayer();
+        Team fromTeam = offer.getFromTeam();
+        fromTeam.removePlayer(player);
+        fromTeam.budgetOperation(offer.getSumOfTransfer(), offer.getDate(),
+                "Продажа игрока " + player.getNameAbbrAndLastName());
+
+        Team toTeam = offer.getToTeam();
+        toTeam.addPlayer(player);
+        toTeam.budgetOperation(-offer.getSumOfTransfer(), offer.getDate(),
+                "Покупка игрока " + player.getNameAbbrAndLastName());
+        player.setContract(new Contract(offer.getContractDuration(), offer.getFare()));
+        removePlayer(player);
+        addPlayer(player, toTeam, TransferStatus.ON_CONTRACT);
+        LOGGER.info(() -> "Команда " + toTeam.getName() + " " +
+                offer.getOfferType().getDescription().toLowerCase().replace("ть", "ла"
+                        + " игрока " + player.getNameAbbrAndLastName() + " у команды " + fromTeam.getName()));
     }
 }

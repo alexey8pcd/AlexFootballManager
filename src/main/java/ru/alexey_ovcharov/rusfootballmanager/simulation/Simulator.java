@@ -32,10 +32,10 @@ public class Simulator {
         int teamGuestAvg = teamGuest.getAverage();
         Match mathResult = new Match(teamHome, teamGuest, matchDate);
         List<Event> homeTeamMatchEvents = new MatchEventGenerator(
-                teamHome, resultHomeTeam, teamHomeAvg - teamGuestAvg).createMatchEvents();
+                matchDate, teamHome, resultHomeTeam, teamHomeAvg - teamGuestAvg).createMatchEvents();
         mathResult.addMatchEvent(homeTeamMatchEvents);
         List<Event> guestTeamMatchEvents = new MatchEventGenerator(
-                teamGuest, resultGuestTeam, teamGuestAvg - teamHomeAvg).createMatchEvents();
+                matchDate, teamGuest, resultGuestTeam, teamGuestAvg - teamHomeAvg).createMatchEvents();
         mathResult.addMatchEvent(guestTeamMatchEvents);
         return mathResult;
     }

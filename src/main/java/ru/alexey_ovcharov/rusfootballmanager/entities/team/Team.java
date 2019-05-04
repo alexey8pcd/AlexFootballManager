@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
@@ -38,11 +39,11 @@ public class Team {
     private static final int BASE_PLAYERS_COUNT = START_PLAYERS_COUNT + SUBSTITUTES_COUNT;
     private static final int SUPPORT_LEVEL_DEFAULT = 40;
     private static final int BUDGET_LEVEL_OFFSET = 18;
-    private static final int TEAMWORK_DEFAULT = 20;
     private static final int MAX_VALUE = 99;
     private static final int MIN_VALUE = 1;
     private static final int MANY_PLAYERS = 27;
 
+    public static final int TEAMWORK_DEFAULT = 20;
     public static final int MAX_PLAYERS_COUNT = 33;
     public static final long STABLE_BUDGET_VALUE = 150_000;
     public static final int STABLE_PLAYERS_COUNT = BASE_PLAYERS_COUNT + 3;
@@ -256,7 +257,7 @@ public class Team {
      * @param date
      */
     private void simulateBuy(LocalDate date) {
-        if (getPlayersCount() < MANY_PLAYERS) {
+        if (getPlayersCount() < MAX_PLAYERS_COUNT) {
             List<Offer> offers = market.getOffersBuy(this)
                                        .stream()
                                        .filter(offer -> offer.getToTeam() == this)
@@ -278,6 +279,20 @@ public class Team {
                                                                .collect(toSet());
                     if (!oldPosition.isEmpty()) {
                         makeOffers(date, offers, oldPosition, ageLimit - 3);
+                    } else {
+                        //с небольшой вероятностью команда покупает какого-то игрока
+                        if (Randomization.nextInt(100) < 7) {
+                            Filter filter = new Filter();
+                            int maxSum = (int) Math.min(budget / 3 * 2, Integer.MAX_VALUE);
+                            filter.setPriceLow(maxSum);
+                            List<Transfer> transfers = market.getTransfers(filter);
+                            if (!transfers.isEmpty()) {
+                                Transfer transfer = transfers.get(Randomization.nextInt(transfers.size()));
+                                Player player = transfer.getPlayer();
+                                Offer offer = makeOffer(date, transfer, player);
+                                market.makeOffer(offer);
+                            }
+                        }
                     }
                 }
             }
@@ -444,14 +459,39 @@ public class Team {
     }
 
     public List<Player> getStartPlayers() {
+        swapInjuredStartPlayers();
         if (!prepared) {
             prepare();
         }
         return startPlayers;
     }
 
+    private void swapInjuredStartPlayers() {
+        if (startPlayers.stream()
+                        .anyMatch(player -> player.getInjure().isPresent())) {
+            List<Player> startPlayers0 = new ArrayList<>();
+            for (Iterator<Player> iterator = startPlayers.iterator(); iterator.hasNext(); ) {
+                Player player = iterator.next();
+                if (player.getInjure().isPresent()) {
+                    Optional<Player> healthy = reserve.stream()
+                                                      .filter(reservePlayer -> !reservePlayer.getInjure().isPresent())
+                                                      .filter(reservePlayer ->
+                                                              reservePlayer.getPositionOnField() == player.getPositionOnField())
+                                                      .findFirst();
+                    healthy.ifPresent(healthPlayer -> {
+                        iterator.remove();
+                        reserve.remove(healthPlayer);
+                        reserve.add(player);
+                        startPlayers0.add(healthPlayer);
+                    });
+                }
+            }
+            startPlayers.addAll(startPlayers0);
+        }
+    }
+
     public void prepare() {
-        if (tactics != null && getPlayersCount() > START_PLAYERS_COUNT) {
+        if (tactics != null && getPlayersCount() >= START_PLAYERS_COUNT) {
             List<Player> players = primaryReorderPlayers();
             secondaryReorderPlayers(players);
             initRestartPositionsPerformers();
@@ -461,7 +501,7 @@ public class Team {
     }
 
     public void addJuniors() {
-        if (getPlayersCount() < MANY_PLAYERS) {
+        if (getPlayersCount() < MAX_PLAYERS_COUNT) {
             juniors.forEach(this::addPlayer);
             juniors.clear();
         }
@@ -560,10 +600,35 @@ public class Team {
     }
 
     public List<Player> getSubstitutes() {
+        swapInjuredSubstitutes();
         if (!prepared) {
             prepare();
         }
         return substitutes;
+    }
+
+    private void swapInjuredSubstitutes() {
+        if (substitutes.stream()
+                       .anyMatch(player -> player.getInjure().isPresent())) {
+            List<Player> substitutes0 = new ArrayList<>();
+            for (Iterator<Player> iterator = substitutes.iterator(); iterator.hasNext(); ) {
+                Player player = iterator.next();
+                if (player.getInjure().isPresent()) {
+                    Optional<Player> healthy = reserve.stream()
+                                                      .filter(reservePlayer -> !reservePlayer.getInjure().isPresent())
+                                                      .filter(reservePlayer ->
+                                                              reservePlayer.getPositionOnField() == player.getPositionOnField())
+                                                      .findFirst();
+                    healthy.ifPresent(healthPlayer -> {
+                        iterator.remove();
+                        reserve.remove(healthPlayer);
+                        reserve.add(player);
+                        substitutes0.add(healthPlayer);
+                    });
+                }
+            }
+            substitutes.addAll(substitutes0);
+        }
     }
 
     public List<Player> getReserve() {
@@ -571,7 +636,7 @@ public class Team {
     }
 
     public void setTeamwork(int teamwork) {
-        this.teamwork = teamwork;
+        this.teamwork = Math.min(teamwork, MAX_VALUE);
     }
 
     public Strategy getGameStrategy() {
@@ -649,29 +714,13 @@ public class Team {
                              .findFirst();
     }
 
-    public int calculateForm() {
-        //TODO добавить получение результатов из турнира
-        List<GameResult> lastFiveResults = Collections.emptyList();
-        int matchesPlayed = lastFiveResults.size();
-        if (matchesPlayed == 0) {
-            return 50;
-        } else {
-            float max = (float) matchesPlayed * GameResult.WIN.getScore();
-            float scored = 0;
-            for (GameResult gameResult : lastFiveResults) {
-                scored += gameResult.getScore();
-            }
-            return Math.round(scored / max * 100);
-        }
-    }
-
     public int getMood() {
-        List<Player> players = getAllPlayers();
-        float mood = 0;
-        for (Player player : players) {
-            mood += player.getMood();
-        }
-        return Math.round(mood);
+        return (int) Math.round(
+                getAllPlayers()
+                        .stream()
+                        .mapToInt(Player::getMood)
+                        .average()
+                        .orElseThrow(() -> new RuntimeException("В команде нет игроков")));
     }
 
     public int getFatigue() {
@@ -721,15 +770,6 @@ public class Team {
             return 1;
         }
         return Integer.compare(getAverage(), other.getAverage());
-    }
-
-    public String toXmlString(Document document) {
-        try {
-            return XMLFormatter.elementToString(toXmlElement(document));
-        } catch (TransformerException ex) {
-            System.err.println(ex);
-            return "";
-        }
     }
 
     private int getFirstFreeNumber() {
@@ -840,6 +880,19 @@ public class Team {
         startPlayers.forEach(Player::relaxOneDay);
         substitutes.forEach(Player::relaxOneDay);
         reserve.forEach(Player::relaxOneDay);
+        getAllPlayers().stream()
+                       .filter(player -> player.getInjure().isPresent())
+                       .forEach(player -> {
+                           Optional<Injure> injureOpt = player.getInjure();
+                           injureOpt.ifPresent(injure -> {
+                               injure.restore(personal.getDoctor());
+                               if (injure.isEnd()) {
+                                   player.setInjured(null);
+                               }
+                           });
+                       });
+
+
     }
 
     public void increaseSupport() {

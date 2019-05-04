@@ -2,6 +2,7 @@ package ru.alexey_ovcharov.rusfootballmanager.represent;
 
 import ru.alexey_ovcharov.rusfootballmanager.common.util.RenderUtil;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Injure;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -11,7 +12,6 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Алексей
@@ -73,7 +73,7 @@ public class PlayersForm extends javax.swing.JDialog {
                     return player.getAverage();
                 case 5:
                     return player.getInjure()
-                                 .map(InjureType::getDescription)
+                                 .map(Injure::getDescription)
                                  .orElse("Здоров");
                 case 6:
                     return player.getCurrentFare();
@@ -187,18 +187,10 @@ public class PlayersForm extends javax.swing.JDialog {
         bProlongContract.setText("Продлить контракт");
 
         bPlayerDescription.setText("Подробнее об игроке");
-        bPlayerDescription.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bPlayerDescriptionActionPerformed(evt);
-            }
-        });
+        bPlayerDescription.addActionListener(this::bPlayerDescriptionActionPerformed);
 
         bClose.setText("Закрыть");
-        bClose.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bCloseActionPerformed(evt);
-            }
-        });
+        bClose.addActionListener(this::bCloseActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

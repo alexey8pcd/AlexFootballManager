@@ -74,7 +74,7 @@ public class CareerSettings {
     }
 
     public void simulateTransfers(LocalDate date, Team myTeam) {
-        transferMarket.processOffers(date);
+        transferMarket.processOffers(date, myTeam);
         leagues.stream()
                .map(League::getTeams)
                .flatMap(Collection::stream)
