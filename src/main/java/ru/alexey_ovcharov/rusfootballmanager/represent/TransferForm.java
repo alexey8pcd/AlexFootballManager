@@ -1,6 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.RenderUtil;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
@@ -56,7 +56,7 @@ public class TransferForm extends javax.swing.JDialog {
     private transient String[] localPositionCurrentData;
     private transient String[][] localPositionData;
     private transient LocalDate date;
-    private transient User user;
+    private transient Career career;
     private transient int pageIndex;
 
     private static String[] namesToArray(Set<LocalPosition> positions) {
@@ -115,10 +115,10 @@ public class TransferForm extends javax.swing.JDialog {
         comboLocal.setEnabled(false);
     }
 
-    public void setParams(Team team, User user) {
+    public void setParams(Team team, Career career) {
         this.team = team;
-        this.date = user.getCurrentDate();
-        this.user = user;
+        this.date = career.getCurrentDate();
+        this.career = career;
         updateBudgetLabel();
         filter.setTransferStatus(TransferStatus.ANY);
         long budget = team.getBudget();
@@ -196,7 +196,7 @@ public class TransferForm extends javax.swing.JDialog {
                     } else {
                         TransferOfferForm offerForm = new TransferOfferForm(null, true);
                         offerForm.setLocationRelativeTo(this);
-                        offerForm.setParams(transfer, team, TransferStatus.ON_TRANSFER, date, user, Offer.OfferType.BUY);
+                        offerForm.setParams(transfer, team, TransferStatus.ON_TRANSFER, date, career, Offer.OfferType.BUY);
                         offerForm.setVisible(true);
                         updateBudgetLabel();
                     }
@@ -217,7 +217,7 @@ public class TransferForm extends javax.swing.JDialog {
                                       .anyMatch(player1 -> player1 == player);
                 if (did) {
                     TransferOfferForm offerForm = new TransferOfferForm(null, true);
-                    offerForm.setParams(transfer, team, TransferStatus.TO_RENT, date, user, Offer.OfferType.RENT);
+                    offerForm.setParams(transfer, team, TransferStatus.TO_RENT, date, career, Offer.OfferType.RENT);
                     offerForm.setVisible(true);
                 }
             }
@@ -858,7 +858,7 @@ public class TransferForm extends javax.swing.JDialog {
     private void myOffers() {
         MyOffersForm myOffersForm = new MyOffersForm(null, true);
         myOffersForm.setLocationRelativeTo(this);
-        myOffersForm.setParams(team, user);
+        myOffersForm.setParams(team, career);
         myOffersForm.setVisible(true);
         updateBudgetLabel();
     }
@@ -869,7 +869,7 @@ public class TransferForm extends javax.swing.JDialog {
 
     private void comboLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLocalActionPerformed
         filter.setLocalPosition(
-                LocalPosition.getByAbreviation(
+                LocalPosition.getByAbbreviation(
                         Objects.requireNonNull(comboLocal.getSelectedItem()).toString()));
     }//GEN-LAST:event_comboLocalActionPerformed
 
@@ -1048,7 +1048,9 @@ public class TransferForm extends javax.swing.JDialog {
                     case COLUMN_COST:
                         return transfer.getCost();
                     case COLUMN_TEAM_NAME:
-                        return transfer.getTeam().getName();
+                        return transfer.getTeam()
+                                       .map(Team::getName)
+                                       .orElse("-");
                 }
             }
             return "";

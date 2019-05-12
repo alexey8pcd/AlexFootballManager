@@ -17,7 +17,7 @@ public enum TalentType {
     private final int chance;
     private final int index;
 
-    private TalentType(int chance, int index) {
+    TalentType(int chance, int index) {
         this.chance = chance;
         this.index = index;
     }

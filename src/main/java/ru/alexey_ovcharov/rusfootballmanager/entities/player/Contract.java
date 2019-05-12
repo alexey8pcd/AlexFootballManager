@@ -17,7 +17,7 @@ public class Contract {
         return duration;
     }
 
-    public void decreaseDiration() {
+    public void decreaseDuration() {
         if (duration > 0) {
             --duration;
         }

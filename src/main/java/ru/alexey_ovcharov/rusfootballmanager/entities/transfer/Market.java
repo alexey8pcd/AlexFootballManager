@@ -2,7 +2,6 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class Market {
 
     private static final Logger LOGGER = Logger.getLogger(Market.class.getName());
     private static final Market MARKET = new Market();
-    private final List<Transfer> players = new ArrayList<>();
+    private final List<Transfer> transfers = new ArrayList<>();
     private final Set<Offer> offers = new HashSet<>();
     private final Map<Team, List<Transfer>> cache = new HashMap<>();
     private MarketListener listener;
@@ -32,37 +31,37 @@ public class Market {
     }
 
     public void clear() {
-        players.clear();
+        transfers.clear();
     }
 
     public void addPlayer(Player player, Team team, TransferStatus transferStatus) {
-        players.add(new Transfer(player, team, transferStatus));
+        transfers.add(new Transfer(player, team, transferStatus));
     }
 
     public void removePlayer(Player player) {
-        players.stream()
-               .filter(transferPlayer -> transferPlayer.getPlayer() == player)
-               .findFirst()
-               .ifPresent(players::remove);
+        transfers.stream()
+                 .filter(transferPlayer -> transferPlayer.getPlayer() == player)
+                 .findFirst()
+                 .ifPresent(transfers::remove);
     }
 
     public List<Transfer> getTransfers() {
-        return players;
+        return transfers;
     }
 
     public List<Transfer> getTransfers(Filter filter) {
         if (filter != null) {
-            return players.stream()
-                          .filter(filter::accept)
-                          .collect(Collectors.toList());
+            return transfers.stream()
+                            .filter(filter::accept)
+                            .collect(Collectors.toList());
         }
-        return players;
+        return transfers;
     }
 
     public List<Transfer> getTransfers(TransferStatus transferStatus) {
-        return players.stream()
-                      .filter(tr -> tr.getTransferStatus() == transferStatus)
-                      .collect(Collectors.toList());
+        return transfers.stream()
+                        .filter(tr -> tr.getTransferStatus() == transferStatus)
+                        .collect(Collectors.toList());
     }
 
     public List<Transfer> getTransfers(Team team) {
@@ -70,10 +69,13 @@ public class Market {
         if (cache.containsKey(team)) {
             playersFromTeam = cache.get(team);
         } else {
-            playersFromTeam = players.stream()
-                                     .filter(Objects::nonNull)
-                                     .filter(player -> player.getTeam() == team)
-                                     .collect(Collectors.toList());
+            playersFromTeam = transfers.stream()
+                                       .filter(Objects::nonNull)
+                                       .filter(transfer -> {
+                                           Optional<Team> teamOpt = transfer.getTeam();
+                                           return teamOpt.isPresent() && teamOpt.get() == team;
+                                       })
+                                       .collect(Collectors.toList());
             cache.put(team, playersFromTeam);
         }
         return playersFromTeam;
@@ -185,5 +187,13 @@ public class Market {
         LOGGER.info(() -> "Команда " + toTeam.getName() + " " +
                 offer.getOfferType().getDescription().toLowerCase().replace("ть", "ла"
                         + " игрока " + player.getNameAbbrAndLastName() + " у команды " + fromTeam.getName()));
+    }
+
+    public void removeOldPlayers() {
+        transfers.removeIf(transfer -> transfer.getPlayer().getAge() > Player.MAX_AGE);
+    }
+
+    public void addFreeAgents(List<Player> freeAgents) {
+        freeAgents.forEach(player -> addPlayer(player, null, TransferStatus.FREE_AGENT));
     }
 }

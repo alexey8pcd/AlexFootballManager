@@ -1,19 +1,17 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 
 /**
- *
  * @author Алексей
  */
 public class LoginForm extends javax.swing.JDialog {
 
-    private User trainer;
+    private Career career;
 
     public LoginForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        initLocation();
     }
 
     @SuppressWarnings("unchecked")
@@ -49,43 +47,43 @@ public class LoginForm extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tfLogin)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(bEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bNewCareer, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                      .addComponent(tfLogin)
+                                                      .addGroup(layout.createSequentialGroup()
+                                                                      .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                      .addComponent(jLabel1)
+                                                                                      .addComponent(bEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                      .addComponent(bNewCareer, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                      .addGap(0, 0, Short.MAX_VALUE)))
+                                      .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addComponent(tfLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(bEnter)
-                .addGap(18, 18, 18)
-                .addComponent(bNewCareer)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                      .addGroup(layout.createSequentialGroup()
+                                      .addContainerGap()
+                                      .addComponent(jLabel1)
+                                      .addGap(18, 18, 18)
+                                      .addComponent(tfLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                      .addGap(18, 18, 18)
+                                      .addComponent(bEnter)
+                                      .addGap(18, 18, 18)
+                                      .addComponent(bNewCareer)
+                                      .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void bEnterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bEnterActionPerformed
-        trainer = User.load(tfLogin.getText());
+        career = Career.load(tfLogin.getText());
         dispose();
     }//GEN-LAST:event_bEnterActionPerformed
 
     private void bNewCareerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bNewCareerActionPerformed
-        trainer = User.newInstance(tfLogin.getText());
+        career = Career.newInstance(tfLogin.getText());
         dispose();
     }//GEN-LAST:event_bNewCareerActionPerformed
 
@@ -97,12 +95,8 @@ public class LoginForm extends javax.swing.JDialog {
     private javax.swing.JTextField tfLogin;
     // End of variables declaration//GEN-END:variables
 
-    public User getTrainer() {
-        return trainer;
-    }
-
-    private void initLocation() {
-        setLocationRelativeTo(null);
+    public Career getCareer() {
+        return career;
     }
 
 }

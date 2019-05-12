@@ -85,7 +85,7 @@ public class PlayerCreator {
         if (level == null) {
             level = MasteryLevel.MID;
         }
-        int age = Randomization.nextInt(BETWEEN_AGE) + MAX_YOUNG_AGE;
+        int age = Randomization.getValueInBounds(MIN_AGE + 3, MAX_AGE + 1);
         int left = level.getMin();
         int right = level.getMax();
         int average = generateGaussian(left, right);

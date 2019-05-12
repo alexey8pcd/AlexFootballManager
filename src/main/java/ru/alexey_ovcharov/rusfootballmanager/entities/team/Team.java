@@ -2,25 +2,25 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import ru.alexey_ovcharov.rusfootballmanager.career.Message;
 import ru.alexey_ovcharov.rusfootballmanager.common.LowBalanceException;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.common.Randomization;
 import ru.alexey_ovcharov.rusfootballmanager.common.util.MathUtils;
-import ru.alexey_ovcharov.rusfootballmanager.common.util.XMLFormatter;
 import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
 import ru.alexey_ovcharov.rusfootballmanager.entities.Credit;
+import ru.alexey_ovcharov.rusfootballmanager.entities.MessageConsumer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.MoneyDay;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.*;
 import ru.alexey_ovcharov.rusfootballmanager.entities.school.PlayerCreator;
 import ru.alexey_ovcharov.rusfootballmanager.entities.sponsor.Sponsor;
-import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.GameResult;
 import ru.alexey_ovcharov.rusfootballmanager.entities.training.Exercise;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.*;
 
 import javax.annotation.Nonnull;
-import javax.xml.transform.TransformerException;
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -340,12 +340,12 @@ public class Team {
     }
 
     private Offer makeOffer(LocalDate date, Transfer transfer, Player player) {
-        Team team = transfer.getTeam();
+        Optional<Team> teamOpt = transfer.getTeam();
         TransferStatus transferStatus = transfer.getTransferStatus();
         int cost = transfer.getCost();
         int fare = MoneyHelper.calculatePayForMatch(player);
         int contractDuration = Randomization.nextInt(3) + 3;
-        return new Offer(team, this, player, transferStatus, cost, fare,
+        return new Offer(teamOpt.orElse(null), this, player, transferStatus, cost, fare,
                 contractDuration, date, Offer.OfferType.BUY);
     }
 
@@ -491,12 +491,47 @@ public class Team {
     }
 
     public void prepare() {
+        completePlayers();
         if (tactics != null && getPlayersCount() >= START_PLAYERS_COUNT) {
             List<Player> players = primaryReorderPlayers();
             secondaryReorderPlayers(players);
             initRestartPositionsPerformers();
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    private void completePlayers() {
+        while (startPlayers.size() < START_PLAYERS_COUNT) {
+            if (!substitutes.isEmpty()) {
+                startPlayers.add(substitutes.remove(0));
+            } else if (!reserve.isEmpty()) {
+                startPlayers.add(reserve.remove(0));
+            } else {
+                break;
+            }
+        }
+        while (substitutes.size() < SUBSTITUTES_COUNT) {
+            if (!reserve.isEmpty()) {
+                substitutes.add(reserve.remove(0));
+            } else {
+                break;
+            }
+        }
+        while (getPlayersCount() < STABLE_PLAYERS_COUNT) {
+            if (!juniors.isEmpty()) {
+                juniors.stream()
+                       .max(Player::compareByCharacteristics)
+                       .ifPresent(this::addPlayerFromSportSchool);
+            } else {
+                break;
+            }
+        }
+        if (juniors.isEmpty()) {
+            int value = Randomization.getValueInBounds(1, 5);
+            for (int i = 0; i < value; i++) {
+                addJuniorPlayer();
+            }
         }
     }
 
@@ -1059,5 +1094,72 @@ public class Team {
     @Override
     public String toString() {
         return name;
+    }
+
+    public void nextYear(@Nullable MessageConsumer messageConsumer) {
+        getAllPlayers().forEach(Player::nextYear);
+        juniors.forEach(Player::nextYear);
+        startPlayers.forEach(Player::nextYear);
+        substitutes.forEach(Player::nextYear);
+        reserve.forEach(Player::nextYear);
+        removeOldPlayers(messageConsumer, startPlayers);
+        removeOldPlayers(messageConsumer, substitutes);
+        removeOldPlayers(messageConsumer, reserve);
+        removeGraduatedjuniors(messageConsumer);
+        prepared = false;
+    }
+
+    private void removeGraduatedjuniors(@Nullable MessageConsumer messageConsumer) {
+        for (Iterator<Player> iterator = juniors.iterator(); iterator.hasNext(); ) {
+            Player player = iterator.next();
+            if (player.getAge() > Player.MAX_YOUNG_AGE) {
+                iterator.remove();
+                if (messageConsumer != null) {
+                    messageConsumer.addMessage(new Message("Отдел кадров", messageConsumer.getCurrentDate(),
+                            "Игрок " + player.getNameAbbrAndLastName() + " покинул спортивную школу по достижению " +
+                                    "возраста " + Player.MAX_YOUNG_AGE, ""));
+                }
+            }
+        }
+    }
+
+    private static void removeOldPlayers(@Nullable MessageConsumer messageConsumer, List<Player> players) {
+        for (Iterator<Player> iterator = players.iterator(); iterator.hasNext(); ) {
+            Player player = iterator.next();
+            if (player.getAge() > Player.MAX_AGE) {
+                iterator.remove();
+                sendMessageEndPlayerCareer(messageConsumer, player);
+            }
+        }
+    }
+
+    private static void sendMessageEndPlayerCareer(@Nullable MessageConsumer messageConsumer, Player player) {
+        if (messageConsumer != null) {
+            messageConsumer.addMessage(new Message("Отдел кадров", messageConsumer.getCurrentDate(),
+                    "Игрок " + player.getNameAbbrAndLastName() + " завершил карьеру", ""));
+        }
+    }
+
+    @Nonnull
+    public List<Player> updateContractsAuto() {
+        List<Player> freeAgents = new ArrayList<>();
+        getAllPlayers().forEach(player -> {
+            Optional<Contract> contractOpt = player.getContract();
+            if (contractOpt.isPresent()) {
+                Contract contract1 = contractOpt.get();
+                if (contract1.getDuration() > 1) {
+                    contract1.decreaseDuration();
+                } else {
+                    if (Randomization.nextInt(1000) < 20) {
+                        //с небольшой вероятностью(2%) не удается контракт продлить и игрок становится свободным агентом
+                        freeAgents.add(player);
+                    } else {
+                        player.setContract(new Contract(Randomization.getValueInBounds(1, 5),
+                                MoneyHelper.calculatePayForMatch(player)));
+                    }
+                }
+            }
+        });
+        return freeAgents;
     }
 }

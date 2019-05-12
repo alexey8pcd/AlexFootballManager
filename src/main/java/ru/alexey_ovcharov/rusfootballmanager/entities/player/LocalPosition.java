@@ -14,14 +14,14 @@ public enum LocalPosition {
     CENTRAL_MIDFIELDER("ЦП", 0.0909, "Центральный полузащитник"),
     RIGHT_MIDFIELDER("ПП", 0.0909, "Правый полузащитник"),
     ATTACK_MIDFIELDER("АП", 0.0909, "Атакующий полузащитик"),
-    RIGHT_WING_FORWARD("ПКФ", 0.0909, "Правык крайний нападающий"),
+    RIGHT_WING_FORWARD("ПКФ", 0.0909, "Правый крайний нападающий"),
     CENTRAL_FORWARD("ЦФ", 0.0909, "Центральный нападающий"),
     LEFT_WING_FORWARD("ЛКФ", 0.0909, "Левый крайний нападающий");
 
-    public static LocalPosition getByAbreviation(String abreviation) {
+    public static LocalPosition getByAbbreviation(String abbreviation) {
         LocalPosition[] values = LocalPosition.values();
         for (LocalPosition value : values) {
-            if (value.abreviation.equalsIgnoreCase(abreviation)) {
+            if (value.abreviation.equalsIgnoreCase(abbreviation)) {
                 return value;
             }
         }

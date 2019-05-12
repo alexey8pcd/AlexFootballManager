@@ -336,11 +336,54 @@ public class Player {
         return oldValue;
     }
 
+    public int decreaseOneCharacteristic(Characteristic characteristic) {
+        Integer oldValue = this.chars.get(characteristic);
+        if (oldValue > 1) {
+            int nextValue = oldValue - 1;
+            chars.replace(characteristic, nextValue);
+            return nextValue;
+        }
+        return oldValue;
+    }
+
     public String getNameAbbrAndLastName() {
         return name.substring(0, 1) + ". " + lastName;
     }
 
     public void setMood(int mood) {
         this.mood = mood;
+    }
+
+    public void nextYear() {
+        ++age;
+        if (age <= MAX_AGE) {
+            List<Integer> pp = ProgressParameters.CONSTANTS.get(talentType);
+            Integer addValue = pp.get(age - MIN_AGE - 1);
+            Set<Characteristic> primaryChars = CharacteristicsBuilder.getPrimaryChars(preferredPosition);
+            if (addValue > 0) {
+                increaseCharacteristics(addValue, primaryChars);
+            } else if (addValue < 0) {
+                decreaseCharacteristics(addValue, primaryChars);
+            }
+
+        }
+    }
+
+    private void decreaseCharacteristics(Integer addValue, Set<Characteristic> primaryChars) {
+        for (int i = 0; i < -addValue; i++) {
+            for (Characteristic primaryChar : primaryChars) {
+                decreaseOneCharacteristic(primaryChar);
+            }
+        }
+    }
+
+    private void increaseCharacteristics(Integer addValue, Set<Characteristic> primaryChars) {
+        for (int i = 0; i < addValue; i++) {
+            for (Characteristic primaryChar : primaryChars) {
+                increaseOneCharacteristic(primaryChar);
+            }
+        }
+        Set<Characteristic> secondaryChars = CharacteristicsBuilder.getSecondaryChars(preferredPosition);
+        increaseOneRandomCharacteristic(secondaryChars.toArray(new Characteristic[0]));
     }
 }

@@ -1,8 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.application;
 
-import ru.alexey_ovcharov.rusfootballmanager.career.CareerSettings;
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 import ru.alexey_ovcharov.rusfootballmanager.career.Message;
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
@@ -20,29 +19,30 @@ public class Main {
 
         try {
             LoginForm loginForm = new LoginForm(null, true);
+            loginForm.setLocationRelativeTo(null);
             loginForm.setVisible(true);
-            User user = loginForm.getTrainer();
-            if (user == null) {
+            Career career = loginForm.getCareer();
+            if (career == null) {
                 return;
             }
-            CareerSettings userCareerSettings = user.getSettings();
-            if (userCareerSettings.isNewCareer()) {
-                CareerSettings careerSettings = new CareerSettings();
-                user.setSettings(careerSettings);
-                List<League> leagues = careerSettings.getLeagues();
-                LocalDate currentDate = user.getCurrentDate();
+            if (career.isNewCareer()) {
+                List<League> leagues = career.getLeagues();
+                LocalDate currentDate = career.getCurrentDate();
 
                 StartCareerForm startCareerForm = new StartCareerForm(null, true);
                 startCareerForm.setData(leagues);
                 startCareerForm.setVisible(true);
                 Team team = startCareerForm.getChoosenTeam();
+                if (team == null) {
+                    return;
+                }
 
-                careerSettings.createTournaments(currentDate);
-                careerSettings.createTransfers(team, currentDate);
-                user.setTeam(team);
+                career.createTournaments(currentDate);
+                career.createTransfers(team, currentDate);
+                career.setCurrentTeam(team);
                 Market.getInstance().setMarketListener(offer -> {
                     if (offer.getFromTeam() == team) {
-                        user.addMessage(new Message(
+                        career.addMessage(new Message(
                                 "Директор команды " + offer.getToTeam().getName(),
                                 offer.getDate(),
                                 "Трансфер игрока " + offer.getPlayer().getNameAbbrAndLastName(),
@@ -53,7 +53,7 @@ public class Main {
                 });
             }
             ManageForm manageForm = new ManageForm(null, true);
-            manageForm.setUser(user);
+            manageForm.setCareer(career);
             manageForm.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();

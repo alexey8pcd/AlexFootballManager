@@ -6,6 +6,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -47,7 +48,7 @@ public class Offer {
     private TransferResult transferResult;
     private OfferListener offerListener;
 
-    public Offer(Team fromTeam, Team toTeam, Player player, TransferStatus transferStatus,
+    public Offer(@Nullable Team fromTeam, Team toTeam, Player player, TransferStatus transferStatus,
                  int sumOfTransfer, int fare, int contractDuration, LocalDate date, OfferType offerType) {
         this.fromTeam = fromTeam;
         this.toTeam = toTeam;

@@ -1,7 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 import ru.alexey_ovcharov.rusfootballmanager.career.Message;
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.*;
@@ -19,16 +19,16 @@ public class TransferOfferForm extends javax.swing.JDialog {
     private transient Team team;
     private transient TransferStatus transferStatus;
     private transient LocalDate date;
-    private transient User user;
+    private transient Career career;
     private transient Offer offer;
     private transient Offer.OfferType offerType;
 
-    public void setParams(Offer offer, User user) {
+    public void setParams(Offer offer, Career career) {
         this.offer = offer;
         this.transferStatus = offer.getTransferStatus();
         this.team = offer.getFromTeam();
         this.date = offer.getDate();
-        this.user = user;
+        this.career = career;
         ftfSum.setValue(offer.getSumOfTransfer());
         ftfPay.setValue(offer.getFare());
         spinnerContractDuration.setValue(offer.getContractDuration());
@@ -40,12 +40,12 @@ public class TransferOfferForm extends javax.swing.JDialog {
     }
 
     public void setParams(Transfer transferPlayer, Team team, TransferStatus transferStatus, LocalDate date,
-                          User user, Offer.OfferType offerType) {
+                          Career career, Offer.OfferType offerType) {
         this.transferPlayer = transferPlayer;
         this.team = team;
         this.transferStatus = transferStatus;
         this.date = date;
-        this.user = user;
+        this.career = career;
         this.offerType = offerType;
         if (transferStatus == TransferStatus.ON_TRANSFER) {
             int cost = transferPlayer.getCost();
@@ -72,13 +72,14 @@ public class TransferOfferForm extends javax.swing.JDialog {
         int pay = ((Number) ftfPay.getValue()).intValue();
         int contractDuration = (int) spinnerContractDuration.getValue();
         if (offer == null) {
-            Team teamFrom = transferPlayer.getTeam();
+            Team teamFrom = transferPlayer.getTeam().orElseThrow(IllegalStateException::new);
+
             Player player = transferPlayer.getPlayer();
             offer = new Offer(teamFrom, this.team, player, transferStatus, sum.intValue(), pay,
                     contractDuration, date, offerType);
             offer.setOfferListener(offerObj -> {
                 String body = "Решение: " + offerObj.getTransferResult().getDescription();
-                user.addMessage(new Message("Директор команды " + teamFrom.getName(), date,
+                career.addMessage(new Message("Директор команды " + teamFrom.getName(), date,
                         "Трансферное предложение по игроку " + player.getNameAbbrAndLastName(), body));
             });
             market.makeOffer(offer);

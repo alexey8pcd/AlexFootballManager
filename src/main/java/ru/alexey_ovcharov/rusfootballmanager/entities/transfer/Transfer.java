@@ -1,10 +1,14 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Выставленный на трансфер игрок
@@ -37,7 +41,7 @@ public class Transfer {
     private final int sum;
     private TransferStatus transferStatus;
 
-    public Transfer(Player player, Team team, TransferStatus transferStatus) {
+    public Transfer(Player player, @Nullable Team team, TransferStatus transferStatus) {
         this.player = player;
         this.team = team;
         this.transferStatus = transferStatus;
@@ -48,8 +52,9 @@ public class Transfer {
         return player;
     }
 
-    public Team getTeam() {
-        return team;
+    @Nonnull
+    public Optional<Team> getTeam() {
+        return Optional.ofNullable(team);
     }
 
     public int getCost() {

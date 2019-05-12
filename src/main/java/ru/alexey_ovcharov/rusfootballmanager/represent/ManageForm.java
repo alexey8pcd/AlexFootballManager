@@ -1,5 +1,6 @@
 package ru.alexey_ovcharov.rusfootballmanager.represent;
 
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 import ru.alexey_ovcharov.rusfootballmanager.career.Message;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.MoneyDay;
@@ -7,7 +8,6 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Table;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public class ManageForm extends javax.swing.JDialog {
 
     private static final Logger LOGGER = Logger.getLogger(ManageForm.class.getName());
     private static final int ONE_EVENT_TRAINING_HOURS = 10;
-    private transient User user;
+    private transient Career career;
     private transient int availableHours = ONE_EVENT_TRAINING_HOURS;
     private transient Team team;
 
@@ -35,20 +35,20 @@ public class ManageForm extends javax.swing.JDialog {
         initLocation();
     }
 
-    public void setUser(User user) {
-        this.user = user;
-        this.team = user.getTeam();
-        lSeason.setText(user.getSeason());
-        lYear.setText(user.getCurrentDate().format(DateTimeFormatter.ISO_DATE));
+    public void setCareer(Career career) {
+        this.career = career;
+        this.team = career.getCurrentTeam();
+        lSeason.setText(career.getSeason());
+        lYear.setText(career.getCurrentDate().format(DateTimeFormatter.ISO_DATE));
         listMessages.setModel(new AbstractListModel<String>() {
             @Override
             public int getSize() {
-                return user.getMessages().size();
+                return career.getMessages().size();
             }
 
             @Override
             public String getElementAt(int index) {
-                Message message = user.getMessages().get(index);
+                Message message = career.getMessages().get(index);
                 return "От: " + message.getFrom() + ", Тема: " + message.getTheme();
             }
         });
@@ -59,15 +59,15 @@ public class ManageForm extends javax.swing.JDialog {
         progressBarTeamwork.setStringPainted(true);
         progressBarTeamwork.setValue(team.getTeamwork());
         progressBarTeamwork.setString(String.valueOf(team.getTeamwork()));
-        Tournament tournament = user.getTournament();
+        Tournament tournament = career.getTournament();
         tournament.createSchedule();
-        updateUserInterface(user.getCurrentDate());
+        updateUserInterface(career.getCurrentDate());
     }
 
     private void updateUserInterface(LocalDate nextDate) {
-        Tournament tournament = user.getTournament();
+        Tournament tournament = career.getTournament();
         updateBudgetLabel();
-        lTrainerLevel.setText("Опыт тренера: " + user.getExperience());
+        lTrainerLevel.setText("Опыт тренера: " + career.getExperience());
         lPlayedGames.setText("Сыграно: " + (tournament.getMatchIndex() - 1) + "/" + tournament.getToursCount());
         Table tournamentTable = tournament.getTournamentTable();
         if (tournamentTable != null) {
@@ -80,8 +80,8 @@ public class ManageForm extends javax.swing.JDialog {
         } else {
             lTournamentPlace.setText("");
         }
-        lSeason.setText(user.getSeason());
-        LocalDate currentDate = user.getCurrentDate();
+        lSeason.setText(career.getSeason());
+        LocalDate currentDate = career.getCurrentDate();
         lYear.setText(currentDate.format(DateTimeFormatter.ISO_DATE));
         progressBarSupportLevel.setValue(team.getSupport());
         progressBarSupportLevel.setString(String.valueOf(team.getSupport()));
@@ -96,7 +96,6 @@ public class ManageForm extends javax.swing.JDialog {
         } else {
             bStartMatch.setText("Далее");
             if (tournament.isEnd()) {
-                bStartMatch.setEnabled(false);
                 lNextMatchInfo.setText("Турнир завершен");
             } else {
                 lNextMatchInfo.setText("Период трансферов");
@@ -107,8 +106,12 @@ public class ManageForm extends javax.swing.JDialog {
 
     private void nextEvent() {
         LOGGER.info("nextEvent");
-        Tournament tournament = user.getTournament();
-        LocalDate currentDate = user.getCurrentDate();
+        Tournament tournament = career.getTournament();
+        LocalDate currentDate = career.getCurrentDate();
+        if (tournament.isEnd()) {
+            clearPost();
+            career.nextYear();
+        }
 
         if (tournament.isGameDays(currentDate)) {
             LOGGER.info("game days");
@@ -119,7 +122,7 @@ public class ManageForm extends javax.swing.JDialog {
                 tournament.simulateTour(currentDate, match);
                 LocalDate matchDate = match.getMatchDate();
                 Optional<MoneyDay> moneyLogOpt = team.getMoneyLog(matchDate);
-                moneyLogOpt.ifPresent(moneyLog -> user.addMessage(new Message("Бухгалтерия команды",
+                moneyLogOpt.ifPresent(moneyLog -> career.addMessage(new Message("Бухгалтерия команды",
                         matchDate, "Финансовый отчет за " + matchDate.format(DateTimeFormatter.ISO_DATE),
                         moneyLog.report())));
             } else {
@@ -127,19 +130,21 @@ public class ManageForm extends javax.swing.JDialog {
             }
         } else {
             LOGGER.info("holidays");
-            user.getSettings().simulateTransfers(currentDate, team);
+            career.simulateTransfers(currentDate, team);
             availableHours = ONE_EVENT_TRAINING_HOURS;
         }
         Optional<Tournament.Event> eventOpt = tournament.nextEvent();
-        eventOpt.ifPresent(event -> user.setCurrentDate(event.getLocalDate()));
+        eventOpt.ifPresent(event -> career.setCurrentDate(event.getLocalDate()));
         if (tournament.isEnd()) {
             Table tournamentTable = tournament.getTournamentTable();
             if (tournamentTable != null) {
                 JOptionPane.showMessageDialog(this, "Турнир завершен, ваша команда заняла место: "
                         + tournamentTable.getPlaceNumberOfTeam(team));
+                career.setExperience(career.getExperience() + 3);
+                bStartMatch.setText("Следующий сезон");
             }
         }
-        updateUserInterface(user.getCurrentDate());
+        updateUserInterface(career.getCurrentDate());
     }
 
     private Optional<Match> getMatchResult(Tournament tournament, LocalDate currentDate, Team team) {
@@ -181,14 +186,14 @@ public class ManageForm extends javax.swing.JDialog {
     private void showTransferForm() {
         TransferForm transferForm = new TransferForm(null, true);
         transferForm.setLocationRelativeTo(this);
-        transferForm.setParams(team, user);
+        transferForm.setParams(team, career);
         transferForm.setVisible(true);
         updateBudgetLabel();
     }
 
     private void showPersonalForm() {
         PersonalForm personalForm = new PersonalForm(null, true);
-        personalForm.init(team, user.getCurrentDate());
+        personalForm.init(team, career.getCurrentDate());
         personalForm.setVisible(true);
         updateBudgetLabel();
     }
@@ -203,7 +208,7 @@ public class ManageForm extends javax.swing.JDialog {
         TournamentForm tournamentForm = new TournamentForm(null, true);
         tournamentForm.setPreferredSize(this.getPreferredSize());
         tournamentForm.setSize(this.getSize());
-        Tournament tournament = user.getTournament();
+        Tournament tournament = career.getTournament();
         tournamentForm.setTournament(tournament);
         tournamentForm.setLocationRelativeTo(this);
         tournamentForm.setVisible(true);
@@ -521,7 +526,7 @@ public class ManageForm extends javax.swing.JDialog {
     }
 
     private void clearPost() {
-        user.clearMessages();
+        career.clearMessages();
         taDescriptions.setText("");
         listMessages.updateUI();
     }
@@ -532,8 +537,8 @@ public class ManageForm extends javax.swing.JDialog {
 
     private void showMessageBody() {
         int selectedIndex = listMessages.getSelectedIndex();
-        if (selectedIndex >= 0 && selectedIndex < user.getMessages().size()) {
-            Message message = user.getMessages().get(selectedIndex);
+        if (selectedIndex >= 0 && selectedIndex < career.getMessages().size()) {
+            Message message = career.getMessages().get(selectedIndex);
             String body = message.getBody();
             taDescriptions.setText(body);
         }
@@ -549,8 +554,8 @@ public class ManageForm extends javax.swing.JDialog {
 
     private void deleteSelectedMessage() {
         int selectedIndex = listMessages.getSelectedIndex();
-        if (selectedIndex >= 0 && selectedIndex < user.getMessages().size()) {
-            user.getMessages().remove(selectedIndex);
+        if (selectedIndex >= 0 && selectedIndex < career.getMessages().size()) {
+            career.getMessages().remove(selectedIndex);
             taDescriptions.setText("");
             listMessages.updateUI();
         }

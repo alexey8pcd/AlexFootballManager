@@ -6,7 +6,7 @@ import java.util.Optional;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-import ru.alexey_ovcharov.rusfootballmanager.career.User;
+import ru.alexey_ovcharov.rusfootballmanager.career.Career;
 import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Offer;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -41,7 +41,7 @@ public class MyOffersForm extends javax.swing.JDialog {
             "Стоимость",
             "Ход переговоров"
     };
-    private transient User user;
+    private transient Career career;
 
 
     private static class OffersTableModel extends DefaultTableModel {
@@ -104,9 +104,9 @@ public class MyOffersForm extends javax.swing.JDialog {
         initComponents();
     }
 
-    public void setParams(Team team, User user) {
+    public void setParams(Team team, Career career) {
         this.team = team;
-        this.user = user;
+        this.career = career;
         this.myOffersBuy = market.getOffersBuy(team);
         this.myOffersSale = market.getOffersSale(team);
         tableOffersBuy.setModel(new OffersTableModel(myOffersBuy));
@@ -403,7 +403,7 @@ public class MyOffersForm extends javax.swing.JDialog {
         Optional<Offer> selectedOfferOpt = getSelectedOfferBuy();
         selectedOfferOpt.ifPresent(offer -> {
             TransferOfferForm transferOfferForm = new TransferOfferForm(null, true);
-            transferOfferForm.setParams(offer, user);
+            transferOfferForm.setParams(offer, career);
             transferOfferForm.setLocationRelativeTo(MyOffersForm.this);
             transferOfferForm.setVisible(true);
             tableOffersBuy.updateUI();
