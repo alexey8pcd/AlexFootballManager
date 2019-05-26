@@ -37,6 +37,10 @@ public class Simulator {
         List<Event> guestTeamMatchEvents = new MatchEventGenerator(
                 matchDate, teamGuest, resultGuestTeam, teamGuestAvg - teamHomeAvg).createMatchEvents();
         mathResult.addMatchEvent(guestTeamMatchEvents);
+        mathResult.getWinner()
+                  .ifPresent(Team::afterWin);
+        mathResult.getLooser()
+                  .ifPresent(Team::afterLose);
         return mathResult;
     }
 

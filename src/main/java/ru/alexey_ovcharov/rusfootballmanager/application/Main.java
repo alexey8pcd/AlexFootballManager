@@ -18,6 +18,9 @@ public class Main {
     public static void main(String[] args) {
 
         try {
+            UIManager.put("OptionPane.yesButtonText", "Да");
+            UIManager.put("OptionPane.noButtonText", "Нет");
+            UIManager.put("OptionPane.cancelButtonText", "Отмена");
             LoginForm loginForm = new LoginForm(null, true);
             loginForm.setLocationRelativeTo(null);
             loginForm.setVisible(true);

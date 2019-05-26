@@ -85,7 +85,7 @@ public class Calculator {
     }
 
     private static double calculateAttackResultTeam(Team team) {
-        List<Player> startPlayers = team.getStartPlayers();
+        List<Player> startPlayers = team.getStartPlayersPrepared();
         Tactics tactics = team.getTactics();
         List<LocalPosition> positions = tactics.getPositions();
         double defAvgValue = 0;
@@ -119,7 +119,7 @@ public class Calculator {
 
 
     private static double calculateDefendResultTeam(Team team) {
-        List<Player> startPlayers = team.getStartPlayers();
+        List<Player> startPlayers = team.getStartPlayersPrepared();
         Tactics tactics = team.getTactics();
         List<LocalPosition> positions = tactics.getPositions();
         double gkAvgValue = 0;

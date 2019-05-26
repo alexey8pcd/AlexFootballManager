@@ -7,11 +7,12 @@ import ru.alexey_ovcharov.rusfootballmanager.career.Career;
  */
 public class LoginForm extends javax.swing.JDialog {
 
-    private Career career;
+    private transient Career career;
 
     public LoginForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        bEnter.setEnabled(false);
     }
 
     @SuppressWarnings("unchecked")

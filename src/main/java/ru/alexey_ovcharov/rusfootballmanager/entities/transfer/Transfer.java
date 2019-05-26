@@ -45,7 +45,11 @@ public class Transfer {
         this.player = player;
         this.team = team;
         this.transferStatus = transferStatus;
-        this.sum = MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
+        if (transferStatus != TransferStatus.FREE_AGENT) {
+            this.sum = MoneyHelper.calculateTransferCost(player.getAge(), player.getAverage());
+        } else {
+            this.sum = 0;
+        }
     }
 
     public Player getPlayer() {

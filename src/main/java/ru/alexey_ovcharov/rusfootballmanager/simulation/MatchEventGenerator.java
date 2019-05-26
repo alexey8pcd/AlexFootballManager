@@ -125,15 +125,19 @@ public class MatchEventGenerator {
 
     private void init(Team teamForInit) {
         List<LocalPosition> positions = tactics.getPositions();
-        List<Player> startPlayersOfTeam = teamForInit.getStartPlayers();
+        List<Player> startPlayersOfTeam = teamForInit.getStartPlayersPrepared();
         for (int i = 0; i < positions.size(); i++) {
             Player player = startPlayersOfTeam.get(i);
             LocalPosition localPosition = positions.get(i);
             this.startPlayers.add(new PlayerWithCard(player, localPosition));
+            //у игроков, которые выходят в старте, настроение повышается
+            player.increaseMood(2);
         }
-        for (Player player : teamForInit.getSubstitutes()) {
+        for (Player player : teamForInit.getSubstitutesPrepared()) {
             reservePlayers.add(new PlayerWithCard(player, player.getPreferredPosition()));
         }
+        //у не попавших в стартовый состав настроение понижается
+        teamForInit.getReserve().forEach(player -> player.decreaseMood(1));
         minutesForGoal = new int[scoredGoals];
         for (int i = 0; i < scoredGoals; i++) {
             minutesForGoal[i] = Randomization.nextInt(MINUTES_PER_MATCH) + 1;
@@ -207,6 +211,7 @@ public class MatchEventGenerator {
         List<Player> playersGroupToScore = getPlayerGroupScored();
         int scoredPlayerIndex = Randomization.nextInt(playersGroupToScore.size());
         Player whoScored = playersGroupToScore.get(scoredPlayerIndex);
+        whoScored.increaseMood(2);//у забивших гол настроение повышается
         boolean fromPenalty = Randomization.nextInt(HUNDRED) < CHANCE_TO_GOAL_FROM_PENALTY;
         if (fromPenalty) {
             events.add(new Event(EventType.PENALTY, minute, whoScored, team));
@@ -227,6 +232,7 @@ public class MatchEventGenerator {
                 int index = Randomization.nextInt(size);
                 Player assistant = assistanceCandidates.get(index);
                 events.add(new Event(EventType.ASSIST, minute, assistant, team));
+                assistant.increaseMood(1);//у ассистентов настроение повышается
             }
         }
     }
@@ -288,6 +294,8 @@ public class MatchEventGenerator {
         startPlayers.remove(from);
         startPlayers.add(substitute);
         reservePlayers.remove(substitute);
+        //у вышедщих на замену настроение повышается
+        substitute.getPlayer().increaseMood(1);
         ++substitutesCount;
     }
 

@@ -48,7 +48,7 @@ public class Player {
     /**
      * настрой
      */
-    private int mood;
+    private float mood;
     /**
      * Травмы
      */
@@ -111,7 +111,7 @@ public class Player {
         return Optional.ofNullable(injure);
     }
 
-    public int getMood() {
+    public double getMood() {
         return mood;
     }
 
@@ -123,7 +123,7 @@ public class Player {
         return preferredPosition.getPositionOnField();
     }
 
-    public void decreaseMood(int value) {
+    public void decreaseMood(float value) {
         mood -= value;
         if (mood < 0) {
             mood = 0;
@@ -139,6 +139,7 @@ public class Player {
 
     public void setInjured(Injure injure) {
         this.injure = injure;
+        decreaseMood(3);
     }
 
     public void addExperience(double baseValue) {

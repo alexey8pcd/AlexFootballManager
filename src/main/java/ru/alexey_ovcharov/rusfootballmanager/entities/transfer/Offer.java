@@ -241,7 +241,12 @@ public class Offer {
 
     private boolean isSufficientAmount() {
         int average = player.getAverage();
-        int fromAverage = fromTeam.getAverage();
+        int fromAverage;
+        if (fromTeam != null) {
+            fromAverage = fromTeam.getAverage();
+        } else {
+            fromAverage = average;
+        }
         int playerCost = getPlayerCost();
         int diff = average - fromAverage;
         int desiredCost = playerCost / 100 * (110 + diff * 5);

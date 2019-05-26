@@ -28,38 +28,46 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelTeamName" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="paneNextMatch" max="32767" attributes="0"/>
+                          <Component id="paneMail" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="paneNextMatch" max="32767" attributes="0"/>
-                  <Component id="paneMail" max="32767" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+              <Component id="labelTeamName" min="-2" pref="21" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="paneNextMatch" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="paneMail" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="93" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -147,11 +155,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x422;&#x440;&#x435;&#x43d;&#x438;&#x440;&#x43e;&#x432;&#x43a;&#x430;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTrainingActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bTeamManagement">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x420;&#x443;&#x43a;&#x43e;&#x432;&#x43e;&#x434;&#x441;&#x442;&#x432;&#x43e; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x43e;&#x439;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bTeamManagementActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lNextMatchInfo">
           <Properties>
@@ -247,7 +261,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JList" name="lMessages">
+            <Component class="javax.swing.JList" name="listMessages">
               <Properties>
                 <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                   <StringArray count="2">
@@ -256,6 +270,9 @@
                   </StringArray>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="listMessagesValueChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
               </AuxValues>
@@ -287,11 +304,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x423;&#x434;&#x430;&#x43b;&#x438;&#x442;&#x44c; &#x432;&#x44b;&#x431;&#x440;&#x430;&#x43d;&#x43d;&#x43e;&#x435;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bDeleteMessageActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bClearPost">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x41e;&#x447;&#x438;&#x441;&#x442;&#x438;&#x442;&#x44c; &#x43f;&#x43e;&#x447;&#x442;&#x443;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bClearPostActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -310,7 +333,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="pbSupportLevel" pref="197" max="32767" attributes="0"/>
+                      <Component id="progressBarSupportLevel" pref="197" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
@@ -320,7 +343,7 @@
                           </Group>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
-                      <Component id="pbTeamwork" alignment="0" max="32767" attributes="0"/>
+                      <Component id="progressBarTeamwork" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -332,11 +355,11 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="pbSupportLevel" min="-2" pref="27" max="-2" attributes="0"/>
+                  <Component id="progressBarSupportLevel" min="-2" pref="27" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="pbTeamwork" min="-2" pref="25" max="-2" attributes="0"/>
+                  <Component id="progressBarTeamwork" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="lBudget" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="13" max="32767" attributes="0"/>
@@ -352,7 +375,7 @@
             <Property name="text" type="java.lang.String" value="&#x41f;&#x43e;&#x434;&#x434;&#x435;&#x440;&#x436;&#x43a;&#x430; &#x431;&#x43e;&#x43b;&#x435;&#x43b;&#x44c;&#x448;&#x438;&#x43a;&#x43e;&#x432;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JProgressBar" name="pbSupportLevel">
+        <Component class="javax.swing.JProgressBar" name="progressBarSupportLevel">
           <Properties>
             <Property name="value" type="int" value="50"/>
           </Properties>
@@ -362,7 +385,7 @@
             <Property name="text" type="java.lang.String" value="&#x421;&#x44b;&#x433;&#x440;&#x430;&#x43d;&#x43d;&#x43e;&#x441;&#x442;&#x44c; &#x43a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x44b;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JProgressBar" name="pbTeamwork">
+        <Component class="javax.swing.JProgressBar" name="progressBarTeamwork">
           <Properties>
             <Property name="value" type="int" value="50"/>
           </Properties>
@@ -465,5 +488,13 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JLabel" name="labelTeamName">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="12" style="0"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="&#x41a;&#x43e;&#x43c;&#x430;&#x43d;&#x434;&#x430;"/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>

@@ -1,5 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.tournament;
 
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import ru.alexey_ovcharov.rusfootballmanager.common.LowBalanceException;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -13,21 +15,19 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * @author Alexey
  */
 public class Tournament {
 
-    private static final Logger LOGGER = Logger.getLogger(Tournament.class.getName());
+    private static final Logger LOGGER = LoggerContext.getContext().getLogger(Tournament.class.getName());
     private final League league;
     private final List<LocalDate> transferDates = new ArrayList<>();
     private final List<Event> dates = new ArrayList<>();
     private Table tournamentTable;
     @Nullable
     private Schedule schedule;
-    private int transferIndex;
     private int matchIndex;
     private int eventIndex;
     private LocalDate currentDate;
@@ -47,7 +47,7 @@ public class Tournament {
             return localDate;
         }
 
-        public boolean isGameDay() {
+        boolean isGameDay() {
             return gameDay;
         }
 
@@ -197,7 +197,6 @@ public class Tournament {
             int loopsCount = league.getTeams().size() >= 10 ? 2 : 4;
             schedule = new Schedule(startDate, endDate, holidaysStart, holidaysEnd, loopsCount, league.getTeams());
             tournamentTable = new Table(league.getTeams());
-            transferIndex = 0;
             matchIndex = 1;
             createTransferDates(currentYear);
             transferDates.forEach(localDate -> dates.add(new Event(localDate, false)));
@@ -242,10 +241,6 @@ public class Tournament {
         transferDates.add(LocalDate.of(currentYear, Month.AUGUST, 19));
     }
 
-    public boolean isHolidays() {
-        return !isGameDays(currentDate);
-    }
-
     public boolean isGameDays(LocalDate currentDate) {
         if (end) {
             return false;
@@ -266,19 +261,6 @@ public class Tournament {
         } else {
             return Collections.emptyList();
         }
-    }
-
-    @Nonnull
-    public Optional<LocalDate> getNextTransferDate() {
-        if (transferIndex < transferDates.size()) {
-            return Optional.ofNullable(transferDates.get(transferIndex++));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public void simulateTransfers(LocalDate date) {
-        currentDate = date;
     }
 
     public int getMatchIndex() {

@@ -2,9 +2,10 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.transfer;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -16,7 +17,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
  */
 public class Market {
 
-    private static final Logger LOGGER = Logger.getLogger(Market.class.getName());
+    private static final Logger LOGGER = LoggerContext.getContext().getLogger(Market.class.getName());
     private static final Market MARKET = new Market();
     private final List<Transfer> transfers = new ArrayList<>();
     private final Set<Offer> offers = new HashSet<>();
@@ -105,7 +106,7 @@ public class Market {
     }
 
     public void makeOffer(Offer offer) {
-        LOGGER.fine(() -> "makeOffer: " + offer);
+        LOGGER.debug(() -> "makeOffer: " + offer);
         this.offers.add(offer);
         notifyListener(offer);
     }

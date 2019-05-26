@@ -4,7 +4,6 @@ import ru.alexey_ovcharov.rusfootballmanager.data.Strategy;
 import ru.alexey_ovcharov.rusfootballmanager.data.Tactics;
 import ru.alexey_ovcharov.rusfootballmanager.data.Trick;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.GlobalPosition;
-import ru.alexey_ovcharov.rusfootballmanager.entities.player.InjureType;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.LocalPosition;
 import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
@@ -95,7 +94,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
               .filter(Objects::nonNull)
               .forEach(checkBox -> checkBox.setSelected(true));
 
-        startPlayers = new ArrayList<>(team.getStartPlayers());
+        startPlayers = new ArrayList<>(team.getStartPlayersPrepared());
         listStartPlayers.setModel(new PlayersListModel(startPlayers) {
             @Override
             public String getElementAt(int index) {
@@ -113,7 +112,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         });
         listStartPlayers.setCellRenderer(new PlayerPositionColorRenderer(startPlayers));
 
-        substitutes = new ArrayList<>(team.getSubstitutes());
+        substitutes = new ArrayList<>(team.getSubstitutesPrepared());
         listSubstitutes.setModel(new PlayersListModel(substitutes));
         listSubstitutes.setCellRenderer(new PlayerPositionColorRenderer(substitutes));
 
@@ -406,7 +405,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
         aboutPlayer(e, listReservePlayers, reservePlayers);
     }
 
-    private void aboutPlayer(MouseEvent e, JList<String> list, List<Player> players) {
+    private static void aboutPlayer(MouseEvent e, JList<String> list, List<Player> players) {
         if (e.getClickCount() == 2) {
             int selectedIndex = list.getSelectedIndex();
             if (selectedIndex >= 0 && selectedIndex < players.size()) {
@@ -569,6 +568,7 @@ public class TeamSettingsForm extends javax.swing.JDialog {
             }
         }
         team.setTricks(tricks);
+        team.setPrepared(true);
     }
 
     private static String getStrength(Player player) {

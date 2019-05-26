@@ -82,7 +82,7 @@ public class PlayersForm extends javax.swing.JDialog {
                                  .map(Contract::getDuration)
                                  .orElse(0);
                 case 8:
-                    return player.getMood();
+                    return Math.round(player.getMood());
             }
             return "";
         }
@@ -96,7 +96,7 @@ public class PlayersForm extends javax.swing.JDialog {
                 case 6:
                 case 7:
                 case 8:
-                    return Integer.class;
+                    return Long.class;
                 default:
                     return String.class;
             }

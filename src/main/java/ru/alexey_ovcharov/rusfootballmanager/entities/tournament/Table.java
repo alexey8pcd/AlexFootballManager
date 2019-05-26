@@ -65,8 +65,10 @@ public class Table {
     @Nonnull
     public List<GameResult> getLastResults(Team team, int count) {
         List<GameResult> gameResults = new ArrayList<>();
+        int skipCount = Math.max(0, matchResults.size() - count);
         matchResults.values()
                     .stream()
+                    .skip(skipCount)
                     .limit(count)
                     .flatMap(List::stream)
                     .filter(match -> match.withTeam(team))

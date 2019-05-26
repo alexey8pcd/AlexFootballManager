@@ -1,7 +1,5 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.team;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import ru.alexey_ovcharov.rusfootballmanager.career.Message;
 import ru.alexey_ovcharov.rusfootballmanager.common.LowBalanceException;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
@@ -458,7 +456,7 @@ public class Team {
         }
     }
 
-    public List<Player> getStartPlayers() {
+    public List<Player> getStartPlayersPrepared() {
         swapInjuredStartPlayers();
         if (!prepared) {
             prepare();
@@ -634,7 +632,7 @@ public class Team {
         return isSwap;
     }
 
-    public List<Player> getSubstitutes() {
+    public List<Player> getSubstitutesPrepared() {
         swapInjuredSubstitutes();
         if (!prepared) {
             prepare();
@@ -753,7 +751,7 @@ public class Team {
         return (int) Math.round(
                 getAllPlayers()
                         .stream()
-                        .mapToInt(Player::getMood)
+                        .mapToDouble(Player::getMood)
                         .average()
                         .orElseThrow(() -> new RuntimeException("В команде нет игроков")));
     }
@@ -764,37 +762,6 @@ public class Team {
             fatigue += player.getFatigue();
         }
         return fatigue / startPlayers.size();
-    }
-
-    public Element toXmlElement(Document document) {
-        Element teamElement = document.createElement("team");
-        teamElement.setAttribute("name", name);
-        teamElement.setAttribute("teamwork", String.valueOf(teamwork));
-
-        Element goalkeeperElement = document.createElement("goalkeeper-number");
-        OptionalInt numberOfGk = getNumberOfPlayer(goalkeeper);
-        numberOfGk.ifPresent(value -> goalkeeperElement.setTextContent(String.valueOf(value)));
-
-        Element startPlayersElement = document.createElement("start-players");
-        for (Player player : startPlayers) {
-            startPlayersElement.appendChild(player.toXmlElement(document));
-        }
-
-        Element substitutesElement = document.createElement("substitutes");
-        for (Player player : substitutes) {
-            substitutesElement.appendChild(player.toXmlElement(document));
-        }
-
-        Element reservePlayersElement = document.createElement("reserve-players");
-        for (Player player : startPlayers) {
-            reservePlayersElement.appendChild(player.toXmlElement(document));
-        }
-
-        teamElement.appendChild(goalkeeperElement);
-        teamElement.appendChild(startPlayersElement);
-        teamElement.appendChild(substitutesElement);
-        teamElement.appendChild(reservePlayersElement);
-        return teamElement;
     }
 
     public int compareByAverage(Team other) {
@@ -1105,11 +1072,11 @@ public class Team {
         removeOldPlayers(messageConsumer, startPlayers);
         removeOldPlayers(messageConsumer, substitutes);
         removeOldPlayers(messageConsumer, reserve);
-        removeGraduatedjuniors(messageConsumer);
+        removeGraduatedJuniors(messageConsumer);
         prepared = false;
     }
 
-    private void removeGraduatedjuniors(@Nullable MessageConsumer messageConsumer) {
+    private void removeGraduatedJuniors(@Nullable MessageConsumer messageConsumer) {
         for (Iterator<Player> iterator = juniors.iterator(); iterator.hasNext(); ) {
             Player player = iterator.next();
             if (player.getAge() > Player.MAX_YOUNG_AGE) {
@@ -1161,5 +1128,20 @@ public class Team {
             }
         });
         return freeAgents;
+    }
+
+    public void afterWin() {
+        getAllPlayers().forEach(player -> player.increaseMood(1));
+
+    }
+
+    public void afterLose() {
+        //психолог помогает снизить упадок настроения после поражения
+        final float value = -0.15f * personal.getPsychologist() + 2.15f;
+        getAllPlayers().forEach(player -> player.decreaseMood(value));
+    }
+
+    public void setPrepared(boolean value) {
+        prepared = value;
     }
 }

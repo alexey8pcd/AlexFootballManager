@@ -18,6 +18,7 @@ import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.League;
 import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +38,18 @@ public class DataLoader {
     }
 
     @Nonnull
-    public static List<League> loadLeagues(String configName) throws Exception {
+    public static List<League> loadLeagues(String configName) {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-        Document document = documentBuilder.parse(new File(configName));
-        document.getDocumentElement().normalize();
-        NodeList leaguesList = document.getElementsByTagName("league");
+        DocumentBuilder documentBuilder = null;
+        NodeList leaguesList;
+        try {
+            documentBuilder = builderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(new File(configName));
+            document.getDocumentElement().normalize();
+            leaguesList = document.getElementsByTagName("league");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         int leaguesCount = leaguesList.getLength();
         if (leaguesCount > 0) {
             List<League> leagues = new ArrayList<>(leaguesCount);

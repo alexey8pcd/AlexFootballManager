@@ -45,7 +45,7 @@ public class Career implements MessageConsumer {
     }
 
     @Nonnull
-    public List<League> getLeagues() throws Exception {
+    public List<League> getLeagues() throws RuntimeException {
         if (leagues == null) {
             leagues = DataLoader.loadLeagues("config.xml");
         }
@@ -104,6 +104,9 @@ public class Career implements MessageConsumer {
                    }
                });
         transferMarket.removeOldPlayers();
+        int year = currentDate.getYear();
+        currentDate = LocalDate.of(year + 1, Month.JANUARY, 14);
+        currentTournament = new Tournament(currentDate, currentTournament.getLeague());
 
     }
 
