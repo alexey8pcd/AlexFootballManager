@@ -188,7 +188,7 @@ public class Offer {
             if (Randomization.nextInt(100) < NO_ARG_DECLINE_CHANCE) {
                 transferResult = TransferResult.DECLINE;
             } else {
-                if (fromTeam.getPlayersCount() < Team.STABLE_PLAYERS_COUNT) {
+                if (fromTeam != null && fromTeam.getPlayersCount() < Team.STABLE_PLAYERS_COUNT) {
                     //если в команде мало игроков, то команда не отпускает игрока
                     transferResult = TransferResult.DECLINE;
                 } else {

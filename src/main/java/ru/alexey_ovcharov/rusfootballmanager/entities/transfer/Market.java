@@ -197,4 +197,8 @@ public class Market {
     public void addFreeAgents(List<Player> freeAgents) {
         freeAgents.forEach(player -> addPlayer(player, null, TransferStatus.FREE_AGENT));
     }
+
+    public void addFreeAgent(Player freeAgent) {
+        addPlayer(freeAgent, null, TransferStatus.FREE_AGENT);
+    }
 }

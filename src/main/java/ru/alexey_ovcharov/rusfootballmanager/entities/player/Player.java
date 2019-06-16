@@ -1,6 +1,7 @@
 package ru.alexey_ovcharov.rusfootballmanager.entities.player;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import javafx.util.Pair;
 
@@ -31,6 +32,9 @@ public class Player {
         int v2 = calcPriority(o2);
         return -Integer.compare(v1, v2);
     };
+    public static final Predicate<Player> CONTRACT_EXPIRED = player -> player.getContract()
+                                                                             .map(contractV -> contractV.getDuration() == 1)
+                                                                             .orElse(false);
 
     private final String name;
     private final String lastName;

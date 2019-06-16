@@ -5,6 +5,9 @@ package ru.alexey_ovcharov.rusfootballmanager.entities.player;
  */
 public class Contract {
 
+    public static final int MIN_CONTRACT_DURATION = 1;
+    public static final int DEFAULT_CONTRACT_DURATION = 3;
+    public static final int MAX_CONTRACT_DURATION = 5;
     private int duration;
     private int fare;
 

@@ -421,7 +421,7 @@ public class Team {
         return startPlayers.size() + substitutes.size() + reserve.size();
     }
 
-    public void removePlayer(Player player) {
+    public void removePlayer(@Nullable Player player) {
         if (player == null) {
             return;
         }
@@ -1113,9 +1113,9 @@ public class Team {
         getAllPlayers().forEach(player -> {
             Optional<Contract> contractOpt = player.getContract();
             if (contractOpt.isPresent()) {
-                Contract contract1 = contractOpt.get();
-                if (contract1.getDuration() > 1) {
-                    contract1.decreaseDuration();
+                Contract contract = contractOpt.get();
+                if (contract.getDuration() > 1) {
+                    contract.decreaseDuration();
                 } else {
                     if (Randomization.nextInt(1000) < 20) {
                         //с небольшой вероятностью(2%) не удается контракт продлить и игрок становится свободным агентом

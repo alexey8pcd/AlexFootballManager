@@ -7,16 +7,23 @@ import ru.alexey_ovcharov.rusfootballmanager.career.Message;
 import ru.alexey_ovcharov.rusfootballmanager.common.MoneyHelper;
 import ru.alexey_ovcharov.rusfootballmanager.entities.MoneyDay;
 import ru.alexey_ovcharov.rusfootballmanager.entities.match.Match;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Contract;
+import ru.alexey_ovcharov.rusfootballmanager.entities.player.Player;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Opponents;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Table;
 import ru.alexey_ovcharov.rusfootballmanager.entities.tournament.Tournament;
 import ru.alexey_ovcharov.rusfootballmanager.entities.team.Team;
+import ru.alexey_ovcharov.rusfootballmanager.entities.transfer.Market;
 
 import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Алексей
@@ -28,7 +35,6 @@ public class ManageForm extends javax.swing.JDialog {
     private transient Career career;
     private transient int availableHours = ONE_EVENT_TRAINING_HOURS;
     private transient Team team;
-    private boolean nextSeason = true;
 
     public ManageForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -153,14 +159,43 @@ public class ManageForm extends javax.swing.JDialog {
             analyzeResults();
             int result = JOptionPane.showConfirmDialog(this, "Вы желаете сменить команду?",
                     "Предложение о сотрудничестве", JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                changeTeam();
-            }
             bStartMatch.setText("Следующий сезон");
             clearPost();
             career.nextYear();
+            if (result == JOptionPane.YES_OPTION) {
+                changeTeam();
+            } else {
+                extendContracts();
+            }
             beforeSeason();
         }
+    }
+
+    private void extendContracts() {
+        Map<Boolean, List<Player>> playerGroup = team.getAllPlayers()
+                                                     .stream()
+                                                     .collect(partitioningBy(Player.CONTRACT_EXPIRED));
+        List<Player> playerWithExpiringContracts = playerGroup.get(true);
+        if (!playerWithExpiringContracts.isEmpty()) {
+            ExtendContractsForm contractsForm = new ExtendContractsForm(null, true);
+            contractsForm.setLocationRelativeTo(this);
+            contractsForm.setPlayers(playerWithExpiringContracts);
+            contractsForm.setVisible(true);
+            Map<Player, Boolean> result = contractsForm.getResults();
+            Market transferMarket = Market.getInstance();
+            for (Map.Entry<Player, Boolean> entry : result.entrySet()) {
+                if (!entry.getValue()) {
+                    Player player = entry.getKey();
+                    team.removePlayer(player);
+                    player.setContract(null);
+                    transferMarket.addFreeAgent(player);
+                }
+            }
+        }
+        List<Player> otherPlayers = playerGroup.get(false);
+        otherPlayers.forEach(player -> player.getContract()
+                                             .ifPresent(Contract::decreaseDuration));
+
     }
 
     private static void analyzeResults() {
